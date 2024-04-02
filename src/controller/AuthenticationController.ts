@@ -10,67 +10,60 @@ class AuthenticationController {
       const token = await new AuthenticationService().login(email, password);
       if (token === "") {
         return res.status(400).json({
-          status: "Bad Request!",
-          message: "Wrong email or password!",
+          status: "Bad Request",
+          message: "Incorrect email or password",
         });
       }
       const res_token = { type: "Bearer", token: token };
       return res.status(200).json({
-        status: "Ok!",
-        message: "Successfully login!",
+        status: "Success",
+        message: "Successfully logged in",
         result: res_token,
       });
     } catch (error) {
+      console.error("Login error:", error);
       return res.status(500).json({
-        status: "Internal server Error!",
-        message: "Internal server Error!",
+        status: "Internal Server Error",
+        message: "Something went wrong with login",
       });
     }
   }
+
   // register controller
   async register(req: Request, res: Response) {
     try {
-      const { name, username, email, password } = req.body;
-
-      await new AuthenticationService().register(
-        email,
-        password,
-        name,
-        username
-      );
-
+      const { name, email, password, cpf } = req.body;
+      await new AuthenticationService().register(email, password, name, cpf);
       return res.status(200).json({
-        status: "Ok!",
-        message: "Successfully registerd users!",
+        status: "Success",
+        message: "Successfully registered user",
       });
     } catch (error) {
+      console.error("Registration error:", error);
       return res.status(500).json({
-        status: "Internal server Error!",
-        message: "Internal server Error!",
+        status: "Internal Server Error",
+        message: "Something went wrong with register",
       });
     }
   }
 
-  // Método para obter informações de todos os usuários cadastrados
+  // Get all users controller
   async getUsers(req: Request, res: Response) {
     try {
-      // Use o repositório de usuários para buscar todos os usuários
       const users = await new UsersRepo().getAll();
-
-      // Retorne a lista de usuários
       return res.status(200).json({
-        status: "Ok!",
-        message: "Successfully fetched users!",
+        status: "Success",
+        message: "Successfully fetched users",
         users: users,
       });
     } catch (error) {
+      console.error("Get users error:", error);
       return res.status(500).json({
-        status: "Internal server Error!",
-        message: "Internal server Error!",
+        status: "Internal Server Error",
+        message: "Something went wrong with getUsers",
       });
     }
   }
 }
 
-
-export default new AuthenticationController()
+export default new AuthenticationController();

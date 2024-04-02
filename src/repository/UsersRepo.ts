@@ -14,9 +14,9 @@ export class UsersRepo implements IUsersRepo {
     try {
       await Users.create({
         name: users.name,
-        username: users.username,
         password: users.password,
         email: users.email,
+        cpf: users.cpf
       });
     } catch (error) {
       throw new Error("Failed to create users!");
@@ -37,9 +37,9 @@ export class UsersRepo implements IUsersRepo {
       }
       // update
       new_users.name = users.name;
-      (new_users.username = users.username),
-        (new_users.password = users.password),
-        (new_users.email = users.email);
+      (new_users.password = users.password),
+      (new_users.email = users.email);
+      (new_users.cpf = users.cpf);
 
       await new_users.save();
     } catch (error) {
@@ -62,7 +62,7 @@ export class UsersRepo implements IUsersRepo {
       // delete
       await new_users.destroy();
     } catch (error) {
-      throw new Error("Failed to delete users!");
+      throw new Error("Failed to delete user!");
     }
   }
 
@@ -81,15 +81,16 @@ export class UsersRepo implements IUsersRepo {
       // users data
       return new_users;
     } catch (error) {
-      throw new Error("Failed to delete users!");
+      throw new Error("Failed to get user!");
     }
   }
+
 
   async getAll(): Promise<Users[]> {
     try {
       return await Users.findAll();
     } catch (error) {
-      throw new Error("Failed to feacth all data!");
+      throw new Error("Failed to feacth all users!");
     }
   }
 
@@ -103,7 +104,7 @@ export class UsersRepo implements IUsersRepo {
       }
       return new_users;
     } catch (error) {
-      throw new Error("Failed to feacth data by email!");
+      throw new Error("Failed to fecth user by email!");
     }
   }
 }

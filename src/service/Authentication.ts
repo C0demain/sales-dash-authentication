@@ -7,54 +7,54 @@ interface IAuthenticationService {
   register(
     email: string,
     password: string,
-    nama: string,
-    username: string
+    name: string,
+    cpf: string
   ): Promise<void>;
 }
 
 export class AuthenticationService implements IAuthenticationService {
   async login(email: string, password: string): Promise<string> {
-    const users = await new UsersRepo().findByEmail(email);
+    try {
+      const user = await new UsersRepo().findByEmail(email);
 
-    if (!users) {
-      throw new Error("Bad Request!");
-    }
-    // check password
-    let compare = await Authentication.passwordCompare(
-      password,
-      users.password
-    );
+      if (!user) {
+        throw new Error("User not found");
+      }
 
-    // generate token
-    if (compare) {
+      const compare = await Authentication.passwordCompare(password, user.password);
+
+      if (!compare) {
+        throw new Error("Incorrect password");
+      }
+
       return Authentication.generateToken(
-        users.id,
-        users.email,
-        users.name,
-        users.username
+        user.id,
+        user.email,
+        user.name,
+        user.cpf
       );
+    } catch (error) {
+      throw new Error("Failed to login");
     }
-    return "";
   }
+
   async register(
     email: string,
     password: string,
     name: string,
-    username: string
+    cpf: string
   ): Promise<void> {
     try {
-      const hashedPassword: string = await Authentication.passwordHash(
-        password
-      );
-      const new_users = new Users();
-      new_users.email = email;
-      new_users.password = hashedPassword;
-      new_users.username = username;
-      new_users.name = name;
+      const hashedPassword: string = await Authentication.passwordHash(password);
+      const newUser = new Users();
+      newUser.email = email;
+      newUser.password = hashedPassword;
+      newUser.name = name;
+      newUser.cpf = cpf;
 
-      await new UsersRepo().save(new_users);
+      await new UsersRepo().save(newUser);
     } catch (error) {
-      throw new Error("Error login!");
+      throw new Error("Failed to register user");
     }
   }
 }

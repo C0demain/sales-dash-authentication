@@ -9,7 +9,7 @@ export class Users extends Model {
   public static VAR_NAME = "name" as string;
   public static VAR_PASSWORD = "password" as string;
   public static VAR_EMAIL = "email" as string;
-  public static VAR_USERNAME = "username" as string;
+  public static VAR_CPF = "cpf" as string;
 
   @Column({
     type: DataType.INTEGER,
@@ -34,12 +34,14 @@ export class Users extends Model {
   @Column({
     type: DataType.STRING(100),
     field: Users.VAR_EMAIL,
+    unique: true
   })
   email!: string;
 
   @Column({
     type: DataType.STRING(100),
-    field: Users.VAR_USERNAME,
+    field: Users.VAR_CPF,
+    unique: true
   })
-  username!: string;
+  cpf!: string;
 }

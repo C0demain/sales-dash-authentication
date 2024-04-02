@@ -5,7 +5,7 @@ interface Payload {
   userId: number;
   email: string;
   name: string;
-  username: string;
+  cpf: string;
 }
 
 class Authentication {
@@ -24,14 +24,14 @@ class Authentication {
     id: number,
     email: string,
     name: string,
-    username: string
+    cpf: string
   ): string {
     const secretKey: string = process.env.JWT_SECRET_KEY || "my-secret";
     const payload: Payload = {
       userId: id,
       email: email,
       name: name,
-      username: username,
+      cpf: cpf
     };
     const option = { expiresIn: process.env.JWT_EXPIRES_IN };
 
