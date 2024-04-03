@@ -1,6 +1,7 @@
 import express, { Application, Request, Response } from "express";
 import Database from "./config/database";
 import AuthenticationRouter from "./router/AuthenticationRouter";
+import SellsRouter from "./router/SellsRouter";
 
 class App {
   public app: Application;
@@ -19,6 +20,7 @@ class App {
       res.send("welcome home");
     });
     this.app.use("/api/v1/auth", AuthenticationRouter);
+    this.app.use("/api/v1/sells", SellsRouter);
   }
 
   // add database sync

@@ -6,7 +6,6 @@ interface ISellsRepo {
   delete(SellsId: number): Promise<void>;
   getById(SellsId: number): Promise<Sells>;
   getAll(): Promise<Sells[]>;
-  findByEmail(email: string): Promise<Sells>;
 }
 
 export class SellsRepo implements ISellsRepo {
@@ -74,20 +73,6 @@ export class SellsRepo implements ISellsRepo {
     }
   }
 
-  async findByEmail(email: string): Promise<Sells> {
-    try {
-      const new_Sells = await Sells.findOne({
-        where: { email: email },
-      });
-      if (!new_Sells) {
-        throw new Error("Sells not found!");
-      }
-      return new_Sells;
-    } catch (error) {
-      throw new Error("Failed to feacth data by email!");
-    }
-  }
-  
   update(Sells: Sells): Promise<void> {
     throw new Error("Method not implemented.");
   }

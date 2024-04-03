@@ -50,7 +50,7 @@ class AuthenticationController {
   // Get all users controller
   async getUsers(req: Request, res: Response) {
     try {
-      const users = await new UsersRepo().getAll();
+      const users = new UsersRepo().getAll();
       return res.status(200).json({
         status: "Success",
         message: "Successfully fetched users",
