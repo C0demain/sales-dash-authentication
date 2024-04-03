@@ -27,11 +27,12 @@ export class SellsController{
       
     async getSells(req : Request, res: Response){
         try{
-            const sells = new SellsRepo().getAll();
+            const sells = await new SellsRepo().getAll();
+            console.log(sells);
             return res.status(200).json({
                 status: "Success",
                 message: "Successfully fetched sells",
-                sells: sells
+                sells: sells,
               });
         }catch (error) {
             console.error("Get sells error:", error);

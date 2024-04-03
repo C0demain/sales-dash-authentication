@@ -12,7 +12,7 @@ export class Sells extends Model{
   public static VAR_PRODUCT = "product" as string;
   public static VAR_CLIENT = "client" as string;
   public static VAR_CLIENT_DEPARTMENT = "client_department" as string;
-  public static FLOAT_VALUE = 0.0 as number;
+  public static VAR_VALUE = "value" as string;
 
 
 @Column({
@@ -54,8 +54,8 @@ client !: string
 client_department !: string;
 
 @Column({
-    type : DataType.FLOAT,
-    field : Sells.VAR_PRODUCT
+    type : DataType.DOUBLE,
+    field : Sells.VAR_VALUE
 })
 value !: number;
 
