@@ -20,8 +20,8 @@ class App {
     this.app.route("/").get((req: Request, res: Response) => {
       res.send("welcome home");
     });
-    this.app.use("/api/v1/auth", AuthenticationRouter);
-    this.app.use("/api/v1/sells", SellsRouter);
+    this.app.use("/auth", AuthenticationRouter);
+    this.app.use("/sells", SellsRouter);
   }
 
   // add database sync
