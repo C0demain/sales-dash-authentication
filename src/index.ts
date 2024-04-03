@@ -40,5 +40,5 @@ const port: number = 8000;
 const app = new App().app;
 
 app.listen(port, () => {
-  console.log(`✅ Server started successfully! Server is running at http://localhost:${port}.`);
+  console.log(`✅ Server started successfully. Server is running at http://localhost:${port}.`);
 });
