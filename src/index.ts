@@ -1,4 +1,5 @@
 import express, { Application, Request, Response } from "express";
+import cors from "cors"; 
 import Database from "./config/database";
 import AuthenticationRouter from "./router/AuthenticationRouter";
 import SellsRouter from "./router/SellsRouter";
@@ -33,6 +34,12 @@ class App {
   protected plugins(): void {
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
+    
+    // Use o middleware cors com opções
+    this.app.use(cors({
+      origin: 'http://localhost:3000', // Origens permitidas
+      methods: ['GET', 'POST', 'PUT', 'DELETE'] // Métodos HTTP permitidos
+    }));
   }
 }
 
