@@ -2,6 +2,7 @@ import express, { Application, Request, Response } from "express";
 import cors from "cors"; 
 import Database from "./config/database";
 import AuthenticationRouter from "./router/AuthenticationRouter";
+import CommissionsRouter from "./router/CommissionsRouter";
 import SellsRouter from "./router/SellsRouter";
 
 class App {
@@ -20,8 +21,9 @@ class App {
     this.app.route("/").get((req: Request, res: Response) => {
       res.send("welcome home");
     });
-    this.app.use("/auth", AuthenticationRouter);
-    this.app.use("/sells", SellsRouter);
+    this.app.use("/api/v1/auth", AuthenticationRouter);
+    this.app.use("/api/v1/sells", SellsRouter);
+    this.app.use("/api/v1/commissions", CommissionsRouter);
   }
 
   // add database sync
