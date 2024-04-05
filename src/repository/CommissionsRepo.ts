@@ -4,7 +4,7 @@ interface ICommissionsRepo {
   save(Commissions: Commissions): Promise<void>;
   update(Commissions: Commissions): Promise<void>;
   delete(CommissionsId: number): Promise<void>;
-  getById(CommissionsId: number): Promise<Commissions>;
+  getById(CommissionsId: number): Promise<Commissions|null>;
   getAll(): Promise<Commissions[]>;
 }
 
@@ -42,7 +42,7 @@ export class CommissionsRepo implements ICommissionsRepo {
     }
   }
 
-  async getById(CommissionId: number): Promise<Commissions> {
+  async getById(CommissionId: number): Promise<Commissions|null> {
     try {
       //  find existing Commissions
       const newCommission = await Commissions.findOne({
@@ -50,10 +50,6 @@ export class CommissionsRepo implements ICommissionsRepo {
           id: CommissionId,
         },
       });
-
-      if (!newCommission) {
-        throw new Error("Commission not found");
-      }
       // Commissions data
       return newCommission;
     } catch (error) {

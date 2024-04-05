@@ -8,7 +8,7 @@ export class Commissions extends Model{
   public static VAR_TABLE_NAME = "commissions" as string;
   public static VAR_ID = "id" as string;
   public static VAR_TITLE = "title" as string;
-  public static FLOAT_PERCENTAGE = 0.0 as number;
+  public static VAR_PERCENTAGE = "percentage" as string;
 
 
 @Column({
@@ -25,8 +25,11 @@ id !: number;
 })
 title !: string;
 
-@Column
-percentage !: number
+@Column({
+    type : DataType.DOUBLE,
+    field : Commissions.VAR_PERCENTAGE
+})
+percentage !: number;
 
 
 }
