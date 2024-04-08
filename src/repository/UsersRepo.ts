@@ -19,7 +19,8 @@ export class UsersRepo implements IUsersRepo {
         name: users.name,
         password: users.password,
         email: users.email,
-        cpf: users.cpf
+        cpf: users.cpf,
+        role: users.role
       });
     } catch (error) {
       throw new Error("Failed to create users!");

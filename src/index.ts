@@ -5,9 +5,23 @@ import AuthenticationRouter from "./router/AuthenticationRouter";
 import CommissionsRouter from "./router/CommissionsRouter";
 import SellsRouter from "./router/SellsRouter";
 
+interface UserBasicInfo {
+  id: string;
+  email: string;
+  role: string[];
+}
+
+declare global {
+  namespace Express {
+    interface Request {
+      user?: UserBasicInfo | null;
+    }
+  }
+}
+
 class App {
   public app: Application;
-
+  
   // init
   constructor() {
     this.app = express();
