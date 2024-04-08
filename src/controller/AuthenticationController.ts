@@ -6,19 +6,19 @@ class AuthenticationController {
   // login controller
   async login(req: Request, res: Response) {
     try {
-      const { email, password } = req.body;
+      const { email, password, role} = req.body;
       const token = await new AuthenticationService().login(email, password);
       if (token === "") {
         return res.status(400).json({
           status: "Bad Request",
-          message: "Incorrect email or password",
+          message: "Incorrect email or password"
         });
       }
       const res_token = { type: "Bearer", token: token };
       return res.status(200).json({
         status: "Success",
         message: "Successfully logged in",
-        result: res_token,
+        result: res_token, role
       });
     } catch (error) {
       console.error("Login error:", error);
@@ -32,11 +32,12 @@ class AuthenticationController {
   // register controller
   async register(req: Request, res: Response) {
     try {
-      const { name, email, password, cpf } = req.body;
-      await new AuthenticationService().register(email, password, name, cpf);
+      const { name, email, password, cpf, role } = req.body;
+      await new AuthenticationService().register(email, password, name, cpf, role);
       return res.status(200).json({
         status: "Success",
         message: "Successfully registered user",
+        role: role
       });
     } catch (error) {
       console.error("Registration error:", error);
