@@ -1,4 +1,5 @@
 import { Sells } from "../models/Sells";
+import { Users } from "../models/Users";
 
 interface ISellsRepo {
   save(Sells: Sells): Promise<void>;
@@ -13,13 +14,19 @@ export class SellsRepo implements ISellsRepo {
   
   async save(sells: Sells): Promise<void> {
     try {
+      const user = await Users.findOne({ where: { email: sells.seller } });
+      if (!user) {
+        throw new Error("User not found");
+      }  
       await Sells.create({
         date : sells.date,
-        seller : sells.seller,
+        seller : user.name,
         product : sells.product,
         client : sells.client,
         client_department : sells.client_department,
-        value : sells.value
+        value : sells.value,
+        user : user,
+        userId : user.id,
 
       });
     } catch (error) {
@@ -34,6 +41,7 @@ export class SellsRepo implements ISellsRepo {
         where: {
           id: SellsId,
         },
+        include : [Users],
       });
 
       if (!new_Sells) {
@@ -67,7 +75,9 @@ export class SellsRepo implements ISellsRepo {
 
   async getAll(): Promise<Sells[]> {
     try {
-      return await Sells.findAll();
+      return await Sells.findAll({
+        include : [Users],
+      });
     } catch (error) {
       throw new Error("Failed to feacth all data!");
     }

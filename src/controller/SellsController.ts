@@ -1,6 +1,7 @@
 import { Request , Response } from "express";
 import { SellsRepo } from "../repository/SellsRepo";
 import { SellsService } from "../service/SellsService";
+import { UsersRepo } from "../repository/UsersRepo";
 
 export class SellsController{
     
@@ -8,7 +9,7 @@ export class SellsController{
     async register(req : Request, res : Response ){
         try{
             const {date, seller, product, client,client_department,value} = req.body;
-            await new SellsService().register(date, seller, product, client, client_department, value);
+            await new SellsService().register(date, (await new UsersRepo().findByEmail(seller)).id, product, client, client_department, value);
             return res.status(200).json({
                 status : "success",
                 message : "sucessfully registered sell"

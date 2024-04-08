@@ -1,4 +1,5 @@
-import { Model, Table, Column, DataType } from "sequelize-typescript";
+import { Model, Table, Column, DataType, ForeignKey, BelongsTo } from "sequelize-typescript";
+import { Users } from "./Users";
 
 @Table({
     tableName : Sells.VAR_TABLE_NAME,
@@ -34,6 +35,13 @@ date !: string;
     field : Sells.VAR_SELLER
 })
 seller !: string;
+
+@ForeignKey(() => Users)
+  @Column
+  userId!: number;
+
+  @BelongsTo(() => Users)
+  user!: Users;
 
 @Column({
     type : DataType.STRING(100),
