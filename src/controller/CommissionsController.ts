@@ -1,12 +1,15 @@
 import { Request , Response } from "express";
 import { CommissionsRepo } from "../repository/CommissionsRepo";
-import { CommissionsService } from "../service/Commissions";
+import { Commissions } from "../models/Commissions";
 
 export class CommissionsController{
     async register(req: Request, res: Response){
         try{
             const { title, percentage } = req.body
-            await new CommissionsService().register(title, percentage)
+            const commission = await new Commissions()
+            commission.title = title
+            commission.percentage = percentage
+            await new CommissionsRepo().save(commission)
             return res.status(200).json({
                 status : "success",
                 message : "sucessfully registered commission"
