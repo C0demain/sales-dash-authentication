@@ -7,6 +7,7 @@ class AuthenticationRoutes extends BaseRoutes {
     this.router.post("/login", AuthenticationController.login);
     this.router.post("/register", AuthenticationController.register);
     this.router.get("/users", auth, AuthenticationController.getUsers); 
+    this.router.get("/users/:id",AuthenticationController.getUserWithSells);
   }
 }
 

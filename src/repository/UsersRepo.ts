@@ -1,3 +1,4 @@
+import { Sells } from "../models/Sells";
 import { Users } from "../models/Users";
 
 interface IUsersRepo {
@@ -7,9 +8,11 @@ interface IUsersRepo {
   getById(usersId: number): Promise<Users>;
   getAll(): Promise<Users[]>;
   findByEmail(email: string): Promise<Users>;
+  getByIdWithSells(userId: number): Promise<Users | null>;
 }
 
 export class UsersRepo implements IUsersRepo {
+
   async save(users: Users): Promise<void> {
     try {
       await Users.create({
@@ -105,6 +108,13 @@ export class UsersRepo implements IUsersRepo {
       return new_users;
     } catch (error) {
       throw new Error("Failed to fecth user by email!");
+    }
+  } 
+  async getByIdWithSells(userId: number): Promise<Users | null> {
+    try {
+      return await Users.findByPk(userId, { include: [{ model: Sells }] });
+    } catch (error) {
+      throw new Error("Failed to get user with sells!");
     }
   }
 }

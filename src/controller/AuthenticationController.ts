@@ -64,6 +64,30 @@ class AuthenticationController {
       });
     }
   }
+
+  async getUserWithSells(req: Request, res: Response) {
+    try {
+      const userId = Number(req.params.id);
+      const user = await new UsersRepo().getByIdWithSells(userId);
+      if (!user) {
+        return res.status(404).json({
+          status: "Not Found",
+          message: "User not found",
+        });
+      }
+      return res.status(200).json({
+        status: "Success",
+        message: "Successfully fetched user with sells",
+        user: user,
+      });
+    } catch (error) {
+      console.error("Get user with sells error:", error);
+      return res.status(500).json({
+        status: "Internal Server Error",
+        message: "Something went wrong with getUserWithSells",
+      });
+    }
+  }
 }
 
 export default new AuthenticationController();

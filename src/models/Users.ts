@@ -1,4 +1,5 @@
-import { Model, Table, Column, DataType } from "sequelize-typescript";
+import { Model, Table, Column, DataType, HasMany } from "sequelize-typescript";
+import { Sells } from "./Sells";
 
 @Table({
   tableName: Users.VAR_TABLE_NAME,
@@ -44,4 +45,7 @@ export class Users extends Model {
     unique: true
   })
   cpf!: string;
+
+  @HasMany(() => Sells)
+  sells!: Sells[];
 }
