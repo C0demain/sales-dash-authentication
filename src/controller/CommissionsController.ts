@@ -85,7 +85,7 @@ export class CommissionsController{
       }catch(error){
         return res.status(500).json({
           status: "Internal Server Error",
-          message: "Something went wrong with getCommission",
+          message: "Something went wrong with updateCommission",
         });
       }
     }

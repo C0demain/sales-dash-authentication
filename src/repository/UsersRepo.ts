@@ -9,6 +9,7 @@ interface IUsersRepo {
   getAll(): Promise<Users[]>;
   findByEmail(email: string): Promise<Users>;
   getByIdWithSells(userId: number): Promise<Users | null>;
+  delete(userId: number): Promise<void>;
 }
 
 export class UsersRepo implements IUsersRepo {
@@ -27,23 +28,18 @@ export class UsersRepo implements IUsersRepo {
     }
   }
 
-  async update(users: Users): Promise<void> {
+  async update(user: Users): Promise<void> {
     try {
       //  find existing users
       const new_users = await Users.findOne({
         where: {
-          id: users.id,
+          id: user.id,
         },
       });
 
       if (!new_users) {
         throw new Error("Users not found");
       }
-      // update
-      new_users.name = users.name;
-      (new_users.password = users.password),
-      (new_users.email = users.email);
-      (new_users.cpf = users.cpf);
 
       await new_users.save();
     } catch (error) {
@@ -51,24 +47,24 @@ export class UsersRepo implements IUsersRepo {
     }
   }
 
-  async delete(usersId: number): Promise<void> {
+  async delete(userId: number): Promise<void> {
     try {
-      //  find existing users
-      const new_users = await Users.findOne({
-        where: {
-          id: usersId,
-        },
+      // Encontrar o usuário existente
+      const user = await Users.findOne({
+        where: { id: userId },
       });
-
-      if (!new_users) {
-        throw new Error("Users not found");
+  
+      if (!user) {
+        throw new Error("User not found");
       }
-      // delete
-      await new_users.destroy();
+  
+      // Excluir o usuário
+      await user.destroy();
     } catch (error) {
       throw new Error("Failed to delete user!");
     }
   }
+  
 
   async getById(usersId: number): Promise<Users> {
     try {

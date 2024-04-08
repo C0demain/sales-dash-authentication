@@ -1,12 +1,13 @@
 import { Request, Response } from "express";
 import { AuthenticationService } from "../service/Authentication";
 import { UsersRepo } from "../repository/UsersRepo";
+import { cp } from "fs";
 
 class AuthenticationController {
   // login controller
   async login(req: Request, res: Response) {
     try {
-      const { email, password, role} = req.body;
+      const { email, password, role } = req.body;
       const token = await new AuthenticationService().login(email, password);
       if (token === "") {
         return res.status(400).json({
@@ -18,7 +19,7 @@ class AuthenticationController {
       return res.status(200).json({
         status: "Success",
         message: "Successfully logged in",
-        result: res_token, role
+        result: res_token
       });
     } catch (error) {
       console.error("Login error:", error);
@@ -90,7 +91,54 @@ class AuthenticationController {
     }
   }
 
-  
+  async deleteUser(req: Request, res: Response) {
+    const { userId } = req.params
+    try {
+      await new UsersRepo().delete(parseInt(userId))
+      return res.status(200).json({
+        status: "Success",
+        message: "Successfully deleted user",
+      });
+    } catch (error) {
+      console.error("Delete user error:", error);
+      return res.status(500).json({
+        status: "Internal Server Error",
+        message: "Something went wrong with deleteUser",
+      });
+    }
+  }
+
+  async updateUser(req: Request, res: Response) {
+    const { userId } = req.params
+    const { name, email, password, cpf, role } = req.body
+    try {
+      const userRepo = new UsersRepo()
+      const user = await userRepo.getById(parseInt(userId))
+      if (!user) {
+        return res.status(404).json({
+          status: "Not found",
+          message: "User not found",
+        });
+      }
+      user.name = name
+      user.email = email
+      user.cpf = cpf
+      user.password = password
+      user.role = role
+      await userRepo.update(user)
+      return res.status(200).json({
+        status: "Success",
+        message: "Successfully updated user"
+      });
+    } catch (error) {
+      return res.status(500).json({
+        status: "Internal Server Error",
+        message: "Something went wrong with updateUser",
+      });
+    }
+  }
+
+
 }
 
 export default new AuthenticationController();

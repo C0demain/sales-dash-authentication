@@ -4,12 +4,8 @@ import Database from "./config/database";
 import AuthenticationRouter from "./router/AuthenticationRouter";
 import CommissionsRouter from "./router/CommissionsRouter";
 import SellsRouter from "./router/SellsRouter";
-
-interface UserBasicInfo {
-  id: string;
-  email: string;
-  role: string[];
-}
+import { UserBasicInfo } from "./models/interface/User";
+import ProductsRouter from "./router/ProductsRouter";
 
 declare global {
   namespace Express {
@@ -38,6 +34,7 @@ class App {
     this.app.use("/api/v1/auth", AuthenticationRouter);
     this.app.use("/api/v1/sells", SellsRouter);
     this.app.use("/api/v1/commissions", CommissionsRouter);
+    this.app.use("/api/v1/products", ProductsRouter)
   }
 
   // add database sync
