@@ -18,7 +18,7 @@ export class CommissionsService implements ICommissionsService{
             await new CommissionsRepo().save(newCommission);      
         }
         catch(error){
-        throw new Error("failed to register commission")
+        throw new Error("Failed to register commission")
         }
     }
     

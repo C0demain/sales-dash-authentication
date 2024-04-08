@@ -53,12 +53,38 @@ export class CommissionsController{
                 commission: commission
               });
         }catch (error) {
-            console.error("Get commission error:", error);
             return res.status(500).json({
               status: "Internal Server Error",
               message: "Something went wrong with getCommission",
             });
           }
+    }
+
+    async updateCommission(req: Request, res: Response){
+      const { commissionId } = req.params
+      const { title, percentage } = req.body
+      try{
+        const commissionRepo = new CommissionsRepo()
+        const commission = await commissionRepo.getById(parseInt(commissionId))
+        if (!commission){
+          return res.status(404).json({
+            status: "Not found",
+            message: "Commission not found",
+          });
+        }
+        commission.title = title
+        commission.percentage = percentage
+        await commissionRepo.update(commission)
+        return res.status(200).json({
+          status: "Success",
+          message: "Successfully updated commission"
+        });
+      }catch(error){
+        return res.status(500).json({
+          status: "Internal Server Error",
+          message: "Something went wrong with getCommission",
+        });
+      }
     }
 
     async deleteCommission(req: Request, res: Response){

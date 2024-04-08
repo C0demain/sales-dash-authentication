@@ -65,7 +65,11 @@ export class CommissionsRepo implements ICommissionsRepo {
     }
   }
 
-  update(Commissions: Commissions): Promise<void> {
-    throw new Error("Method not implemented.");
+  async update(Commissions: Commissions): Promise<void> {
+    try{
+      await Commissions.save()
+    }catch(error){
+      throw new Error("Failed to update data!");
+    }
   }
 }
