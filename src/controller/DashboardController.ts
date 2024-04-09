@@ -6,8 +6,8 @@ import { DashboardRepo } from "../repository/DashboardRepo";
 export class DashboardController {
     async getStatsFromSells(req: Request, res: Response) {
         try {
-            const userSales = await new DashboardRepo().getTotalUserSales(1)
-            const productSales = await new DashboardRepo().getTotalProductSales('Camisa')
+            const userSales = await new DashboardRepo().getTotalUserSales(req.query.user)
+            const productSales = await new DashboardRepo().getTotalProductSales(req.query.product)
             return res.status(200).json({
                 status: "Success",
                 message: 200,

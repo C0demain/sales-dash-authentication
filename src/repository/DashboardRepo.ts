@@ -40,7 +40,7 @@ export class DashboardRepo implements IDashboardRepo {
         }
     }
 
-    async getTotalUserSales(userID: number, date?: Date){
+    async getTotalUserSales(userID: any, date?: Date){
         try {
             const sales = await Sells.findAndCountAll({
                 where:{
@@ -53,7 +53,7 @@ export class DashboardRepo implements IDashboardRepo {
         }
     }
 
-    async getTotalProductSales(product: string, date?: Date){
+    async getTotalProductSales(product: any, date?: Date){
         try {
             const sales = await Sells.findAndCountAll({
                 where:{
@@ -65,4 +65,8 @@ export class DashboardRepo implements IDashboardRepo {
             throw new Error("Failed to count sales per user")
         }
     }
+    // Valor total no dia/mes
+    // Vendas no dia/mês
+    // Total de vendas por vendedor *
+    // Vendas por produto *
 }
