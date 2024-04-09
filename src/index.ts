@@ -7,6 +7,7 @@ import SellsRouter from "./router/SellsRouter";
 import { UserBasicInfo } from "./models/interface/User";
 import ProductsRouter from "./router/ProductsRouter";
 import ClientRouter from "./router/ClientRouter";
+import DashboardRouter from "./router/DashboardRouter";
 
 declare global {
   namespace Express {
@@ -37,6 +38,7 @@ class App {
     this.app.use("/api/v1/commissions", CommissionsRouter);
     this.app.use("/api/v1/products", ProductsRouter);
     this.app.use("/api/v1/clients", ClientRouter);
+    this.app.use("/api/v1/dashboard", DashboardRouter)
   }
 
   // add database sync
