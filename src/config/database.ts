@@ -4,6 +4,7 @@ import { Users } from "../models/Users";
 import { Sells } from "../models/Sells";
 import { Commissions } from "../models/Commissions";
 import { Products } from "../models/Products";
+import { Client } from "../models/Client";
 
 dotenv.config();
 
@@ -28,7 +29,7 @@ class Database {
       host: this.POSTGRES_HOST,
       port: this.POSTGRES_PORT,
       dialect: "postgres",
-      models:[Users, Sells, Commissions, Products]
+      models:[Users, Sells, Commissions, Products, Client]
     });
 
     await this.sequelize

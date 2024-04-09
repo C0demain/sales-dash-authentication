@@ -1,19 +1,17 @@
 import { Request , Response } from "express";
-import { SellsRepo } from "../repository/SellsRepo";
-import { SellsService } from "../service/SellsService";
-import { UsersRepo } from "../repository/UsersRepo";
 import { ClientRepo } from "../repository/ClientRepo";
+import { ClientService } from "../service/ClientService";
 
-export class SellsController{
+export class ClientController{
     
     // register
     async register(req : Request, res : Response ){
         try{
-            const {date, seller, product, client,value} = req.body;
-            await new SellsService().register(date, (await new UsersRepo().findByEmail(seller)).id, product, (await new ClientRepo().getByCpf(client)).id, value);
+            const {name, segment, cpf} = req.body;
+            await new ClientService().register(name,segment,cpf);
             return res.status(200).json({
                 status : "success",
-                message : "sucessfully registered sells"
+                message : "sucessfully registered client"
             })
 
             }
@@ -27,23 +25,23 @@ export class SellsController{
 
         }
       
-    async getSells(req : Request, res: Response){
+    async getClients(req : Request, res: Response){
         try{
-            const sells = await new SellsRepo().getAll();
-            console.log(sells);
+            const client = await new ClientRepo().getAll();
+            console.log(client);
             return res.status(200).json({
                 status: "Success",
-                message: "Successfully fetched sells",
-                sells: sells,
+                message: "Successfully fetched clients",
+                client: client,
               });
         }catch (error) {
-            console.error("Get sells error:", error);
+            console.error("Get client error:", error);
             return res.status(500).json({
               status: "Internal Server Error",
-              message: "Something went wrong with getSells",
+              message: "Something went wrong with getClients",
             });
           }
     }
     }
 
-export default new SellsController();
+export default new ClientController();

@@ -6,6 +6,7 @@ import CommissionsRouter from "./router/CommissionsRouter";
 import SellsRouter from "./router/SellsRouter";
 import { UserBasicInfo } from "./models/interface/User";
 import ProductsRouter from "./router/ProductsRouter";
+import ClientRouter from "./router/ClientRouter";
 
 declare global {
   namespace Express {
@@ -34,7 +35,8 @@ class App {
     this.app.use("/api/v1/auth", AuthenticationRouter);
     this.app.use("/api/v1/sells", SellsRouter);
     this.app.use("/api/v1/commissions", CommissionsRouter);
-    this.app.use("/api/v1/products", ProductsRouter)
+    this.app.use("/api/v1/products", ProductsRouter);
+    this.app.use("/api/v1/clients", ClientRouter);
   }
 
   // add database sync
@@ -50,7 +52,7 @@ class App {
     
     // Use o middleware cors com opções
     this.app.use(cors({
-      origin: 'http://localhost:3000', // Origens permitidas
+      origin: ['http://localhost:3000' , 'http://127.0.0.1:5500'], // Origens permitidas
       methods: ['GET', 'POST', 'PUT', 'DELETE'] // Métodos HTTP permitidos
     }));
   }
