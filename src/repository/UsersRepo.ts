@@ -24,6 +24,7 @@ export class UsersRepo implements IUsersRepo {
         role: users.role
       });
     } catch (error) {
+      console.log(error)
       throw new Error("Failed to create users!");
     }
   }
@@ -31,17 +32,22 @@ export class UsersRepo implements IUsersRepo {
   async update(user: Users): Promise<void> {
     try {
       //  find existing users
-      const new_users = await Users.findOne({
+      const new_user = await Users.findOne({
         where: {
           id: user.id,
         },
       });
 
-      if (!new_users) {
+      if (!new_user) {
         throw new Error("Users not found");
       }
 
-      await new_users.save();
+      new_user.name = user.name
+      new_user.email = user.email
+      new_user.cpf = user.cpf
+      new_user.role = user.role
+
+      await new_user.save();
     } catch (error) {
       throw new Error("Failed to update users!");
     }

@@ -110,7 +110,7 @@ class AuthenticationController {
 
   async updateUser(req: Request, res: Response) {
     const { userId } = req.params
-    const { name, email, password, cpf, role } = req.body
+    const { name, email, cpf, role } = req.body
     try {
       const userRepo = new UsersRepo()
       const user = await userRepo.getById(parseInt(userId))
@@ -123,7 +123,6 @@ class AuthenticationController {
       user.name = name
       user.email = email
       user.cpf = cpf
-      user.password = password
       user.role = role
       await userRepo.update(user)
       return res.status(200).json({

@@ -9,7 +9,7 @@ export class SellsController{
     // register
     async register(req : Request, res : Response ){
         try{
-            const {date, seller, product, client,value} = req.body;
+            const {date, seller, product, client, value} = req.body;
             await new SellsService().register(date, (await new UsersRepo().findByEmail(seller)).id, product, (await new ClientRepo().getByCpf(client)).id, value);
             return res.status(200).json({
                 status : "success",
