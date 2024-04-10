@@ -8,6 +8,7 @@ import { UserBasicInfo } from "./models/interface/User";
 import ProductsRouter from "./router/ProductsRouter";
 import ClientRouter from "./router/ClientRouter";
 import DashboardRouter from "./router/DashboardRouter";
+import processData from "./Fetchdata/Teste";
 
 declare global {
   namespace Express {
@@ -54,11 +55,13 @@ class App {
     
     // Use o middleware cors com opções
     this.app.use(cors({
-      origin: ['http://localhost:3000' , 'http://127.0.0.1:5500'], // Origens permitidas
+      origin: true, // Origens permitidas
       methods: ['GET', 'POST', 'PUT', 'DELETE'] // Métodos HTTP permitidos
     }));
   }
 }
+
+//processData(`C:\\Users\\Fatec\\Documents\\GitHub\\sales-dash-backend\\src\\Fetchdata\\Planilha_modelo.xlsx`);
 
 const port: number = 8000;
 const app = new App().app;

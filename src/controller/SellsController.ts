@@ -3,6 +3,8 @@ import { SellsRepo } from "../repository/SellsRepo";
 import { SellsService } from "../service/SellsService";
 import { UsersRepo } from "../repository/UsersRepo";
 import { ClientRepo } from "../repository/ClientRepo";
+import { Products } from "../models/Products";
+import { ProductsRepo } from "../repository/ProductsRepo";
 
 export class SellsController{
     
@@ -10,7 +12,7 @@ export class SellsController{
     async register(req : Request, res : Response ){
         try{
             const {date, seller, product, client, value} = req.body;
-            await new SellsService().register(date, (await new UsersRepo().findByEmail(seller)).id, product, (await new ClientRepo().getByCpf(client)).id, value);
+            await new SellsService().register(date, (await new UsersRepo().findByEmail(seller)).id, (await new ProductsRepo().getById(product)).id, (await new ClientRepo().getByCpf(client)).id, value);
             return res.status(200).json({
                 status : "success",
                 message : "sucessfully registered sells"

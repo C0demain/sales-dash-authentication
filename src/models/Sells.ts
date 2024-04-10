@@ -1,6 +1,7 @@
 import { Model, Table, Column, DataType, ForeignKey, BelongsTo } from "sequelize-typescript";
 import { Users } from "./Users";
 import { Client } from "./Client";
+import { Products } from "./Products";
 
 @Table({
     tableName : Sells.VAR_TABLE_NAME,
@@ -11,7 +12,7 @@ export class Sells extends Model{
   public static VAR_ID = "id" as string;
   public static VAR_DATE = "date" as string;
   public static VAR_SELLER = "seller" as string;
-  public static VAR_PRODUCT = "product" as string;
+  public static VAR_PRODUCTID = "productid" as string;
   public static VAR_CLIENT = "client" as string;
   public static VAR_VALUE = "value" as string;
   public static VAR_CLIENT_NAME = "client_name" as string;
@@ -44,11 +45,17 @@ seller !: string;
   @BelongsTo(() => Users)
   user!: Users;
 
-@Column({
-    type : DataType.STRING(100),
-    field : Sells.VAR_PRODUCT
-})
-product !: string;
+
+@ForeignKey(() => Products) 
+  @Column({
+    type : DataType.INTEGER,
+    field : Sells.VAR_PRODUCTID,
+  })
+  productid !: number;
+
+  @BelongsTo(() => Products)
+  product!: Products;
+
 
 @Column({
   type : DataType.STRING(100),
