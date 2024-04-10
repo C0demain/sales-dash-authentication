@@ -18,6 +18,7 @@
     "typescript": "^4.9.5"
   },
   "dependencies": {
+    "axios": "^1.6.8",
     "bcrypt": "^5.1.0",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
@@ -26,6 +27,7 @@
     "pg": "^8.10.0",
     "reflect-metadata": "^0.1.13",
     "sequelize": "^6.29.2",
-    "sequelize-typescript": "^2.1.5"
+    "sequelize-typescript": "^2.1.5",
+    "xlsx": "^0.18.5"
   }
 }
