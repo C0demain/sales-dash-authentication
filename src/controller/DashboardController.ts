@@ -1,15 +1,12 @@
 
-import { Sells } from "../models/Sells";
 import { Request, Response } from "express";
 import { DashboardRepo } from "../repository/DashboardRepo";
-import { count } from "console";
-import { or } from "sequelize";
 
 export class DashboardController {
     async getLatestSales(req: Request, res: Response) {
         try {
             const limit: number = 50
-            const order:string = 'DESC'
+            const order: string = 'DESC'
             const lastSales = await new DashboardRepo().getLatestSells(limit, order)
             return res.status(200).json({
                 status: "Success",
@@ -26,61 +23,79 @@ export class DashboardController {
     }
 
     async getUserStats(req: Request, res: Response) {
-            try {
-                const userId = req.params.id
-                const userSales = await new DashboardRepo().getUserStats(userId)
+        try {
+            const userId = req.params.id
+            const userSales = await new DashboardRepo().getUserStats(userId)
 
-                return res.status(200).json({
-                    status: "Success",
-                    message: `Showing stats from user ${userId}`,
-                    userSales: userSales
-                });
-            } catch (error) {
-                console.error();
-                return res.status(500).json({
-                    status: "Internal Server Error",
-                    message: "Something went wrong with getUserStats",
-                })
-            }
-
-        }
-    async getProductStats(req: Request, res: Response) {
-            try {
-                const product = req.params.name
-                const productSales = await new DashboardRepo().getTotalProductSales(product)
-
-                return res.status(200).json({
-                    status: "Success",
-                    message: `Showing stats from ${product}`,
-                    productStats: productSales
-                });
-            } catch (error) {
-                console.error();
-                return res.status(500).json({
-                    status: "Internal Server Error",
-                    message: "Something went wrong with getProductStats",
-                })
-            }
-
-        }
-        
-    //Não funciona ainda
-    async getStatsFromDate(req: Request, res: Response) {
-            try {
-                const sales = await new DashboardRepo().getStatsFromDate()
-                return res.status(200).json({
-                    status: "Success",
-                    message: `Showing stats from`,
-                    stats: sales
-                });
-            } catch (error) {
-                console.error();
-                return res.status(500).json({
-                    status: "Internal Server Error",
-                    message: "Something went wrong with getStatsFromDate",
-                })
-            }
+            return res.status(200).json({
+                status: "Success",
+                message: `Showing stats from user ${userId}`,
+                userSales: userSales
+            });
+        } catch (error) {
+            console.error();
+            return res.status(500).json({
+                status: "Internal Server Error",
+                message: "Something went wrong with getUserStats",
+            })
         }
     }
+
+    async getProductStats(req: Request, res: Response) {
+        try {
+            const product = req.params.name
+            const productSales = await new DashboardRepo().getTotalProductSales(product)
+
+            return res.status(200).json({
+                status: "Success",
+                message: `Showing stats from ${product}`,
+                productStats: productSales
+            });
+        } catch (error) {
+            console.error();
+            return res.status(500).json({
+                status: "Internal Server Error",
+                message: "Something went wrong with getProductStats",
+            })
+        }
+    }
+
+    async getClientStats(req: Request, res: Response) {
+        try {
+            const id = req.params.id
+            const totalPurchases = await new DashboardRepo().getClientStats(id)
+
+            return res.status(200).json({
+                status: "Success",
+                message: `Showing stats from client ${id}`,
+                clientStats: totalPurchases
+            });
+        } catch (error) {
+            console.error();
+            return res.status(500).json({
+                status: "Internal Server Error",
+                message: "Something went wrong with getClientStats",
+            })
+        }
+    }
+
+    //Não funciona ainda
+    async getStatsFromDate(req: Request, res: Response) {
+        try {
+            const sales = await new DashboardRepo().getStatsFromDate()
+            return res.status(200).json({
+                status: "Success",
+                message: `Showing stats from`,
+                stats: sales
+            });
+        } catch (error) {
+            console.error();
+            return res.status(500).json({
+                status: "Internal Server Error",
+                message: "Something went wrong with getStatsFromDate",
+            })
+        }
+    }
+}
 
 export default new DashboardController()

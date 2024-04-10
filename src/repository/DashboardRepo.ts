@@ -1,6 +1,8 @@
-import { Json } from "sequelize/types/utils";
+import { log } from "console";
 import { Sells } from "../models/Sells";
-import { where } from "sequelize";
+import { Client } from "../models/Client";
+import { ClientRepo } from "./ClientRepo";
+import { UsersRepo } from "./UsersRepo";
 
 interface IDashboardRepo {
 }
@@ -40,63 +42,118 @@ export class DashboardRepo implements IDashboardRepo {
         }
     }
 
-    async getUserStats(id: any, date?: Date){
+    
+
+    async getUserStats(id: any, date?: Date) {
         try {
-            if (id){
+            const u = await new UsersRepo().getById(id)
+            const userName = u.name
+            if (id) {
                 const sales = await Sells.count({
-                    where:{
+                    where: {
                         userId: id
                     }
                 })
-                let totalValue = await Sells.sum('value', {where:{
-                    userId: id
-                }})
-                
-                if (!totalValue){
+                let totalValue = await Sells.sum('value', {
+                    where: {
+                        userId: id
+                    }
+                })
+                if (!totalValue) {
                     totalValue = 0
                 }
-                return {userId: id, totalSales: sales, totalValue: totalValue}
+                const allSales = await Sells.findAll({
+                    where: {
+                        userId: id
+                    }
+                })
+                let list: Object[] = []
+                allSales.forEach(element => {
+                    list.push([element.clientId,element.clientname].reduce((a, v) => ({a, [v]:v}), {}) )
+                })
+                
+                return { userId: id, name: userName, totalSales: sales, totalValue: totalValue, buyers: list }
             }
-            else{
+            else {
+                const u = await new UsersRepo().getById(id)
+                const userName = u.name
                 const sales = await Sells.count()
                 let totalValue = await Sells.sum('value')
-                if (!totalValue){
+                if (!totalValue) {
                     totalValue = 0
                 }
-                return {userId: id, totalSales: sales, totalValue: totalValue}
+                return { userId: id, name: userName, totalSales: sales, totalValue: totalValue }
             }
         } catch (error) {
             throw new Error(`Failed to get sales stats from userId: ${id}`)
         }
     }
 
-    async getTotalProductSales(product: any, date?: Date){
+    async getTotalProductSales(product: any, date?: Date) {
         try {
-            if (product){
+            if (product) {
                 const sales = await Sells.count({
-                    where:{
+                    where: {
                         product: product
                     }
                 })
-                let totalValue = await Sells.sum('value', {where:{
-                    product: product
-                }})
-                
-                if (!totalValue){
+                let totalValue = await Sells.sum('value', {
+                    where: {
+                        product: product
+                    }
+                })
+
+                if (!totalValue) {
                     totalValue = 0
                 }
-                return {productName: product, totalSales: sales, totalValue: totalValue}
+                return { productName: product, totalSales: sales, totalValue: totalValue }
             }
-            else{
+            else {
                 const sales = await Sells.count()
                 let totalValue = await Sells.sum('value')
-                if (!totalValue){
+                if (!totalValue) {
                     totalValue = 0
                 }
-                return {productName: product, totalSales: sales, totalValue: totalValue}
+                return { productName: product, totalSales: sales, totalValue: totalValue }
             }
         } catch (error) {
-            throw new Error("Failed to count sales per user")
+            throw new Error("Failed to get product stats")
+        }
+    }
+
+    async getClientStats(client: any) {
+        try {
+            if (client) {
+                const c = await new ClientRepo().getById(client)
+                const clientName = c.name
+                const sales = await Sells.count({
+                    where: {
+                        clientId: client
+                    }
+                })
+                let totalValue = await Sells.sum('value', {
+                    where: {
+                        clientId: client
+                    }
+                })
+
+                if (!totalValue) {
+                    totalValue = 0
+                }
+                return { clientId: client, clientName: clientName, totalPurchases: sales, totalValue: totalValue }
+            }
+            else {
+                const c = await new ClientRepo().getById(client)
+                const clientName = c.name
+                const sales = await Sells.count()
+                let totalValue = await Sells.sum('value')
+                if (!totalValue) {
+                    totalValue = 0
+                }
+                return { clientId: client, clientName: clientName,totalPurchases: sales, totalValue: totalValue }
+            }
+        } catch (error) {
+            throw new Error("Failed to get client stats")
         }
     }
     // Valor total no dia/mes
