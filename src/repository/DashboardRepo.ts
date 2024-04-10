@@ -1,10 +1,11 @@
+import { Json } from "sequelize/types/utils";
 import { Sells } from "../models/Sells";
+import { where } from "sequelize";
 
 interface IDashboardRepo {
 }
 
 export class DashboardRepo implements IDashboardRepo {
-
     async getLatestSells(limit: number, order: string): Promise<Sells[]> {
         try {
             // Vendas recentes até determinado limite
@@ -13,8 +14,7 @@ export class DashboardRepo implements IDashboardRepo {
                 //Order pode ser 'ASC' ou 'DESC'
                 order: [['createdAt', order]]
             })
-
-            return await sales
+            return sales
         } catch (error) {
             throw new Error("Failed to get latest sales");
         }
@@ -27,7 +27,7 @@ export class DashboardRepo implements IDashboardRepo {
         }
         date.toUTCString
         try {
-            const sales = Sells.findAll({
+            const sales = await Sells.findAll({
                 where: {
                     createdAt: {
                         lt: date.toUTCString()
@@ -40,27 +40,61 @@ export class DashboardRepo implements IDashboardRepo {
         }
     }
 
-    async getTotalUserSales(userID: any, date?: Date){
+    async getUserStats(id: any, date?: Date){
         try {
-            const sales = await Sells.findAndCountAll({
-                where:{
-                    userId: userID
+            if (id){
+                const sales = await Sells.count({
+                    where:{
+                        userId: id
+                    }
+                })
+                let totalValue = await Sells.sum('value', {where:{
+                    userId: id
+                }})
+                
+                if (!totalValue){
+                    totalValue = 0
                 }
-            })
-            return sales
+                return {userId: id, totalSales: sales, totalValue: totalValue}
+            }
+            else{
+                const sales = await Sells.count()
+                let totalValue = await Sells.sum('value')
+                if (!totalValue){
+                    totalValue = 0
+                }
+                return {userId: id, totalSales: sales, totalValue: totalValue}
+            }
         } catch (error) {
-            throw new Error("Failed to count sales per user")
+            throw new Error(`Failed to get sales stats from userId: ${id}`)
         }
     }
 
     async getTotalProductSales(product: any, date?: Date){
         try {
-            const sales = await Sells.findAndCountAll({
-                where:{
+            if (product){
+                const sales = await Sells.count({
+                    where:{
+                        product: product
+                    }
+                })
+                let totalValue = await Sells.sum('value', {where:{
                     product: product
+                }})
+                
+                if (!totalValue){
+                    totalValue = 0
                 }
-            })
-            return sales
+                return {productName: product, totalSales: sales, totalValue: totalValue}
+            }
+            else{
+                const sales = await Sells.count()
+                let totalValue = await Sells.sum('value')
+                if (!totalValue){
+                    totalValue = 0
+                }
+                return {productName: product, totalSales: sales, totalValue: totalValue}
+            }
         } catch (error) {
             throw new Error("Failed to count sales per user")
         }
