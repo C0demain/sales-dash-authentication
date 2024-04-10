@@ -28,6 +28,7 @@ export class ClientController{
     async getClients(req : Request, res: Response){
         try{
             const client = await new ClientRepo().getAll();
+            console.log(client);
             return res.status(200).json({
                 status: "Success",
                 message: "Successfully fetched clients",

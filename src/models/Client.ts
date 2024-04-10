@@ -1,4 +1,4 @@
-import { Model, Table, Column, DataType, HasOne, HasMany, PrimaryKey } from "sequelize-typescript";
+import { Model, Table, Column, DataType, HasOne, HasMany } from "sequelize-typescript";
 import { Sells } from "./Sells";
 
 @Table({
@@ -16,6 +16,7 @@ export class Client extends Model{
 
   @Column({
     type : DataType.INTEGER,
+    primaryKey: true,
     autoIncrement: true,
     field: Client.VAR_ID,
   })
@@ -35,7 +36,6 @@ export class Client extends Model{
 
   @Column({
     type : DataType.STRING,
-    primaryKey : true,
     field : Client.VAR_CPF_CNPJ
   })
   cpf !: string;
