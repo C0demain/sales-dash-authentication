@@ -13,6 +13,7 @@ export class ProductsRepo implements IProductRepo {
   async save(products: Products): Promise<void> {
     try {
       await Products.create({
+        id: products.id,
         name: products.name,
         description: products.description,
         value: products.value
@@ -42,7 +43,7 @@ export class ProductsRepo implements IProductRepo {
     }
   }
 
-  async getById(ProductId: number): Promise<Products|null> {
+  async getById(ProductId: number): Promise<Products> {
     try {
       //  find existing Products
       const newProduct = await Products.findOne({
@@ -50,7 +51,11 @@ export class ProductsRepo implements IProductRepo {
           id: ProductId,
         },
       });
-      // Products data
+    
+      if (!newProduct) {
+        throw new Error("Product not found");
+      }
+
       return newProduct;
     } catch (error) {
       throw new Error("Failed to fetch product data!");

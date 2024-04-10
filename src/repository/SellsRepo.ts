@@ -1,4 +1,5 @@
 import { Client } from "../models/Client";
+import { Products } from "../models/Products";
 import { Sells } from "../models/Sells";
 import { Users } from "../models/Users";
 
@@ -16,7 +17,8 @@ export class SellsRepo implements ISellsRepo {
   async save(sells: Sells): Promise<void> {
     try {
       const user = await Users.findOne({ where: { email: sells.seller } });
-      const client = await Client.findOne({ where : {cpf : sells.client.cpf }})
+      const client = await Client.findOne({ where : {cpf : sells.client.cpf }});
+      const prod = await Products.findOne({where :{id : sells.productid}});
       console.log(client)
       if (!user) {
         throw new Error("User not found");
@@ -24,10 +26,14 @@ export class SellsRepo implements ISellsRepo {
       if(!client){
         throw new Error("client not found");
       } 
+      if(!prod){
+        throw new Error("product not found");
+      } 
       await Sells.create({
         date : sells.date,
         seller : user.name,
-        product : sells.product,
+        product : prod,
+        productid : prod.id,
         clientId : client.id,
         client : client,
         clientname : client.name,

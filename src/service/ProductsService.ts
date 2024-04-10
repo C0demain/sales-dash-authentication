@@ -3,6 +3,7 @@ import { ProductsRepo } from "../repository/ProductsRepo";
 
 interface IProductsService{
     register(
+        id : number,
         name: string,
         description: string,
         value : number,    
@@ -11,10 +12,11 @@ interface IProductsService{
 
 export class ProductsService implements IProductsService{
     
-    async register( name: string, description: string, value: number): Promise<void> {
+    async register( id : number ,name: string, description: string, value: number): Promise<void> {
         try{           
         
             const newProduct = new Products();
+            newProduct.id = id;
             newProduct.name = name;
             newProduct.description = description
             newProduct.value = value;

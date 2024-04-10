@@ -1,4 +1,5 @@
 import { Client } from "../models/Client";
+import { Products } from "../models/Products";
 import { Sells } from "../models/Sells";
 import { Users } from "../models/Users";
 import { SellsRepo } from "../repository/SellsRepo";
@@ -7,7 +8,7 @@ interface ISellsService{
     register(
         date : string,
         userId : number,
-        product : string,
+        productid : number,
         clientId : number,
         value : number,    
     ): Promise<void>;
@@ -15,10 +16,11 @@ interface ISellsService{
 
 export class SellsService implements ISellsService{
     
-    async register(date: string, userId:number, product: string, clientId : number, value: number): Promise<void> {
+    async register(date: string, userId:number, productid: number, clientId : number, value: number): Promise<void> {
         try{           
             const user = await Users.findByPk(userId);
             const client = await Client.findByPk(clientId);
+            const prod = await Products.findByPk(productid);
             if (!user) {
             throw new Error("User not found");
             }
@@ -26,11 +28,16 @@ export class SellsService implements ISellsService{
             if(client === null){
                 throw new Error("Client no found");
             }
+
+            if(!prod){
+                throw new Error("product not found");
+            }
             
             const newSell = new Sells();
             newSell.date = date;
             newSell.seller = user.email;
-            newSell.product = product;
+            newSell.product = prod;
+            newSell.productid = prod.id;
             newSell.clientname = client.name;
             newSell.client = client;
             newSell.clientId = client.id;

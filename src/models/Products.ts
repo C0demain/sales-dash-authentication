@@ -15,7 +15,6 @@ export class Products extends Model{
 @Column({
     type : DataType.INTEGER,
     primaryKey: true,
-    autoIncrement : true,
     field: Products.VAR_ID
 })
 id !: number;
