@@ -3,6 +3,8 @@ import * as XLSX from 'xlsx';
 import { UsersRepo } from '../repository/UsersRepo';
 import { ProductsRepo } from '../repository/ProductsRepo';
 import { ProductsService } from '../service/ProductsService';
+import { ClientRepo } from '../repository/ClientRepo';
+import { Client } from '../models/Client';
 
 
 function excelSerialToDate(serial: number): Date {
@@ -46,29 +48,17 @@ async function processData(path : string) : Promise<void>{
 
         for(let i = 1; i<rows.length ;i++){
           const row = rows[i];
-
+          const date = formatarData(excelSerialToDate(row[0]))
           let objJson : any = {
-            id : row[4],
-            name: row[3],
-            description : "",
-            value : 0,
+            date : date,
+            seller : row[2],
+            product : row[4],
+            client : row[6],
+            value : row[8]
           }
-          
-          try{
-            const prod = await new ProductsRepo().getById(objJson.id);
-            if(!prod){
-              fazerRequisicaoPost("http://localhost:8000/api/v1/products/register" , objJson)
-            }
-          }catch(error){
-              console.log(error);
-          }
+          console.log(objJson)
 
-          //fazerRequisicaoPost("http://localhost:8000/api/v1/products/register" , objJson)
-          
-          
-          
-          
-          
+          fazerRequisicaoPost("http://localhost:8000/api/v1/sells/register" , objJson)       
         }
 
     }

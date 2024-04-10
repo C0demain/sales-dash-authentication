@@ -61,7 +61,7 @@ class App {
   }
 }
 
-//processData(`C:\\Users\\Fatec\\Documents\\GitHub\\sales-dash-backend\\src\\Fetchdata\\Planilha_modelo.xlsx`);
+//processData(`./src/Fetchdata/Planilha_modelo.xlsx`);
 
 const port: number = 8000;
 const app = new App().app;

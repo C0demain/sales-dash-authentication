@@ -9,17 +9,17 @@ interface ISellsService{
         date : string,
         userId : number,
         productid : number,
-        clientId : number,
+        clientcpf : string,
         value : number,    
     ): Promise<void>;
 }
 
 export class SellsService implements ISellsService{
     
-    async register(date: string, userId:number, productid: number, clientId : number, value: number): Promise<void> {
+    async register(date: string, userId:number, productid: number, clientcpf : string, value: number): Promise<void> {
         try{           
             const user = await Users.findByPk(userId);
-            const client = await Client.findByPk(clientId);
+            const client = await Client.findByPk(clientcpf);
             const prod = await Products.findByPk(productid);
             if (!user) {
             throw new Error("User not found");

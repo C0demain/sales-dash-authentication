@@ -45,7 +45,6 @@ export class ProductsRepo implements IProductRepo {
 
   async getById(ProductId: number): Promise<Products> {
     try {
-      //  find existing Products
       const newProduct = await Products.findOne({
         where: {
           id: ProductId,
@@ -77,4 +76,6 @@ export class ProductsRepo implements IProductRepo {
       throw new Error("Failed to update data!");
     }
   }
+
+  
 }

@@ -113,6 +113,21 @@ export class UsersRepo implements IUsersRepo {
       throw new Error("Failed to fecth user by email!");
     }
   } 
+
+  async findByCpf(cpf: string): Promise<Users> {
+    try {
+      const new_users = await Users.findOne({
+        where: { cpf: cpf },
+      });
+      if (!new_users) {
+        throw new Error("Users not found!");
+      }
+      return new_users;
+    } catch (error) {
+      throw new Error("Failed to fecth user by email!");
+    }
+  } 
+
   async getByIdWithSells(userId: number): Promise<Users | null> {
     try {
       return await Users.findByPk(userId, { include: [{ model: Sells }] });
