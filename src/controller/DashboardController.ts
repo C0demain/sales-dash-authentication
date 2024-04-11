@@ -95,6 +95,23 @@ export class DashboardController {
             })
         }
     }
+
+    async getRanking(req: Request, res: Response) {
+        try {
+            const ranking = await new DashboardRepo().getHighest()
+            return res.status(200).json({
+                status: "Success",
+                message: `Showing stats from`,
+                ranking: ranking
+            });
+        } catch (error) {
+            console.error();
+            return res.status(500).json({
+                status: "Internal Server Error",
+                message: "Something went wrong with getRanking",
+            })
+        }
+    }
 }
 
 export default new DashboardController()

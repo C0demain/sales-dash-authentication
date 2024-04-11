@@ -1,3 +1,4 @@
+import { reverse } from "dns";
 import { Sells } from "../models/Sells";
 import { ClientRepo } from "./ClientRepo";
 import { UsersRepo } from "./UsersRepo";
@@ -183,6 +184,34 @@ export class DashboardRepo implements IDashboardRepo {
         } catch (error) {
             throw new Error("Failed to get client stats")
         }
+    }
+
+    async getHighest() {
+        try {
+            const usersList = await new UsersRepo().getAll()
+
+            let idList: number[] = []
+            usersList.forEach(element => idList.push(element.id))
+            let valueList: {id: number, value: number}[] = []
+            for (let x of idList){
+                let totalValue = await Sells.sum('value', {
+                    where: {
+                        userId: x
+                    }
+                })
+                if (!totalValue){
+                    totalValue = 0
+                }
+                valueList.push({id: x, value: totalValue})
+            }
+            valueList.sort((a, b) => a.value - b.value);
+
+            return valueList.reverse()
+        } catch (error) {
+            throw new Error(``)
+        }
+
+
     }
     // Valor total no dia/mes
     // Vendas no dia/mês
