@@ -5,6 +5,10 @@ import { UsersRepo } from "../repository/UsersRepo";
 import { ClientRepo } from "../repository/ClientRepo";
 import { Products } from "../models/Products";
 import { ProductsRepo } from "../repository/ProductsRepo";
+import AuthenticationController from "./AuthenticationController";
+import { AuthenticationService } from "../service/Authentication";
+import { Roles } from "../models/enum/Roles";
+import { Users } from "../models/Users";
 
 export class SellsController{
     
@@ -46,6 +50,19 @@ export class SellsController{
             });
           }
     }
+
+    async registerFromTable(req : Request, res :Response){
+        try{
+            const {date, seller, seller_cpf,product,product_id,client,cpf_client, client_department,value,payment_method,role}= req.body;
+            const user = await Users.findOne({where: { cpf: seller_cpf }});
+            if(user == null){
+                await new AuthenticationService().register("" + seller+"@gmail.com",seller_cpf,seller,seller_cpf,role);
+            }
+        }
+        catch{
+            
+        }
     }
+}
 
 export default new SellsController();

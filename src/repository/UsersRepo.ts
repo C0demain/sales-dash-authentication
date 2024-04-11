@@ -6,6 +6,7 @@ interface IUsersRepo {
   update(users: Users): Promise<void>;
   delete(usersId: number): Promise<void>;
   getById(usersId: number): Promise<Users>;
+  getByCpf(userCpf: string): Promise<Users | null>;
   getAll(): Promise<Users[]>;
   findByEmail(email: string): Promise<Users>;
   getByIdWithSells(userId: number): Promise<Users | null>;
@@ -13,6 +14,7 @@ interface IUsersRepo {
 }
 
 export class UsersRepo implements IUsersRepo {
+  
 
   async save(users: Users): Promise<void> {
     try {
@@ -91,7 +93,7 @@ export class UsersRepo implements IUsersRepo {
     }
   }
 
-
+  
   async getAll(): Promise<Users[]> {
     try {
       return await Users.findAll();
@@ -111,6 +113,17 @@ export class UsersRepo implements IUsersRepo {
       return new_users;
     } catch (error) {
       throw new Error("Failed to fecth user by email!");
+    }
+  } 
+
+  async getByCpf(userCpf: string): Promise<Users | null> {
+    try {
+      const new_users = await Users.findOne({
+        where: { cpf: userCpf },
+      });
+      return new_users;
+    } catch (error) {
+      throw new Error("Failed to fecth user by cpf!");
     }
   } 
   async getByIdWithSells(userId: number): Promise<Users | null> {

@@ -8,7 +8,6 @@ import { UserBasicInfo } from "./models/interface/User";
 import ProductsRouter from "./router/ProductsRouter";
 import ClientRouter from "./router/ClientRouter";
 import DashboardRouter from "./router/DashboardRouter";
-import processData from "./Fetchdata/Teste";
 
 declare global {
   namespace Express {
@@ -61,7 +60,6 @@ class App {
   }
 }
 
-//processData(`C:\\Users\\Fatec\\Documents\\GitHub\\sales-dash-backend\\src\\Fetchdata\\Planilha_modelo.xlsx`);
 
 const port: number = 8000;
 const app = new App().app;
