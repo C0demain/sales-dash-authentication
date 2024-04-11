@@ -5,8 +5,8 @@ import { ProductsRepo } from "../repository/ProductsRepo";
 export class ProductsController {
     async register(req: Request, res: Response) {
         try {
-            const {id, name, description, value } = req.body
-            await new ProductsService().register(id, name, description, value);
+            const {name, description, value } = req.body
+            await new ProductsService().register(name, description, value);
             return res.status(200).json({
                 status: "success",
                 message: "sucessfully registered product"

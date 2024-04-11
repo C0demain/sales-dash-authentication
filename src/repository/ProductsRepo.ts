@@ -13,7 +13,6 @@ export class ProductsRepo implements IProductRepo {
   async save(products: Products): Promise<void> {
     try {
       await Products.create({
-        id: products.id,
         name: products.name,
         description: products.description,
         value: products.value
