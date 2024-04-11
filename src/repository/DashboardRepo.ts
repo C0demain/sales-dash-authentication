@@ -34,7 +34,7 @@ export class DashboardRepo implements IDashboardRepo {
                     }
                 }
             })
-            return await sales
+            return sales
         } catch (error) {
             throw new Error("Failed to get sales from given date")
         }
@@ -70,19 +70,25 @@ export class DashboardRepo implements IDashboardRepo {
             })
 
             // Retorna o numero de vezes que um cliente comprou com o usuário
-            const occurrences: { [key: string]: number } = {};
-            clientPurchases.forEach((buyer: { clientId: any; clientName: any; }) => {
+            const occurrencesClients: { [key: string]: number } = {};
+            clientPurchases.forEach((buyer: { clientName: any; }) => {
                 const key = `${buyer.clientName}`;
-                occurrences[key] = (occurrences[key] || 0) + 1;
+                occurrencesClients[key] = (occurrencesClients[key] || 0) + 1;
             });
 
-            return { userId: id, name: userName, totalSales: sales, totalValue: totalValue, salesPerClient: occurrences, sales: clientPurchases }
+            const occurrencesProducts: { [key: string]: number } = {};
+            clientPurchases.forEach((buyer: { productid: any; }) => {
+                const key = `${buyer.productid}`;
+                occurrencesProducts[key] = (occurrencesProducts[key] || 0) + 1;
+            });
+
+            return { userId: id, name: userName, totalSales: sales, totalValue: totalValue, salesPerClient: occurrencesClients, productsSold: occurrencesProducts, sales: clientPurchases }
         } catch (error) {
             throw new Error(`Failed to get sales stats from userId: ${id}`)
         }
     }
 
-    async getTotalProductSales(id: any, date?: Date) {
+    async getProductStats(id: any, date?: Date) {
         try {
             const sales = await Sells.count({
                 where: {
@@ -108,16 +114,22 @@ export class DashboardRepo implements IDashboardRepo {
             })
 
             // Retorna o numero de vezes que um cliente comprou com o usuário
-            const occurrences: { [key: string]: number } = {};
+            const occurrencesClient: { [key: string]: number } = {};
             clientPurchases.forEach((buyer: { clientId: any; clientName: any; }) => {
                 const key = `${buyer.clientName}`;
-                occurrences[key] = (occurrences[key] || 0) + 1;
+                occurrencesClient[key] = (occurrencesClient[key] || 0) + 1;
+            });
+
+            const occurrencesUser: { [key: string]: number } = {};
+            clientPurchases.forEach((buyer: { sellerId: any; sellerName: any; }) => {
+                const key = `${buyer.sellerName}`;
+                occurrencesUser[key] = (occurrencesUser[key] || 0) + 1;
             });
 
             if (!totalValue) {
                 totalValue = 0
             }
-            return { productId: id, totalSales: sales, totalValue: totalValue, purchasesPerClient: occurrences, purchases: clientPurchases }
+            return { productId: id, totalSales: sales, totalValue: totalValue, purchasesPerClient: occurrencesClient, soldPerUser: occurrencesUser, sales: clientPurchases }
         } catch (error) {
             throw new Error("Failed to get product stats")
         }
@@ -126,35 +138,48 @@ export class DashboardRepo implements IDashboardRepo {
     // Fazer filtragem por categoria
     async getClientStats(client: any) {
         try {
-            if (client) {
-                const c = await new ClientRepo().getById(client)
-                const clientName = c.name
-                const sales = await Sells.count({
-                    where: {
-                        clientId: client
-                    }
-                })
-                let totalValue = await Sells.sum('value', {
-                    where: {
-                        clientId: client
-                    }
-                })
+            const c = await new ClientRepo().getById(client)
+            const clientName = c.name
+            const sales = await Sells.count({
+                where: {
+                    clientId: client
+                }
+            })
+            let totalValue = await Sells.sum('value', {
+                where: {
+                    clientId: client
+                }
+            })
 
-                if (!totalValue) {
-                    totalValue = 0
-                }
-                return { clientId: client, clientName: clientName, totalPurchases: sales, totalValue: totalValue }
+            if (!totalValue) {
+                totalValue = 0
             }
-            else {
-                const c = await new ClientRepo().getById(client)
-                const clientName = c.name
-                const sales = await Sells.count()
-                let totalValue = await Sells.sum('value')
-                if (!totalValue) {
-                    totalValue = 0
+
+            const allSales = await Sells.findAll({
+                where: {
+                    clientId: client
                 }
-                return { clientId: client, clientName: clientName, totalPurchases: sales, totalValue: totalValue }
-            }
+            })
+
+            let productPurchases: { productId: number, sellerId: number, sellerName: string }[] = []
+            allSales.forEach(element => {
+                productPurchases.push({ productId: element.productid, sellerId: element.userId, sellerName: element.seller })
+            })
+
+            // Retorna o numero de vezes que um cliente comprou com o usuário
+            const occurrencesProducts: { [key: string]: number } = {};
+            productPurchases.forEach((buyer: { productId: any }) => {
+                const key = `${buyer.productId}`;
+                occurrencesProducts[key] = (occurrencesProducts[key] || 0) + 1;
+            });
+
+            const occurrencesUsers: { [key: string]: number } = {};
+            productPurchases.forEach((buyer: { sellerName: any }) => {
+                const key = `${buyer.sellerName}`;
+                occurrencesUsers[key] = (occurrencesUsers[key] || 0) + 1;
+            });
+
+            return { clientId: client, clientName: clientName, totalPurchases: sales, totalValue: totalValue, productsPurchased: occurrencesProducts, purchasedWith: occurrencesUsers, sales: productPurchases }
         } catch (error) {
             throw new Error("Failed to get client stats")
         }

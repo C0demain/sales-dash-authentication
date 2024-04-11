@@ -43,11 +43,11 @@ export class DashboardController {
     async getProductStats(req: Request, res: Response) {
         try {
             const product = req.params.id
-            const productSales = await new DashboardRepo().getTotalProductSales(product)
+            const productSales = await new DashboardRepo().getProductStats(product)
 
             return res.status(200).json({
                 status: "Success",
-                message: `Showing stats from ${product}`,
+                message: `Showing stats from product: ${product}`,
                 productStats: productSales
             });
         } catch (error) {
