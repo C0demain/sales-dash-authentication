@@ -98,10 +98,10 @@ export class DashboardController {
 
     async getRanking(req: Request, res: Response) {
         try {
-            const ranking = await new DashboardRepo().getHighest()
+            const ranking = await new DashboardRepo().sortTotalValue()
             return res.status(200).json({
                 status: "Success",
-                message: `Showing stats from`,
+                message: `Showing ranking in order`,
                 ranking: ranking
             });
         } catch (error) {

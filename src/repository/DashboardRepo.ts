@@ -186,15 +186,22 @@ export class DashboardRepo implements IDashboardRepo {
         }
     }
 
-    async getHighest() {
+    async sortTotalValue() {
         try {
             const usersList = await new UsersRepo().getAll()
 
             let idList: number[] = []
             usersList.forEach(element => idList.push(element.id))
-            let valueList: {id: number, value: number}[] = []
+            let valueList: {name: string, id: number, value: number,productsSold: number}[] = []
             for (let x of idList){
+                let user = await new UsersRepo().getById(x)
+                let userName = user.name
                 let totalValue = await Sells.sum('value', {
+                    where: {
+                        userId: x
+                    }
+                })
+                const productsSold = await Sells.count({
                     where: {
                         userId: x
                     }
@@ -202,16 +209,16 @@ export class DashboardRepo implements IDashboardRepo {
                 if (!totalValue){
                     totalValue = 0
                 }
-                valueList.push({id: x, value: totalValue})
+                valueList.push({name: userName,id: x, value: totalValue, productsSold: productsSold})
             }
+            
+            let x:string = 'value'
             valueList.sort((a, b) => a.value - b.value);
 
             return valueList.reverse()
         } catch (error) {
             throw new Error(``)
         }
-
-
     }
     // Valor total no dia/mes
     // Vendas no dia/mês
