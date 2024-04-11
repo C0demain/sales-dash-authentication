@@ -1,6 +1,4 @@
-import { log } from "console";
 import { Sells } from "../models/Sells";
-import { Client } from "../models/Client";
 import { ClientRepo } from "./ClientRepo";
 import { UsersRepo } from "./UsersRepo";
 
@@ -42,85 +40,90 @@ export class DashboardRepo implements IDashboardRepo {
         }
     }
 
-    
-
     async getUserStats(id: any, date?: Date) {
         try {
             const u = await new UsersRepo().getById(id)
             const userName = u.name
-            if (id) {
-                const sales = await Sells.count({
-                    where: {
-                        userId: id
-                    }
-                })
-                let totalValue = await Sells.sum('value', {
-                    where: {
-                        userId: id
-                    }
-                })
-                if (!totalValue) {
-                    totalValue = 0
+            const sales = await Sells.count({
+                where: {
+                    userId: id
                 }
-                const allSales = await Sells.findAll({
-                    where: {
-                        userId: id
-                    }
-                })
-                let list: Object[] = []
-                allSales.forEach(element => {
-                    list.push([element.clientId,element.clientname].reduce((a, v) => ({a, [v]:v}), {}) )
-                })
-                
-                return { userId: id, name: userName, totalSales: sales, totalValue: totalValue, buyers: list }
-            }
-            else {
-                const u = await new UsersRepo().getById(id)
-                const userName = u.name
-                const sales = await Sells.count()
-                let totalValue = await Sells.sum('value')
-                if (!totalValue) {
-                    totalValue = 0
+            })
+            let totalValue = await Sells.sum('value', {
+                where: {
+                    userId: id
                 }
-                return { userId: id, name: userName, totalSales: sales, totalValue: totalValue }
+            })
+            if (!totalValue) {
+                totalValue = 0
             }
+            const allSales = await Sells.findAll({
+                where: {
+                    userId: id
+                }
+            })
+
+            // Retorna um lista de objetos com o nome e ID do cliente e o ID do produto comprado
+            let clientPurchases: { clientId: number, clientName: string, productid: number }[] = []
+            allSales.forEach(element => {
+                clientPurchases.push({ clientId: element.clientId, clientName: element.clientname, productid: element.productid })
+            })
+
+            // Retorna o numero de vezes que um cliente comprou com o usuário
+            const occurrences: { [key: string]: number } = {};
+            clientPurchases.forEach((buyer: { clientId: any; clientName: any; }) => {
+                const key = `${buyer.clientName}`;
+                occurrences[key] = (occurrences[key] || 0) + 1;
+            });
+
+            return { userId: id, name: userName, totalSales: sales, totalValue: totalValue, salesPerClient: occurrences, sales: clientPurchases }
         } catch (error) {
             throw new Error(`Failed to get sales stats from userId: ${id}`)
         }
     }
 
-    async getTotalProductSales(product: any, date?: Date) {
+    async getTotalProductSales(id: any, date?: Date) {
         try {
-            if (product) {
-                const sales = await Sells.count({
-                    where: {
-                        product: product
-                    }
-                })
-                let totalValue = await Sells.sum('value', {
-                    where: {
-                        product: product
-                    }
-                })
+            const sales = await Sells.count({
+                where: {
+                    productid: id
+                }
+            })
+            let totalValue = await Sells.sum('value', {
+                where: {
+                    productid: id
+                }
+            })
 
-                if (!totalValue) {
-                    totalValue = 0
+            const allSales = await Sells.findAll({
+                where: {
+                    productid: id
                 }
-                return { productName: product, totalSales: sales, totalValue: totalValue }
+            })
+
+            // Retorna um lista de objetos com o nome e ID do cliente e o ID do produto comprado
+            let clientPurchases: { clientId: number, clientName: string, sellerId: number, sellerName: string }[] = []
+            allSales.forEach(element => {
+                clientPurchases.push({ clientId: element.clientId, clientName: element.clientname, sellerId: element.userId, sellerName: element.seller })
+            })
+
+            // Retorna o numero de vezes que um cliente comprou com o usuário
+            const occurrences: { [key: string]: number } = {};
+            clientPurchases.forEach((buyer: { clientId: any; clientName: any; }) => {
+                const key = `${buyer.clientName}`;
+                occurrences[key] = (occurrences[key] || 0) + 1;
+            });
+
+            if (!totalValue) {
+                totalValue = 0
             }
-            else {
-                const sales = await Sells.count()
-                let totalValue = await Sells.sum('value')
-                if (!totalValue) {
-                    totalValue = 0
-                }
-                return { productName: product, totalSales: sales, totalValue: totalValue }
-            }
+            return { productId: id, totalSales: sales, totalValue: totalValue, purchasesPerClient: occurrences, purchases: clientPurchases }
         } catch (error) {
             throw new Error("Failed to get product stats")
         }
     }
 
+    // Fazer filtragem por categoria
     async getClientStats(client: any) {
         try {
             if (client) {
@@ -150,7 +153,7 @@ export class DashboardRepo implements IDashboardRepo {
                 if (!totalValue) {
                     totalValue = 0
                 }
-                return { clientId: client, clientName: clientName,totalPurchases: sales, totalValue: totalValue }
+                return { clientId: client, clientName: clientName, totalPurchases: sales, totalValue: totalValue }
             }
         } catch (error) {
             throw new Error("Failed to get client stats")

@@ -33,17 +33,16 @@ export class DashboardController {
                 userSales: userSales
             });
         } catch (error) {
-            console.error();
             return res.status(500).json({
                 status: "Internal Server Error",
-                message: "Something went wrong with getUserStats",
+                message: "User not found or does not exist",
             })
         }
     }
 
     async getProductStats(req: Request, res: Response) {
         try {
-            const product = req.params.name
+            const product = req.params.id
             const productSales = await new DashboardRepo().getTotalProductSales(product)
 
             return res.status(200).json({
