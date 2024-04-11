@@ -36,6 +36,7 @@ export class Client extends Model{
 
   @Column({
     type : DataType.STRING,
+    unique : true,
     field : Client.VAR_CPF_CNPJ
   })
   cpf !: string;

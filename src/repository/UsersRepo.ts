@@ -6,7 +6,7 @@ interface IUsersRepo {
   update(users: Users): Promise<void>;
   delete(usersId: number): Promise<void>;
   getById(usersId: number): Promise<Users>;
-  getByCpf(userCpf: string): Promise<Users | null>;
+  getByCpf(userCpf: string): Promise<Users>;
   getAll(): Promise<Users[]>;
   findByEmail(email: string): Promise<Users>;
   getByIdWithSells(userId: number): Promise<Users | null>;
@@ -116,11 +116,14 @@ export class UsersRepo implements IUsersRepo {
     }
   } 
 
-  async getByCpf(userCpf: string): Promise<Users | null> {
+  async getByCpf(userCpf: string): Promise<Users> {
     try {
       const new_users = await Users.findOne({
         where: { cpf: userCpf },
       });
+      if (!new_users) {
+        throw new Error("Users not found!");
+      }
       return new_users;
     } catch (error) {
       throw new Error("Failed to fecth user by cpf!");

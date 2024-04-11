@@ -9,14 +9,16 @@ import AuthenticationController from "./AuthenticationController";
 import { AuthenticationService } from "../service/Authentication";
 import { Roles } from "../models/enum/Roles";
 import { Users } from "../models/Users";
+import { Client } from "../models/Client";
+import { Sells } from "../models/Sells";
 
 export class SellsController{
     
     // register
     async register(req : Request, res : Response ){
         try{
-            const {date, seller, product, client, value} = req.body;
-            await new SellsService().register(date, (await new UsersRepo().findByEmail(seller)).id, (await new ProductsRepo().getById(product)).id, (await new ClientRepo().getByCpf(client)).id, value);
+            const {date, seller_cpf, product_id, cpf_client, value} = req.body;
+            await new SellsService().register(date, (await new UsersRepo().getByCpf(seller_cpf)).id,product_id, (await new ClientRepo().getByCpf(cpf_client)).id, value);
             return res.status(200).json({
                 status : "success",
                 message : "sucessfully registered sells"
@@ -54,10 +56,39 @@ export class SellsController{
     async registerFromTable(req : Request, res :Response){
         try{
             const {date, seller, seller_cpf,product,product_id,client,cpf_client, client_department,value,payment_method,role}= req.body;
-            const user = await Users.findOne({where: { cpf: seller_cpf }});
-            if(user == null){
-                await new AuthenticationService().register("" + seller+"@gmail.com",seller_cpf,seller,seller_cpf,role);
-            }
+            const [testUser, userCreated] = await Users.findOrCreate({
+                where : {cpf :seller_cpf },
+                defaults: {
+                    name : seller,
+                    cpf : seller_cpf,
+                    email : "" + seller + "@gmail.com",
+                    password : seller_cpf,
+                    role : role,
+                }
+            })
+            
+            const [testClient, clientCreated] = await Client.findOrCreate({
+                where : {cpf: cpf_client},
+                defaults : {
+                    name : client,
+                    segment : client_department,
+                    cpf : cpf_client,
+                }
+
+            })
+
+            const [testProduct, productCreated] = await Products.findOrCreate({
+                where : {id : product_id},
+                defaults : {
+                    name : product,
+                    description : "",
+                    value : 0,
+                }
+            })
+
+            await new SellsService().register(date, (await new UsersRepo().getByCpf(seller_cpf)).id,product_id, (await new ClientRepo().getByCpf(cpf_client)).id, value);
+
+            
         }
         catch{
             
