@@ -11,6 +11,7 @@ import { Roles } from "../models/enum/Roles";
 import { Users } from "../models/Users";
 import { Client } from "../models/Client";
 import { Sells } from "../models/Sells";
+import Authentication from "../utils/Authentication";
 
 export class SellsController{
     
@@ -78,14 +79,14 @@ export class SellsController{
 
     async registerFromTable(req : Request, res :Response){
         try{
-            const {date, seller, seller_cpf,product,product_id,client,cpf_client, client_department,value,payment_method,role}= req.body;
+            const {date, seller, seller_cpf,product,product_Id,client,cpf_client, client_department,value,payment_method,role}= req.body;
             const [testUser, userCreated] = await Users.findOrCreate({
                 where : {cpf :seller_cpf },
                 defaults: {
                     name : seller,
                     cpf : seller_cpf,
-                    email : "" + seller + "@gmail.com",
-                    password : seller_cpf,
+                    email : seller.replace(/\s+/g, '') + "@gmail.com",
+                    password : await Authentication.passwordHash(seller_cpf),
                     role : role,
                 }
             })
@@ -101,7 +102,7 @@ export class SellsController{
             })
 
             const [testProduct, productCreated] = await Products.findOrCreate({
-                where : {id : product_id},
+                where : {id : product_Id},
                 defaults : {
                     name : product,
                     description : "",
