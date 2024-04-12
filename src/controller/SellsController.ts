@@ -38,7 +38,30 @@ export class SellsController{
     async getSells(req : Request, res: Response){
         try{
             const sells = await new SellsRepo().getAll();
-            console.log(sells);
+
+            return res.status(200).json({
+                status: "Success",
+                message: "Successfully fetched sells",
+                sells: sells,
+              });
+        }catch (error) {
+            console.error("Get sells error:", error);
+            return res.status(500).json({
+              status: "Internal Server Error",
+              message: "Something went wrong with getSells",
+            });
+          }
+    }
+    async getFilteredSells(req : Request, res: Response){
+        const {userId, productId, clientId} = req.query
+        let filters = {}
+        if(userId) filters = {...filters, ...{userId: userId}}
+        if(productId) filters = {...filters, ...{productid: productId}}
+        if(clientId) filters = {...filters, ...{clientId: clientId}}
+             
+        try{
+            const sells = await new SellsRepo().getFiltered(filters);
+
             return res.status(200).json({
                 status: "Success",
                 message: "Successfully fetched sells",

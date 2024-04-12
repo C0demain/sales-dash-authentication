@@ -1,3 +1,4 @@
+import { WhereOptions } from "sequelize";
 import { Client } from "../models/Client";
 import { Products } from "../models/Products";
 import { Sells } from "../models/Sells";
@@ -89,7 +90,17 @@ export class SellsRepo implements ISellsRepo {
   async getAll(): Promise<Sells[]> {
     try {
       return await Sells.findAll({
-        include : [Users, Client],
+        include: [Users, Client],
+      });
+    } catch (error) {
+      throw new Error("Failed to feacth all data!");
+    }
+  }
+
+  async getFiltered(filters: WhereOptions): Promise<Sells[]> {
+    try {
+      return await Sells.findAll({
+        where: filters,
       });
     } catch (error) {
       throw new Error("Failed to feacth all data!");
