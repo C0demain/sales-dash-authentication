@@ -34,7 +34,8 @@ export class SellsRepo implements ISellsRepo {
         date : sells.date,
         seller : user.name,
         product : prod,
-        productid : prod.id,
+        productName: prod.name,
+        productId : prod.id,
         clientId : client.id,
         client : client,
         clientname : client.name,
@@ -101,6 +102,7 @@ export class SellsRepo implements ISellsRepo {
     try {
       return await Sells.findAll({
         where: filters,
+        include: [Users, Client, Products]
       });
     } catch (error) {
       throw new Error("Failed to feacth all data!");

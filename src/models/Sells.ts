@@ -12,7 +12,8 @@ export class Sells extends Model{
   public static VAR_ID = "id" as string;
   public static VAR_DATE = "date" as string;
   public static VAR_SELLER = "seller" as string;
-  public static VAR_PRODUCTID = "productid" as string;
+  public static VAR_PRODUCTID = "productId" as string;
+  public static VAR_PRODUCTNAME = "productName" as string;
   public static VAR_CLIENT = "client" as string;
   public static VAR_VALUE = "value" as string;
   public static VAR_CLIENT_NAME = "client_name" as string;
@@ -56,6 +57,12 @@ seller !: string;
   @BelongsTo(() => Products)
   product!: Products;
 
+
+@Column({
+  type : DataType.STRING(100),
+  field : Sells.VAR_PRODUCTNAME,
+})
+productName !: string;
 
 @Column({
   type : DataType.STRING(100),

@@ -56,7 +56,7 @@ export class SellsController{
         const {userId, productId, clientId} = req.query
         let filters = {}
         if(userId) filters = {...filters, ...{userId: userId}}
-        if(productId) filters = {...filters, ...{productid: productId}}
+        if(productId) filters = {...filters, ...{productId: productId}}
         if(clientId) filters = {...filters, ...{clientId: clientId}}
              
         try{
