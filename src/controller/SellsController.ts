@@ -110,7 +110,7 @@ export class SellsController{
                 }
             })
 
-            await new SellsService().register(date, (await new UsersRepo().getByCpf(seller_cpf)).id,product_id, (await new ClientRepo().getByCpf(cpf_client)).id, value);
+            await new SellsService().register(date, (await new UsersRepo().getByCpf(seller_cpf)).id,product_Id, (await new ClientRepo().getByCpf(cpf_client)).id, value);
 
             
         }

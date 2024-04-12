@@ -19,7 +19,7 @@ export class SellsRepo implements ISellsRepo {
     try {
       const user = await Users.findOne({ where: { email: sells.seller } });
       const client = await Client.findOne({ where : {cpf : sells.client.cpf }});
-      const prod = await Products.findOne({where :{id : sells.productid}});
+      const prod = await Products.findOne({where :{id : sells.productId}});
       console.log(client)
       if (!user) {
         throw new Error("User not found");

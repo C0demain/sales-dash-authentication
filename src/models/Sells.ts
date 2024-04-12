@@ -52,7 +52,7 @@ seller !: string;
     type : DataType.INTEGER,
     field : Sells.VAR_PRODUCTID,
   })
-  productid !: number;
+  productId !: number;
 
   @BelongsTo(() => Products)
   product!: Products;

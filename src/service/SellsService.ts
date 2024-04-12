@@ -37,7 +37,7 @@ export class SellsService implements ISellsService{
             newSell.date = date;
             newSell.seller = user.email;
             newSell.product = prod;
-            newSell.productid = prod.id;
+            newSell.productId = prod.id;
             newSell.clientname = client.name;
             newSell.client = client;
             newSell.clientId = client.id;

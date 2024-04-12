@@ -67,7 +67,7 @@ export class DashboardRepo implements IDashboardRepo {
             // Retorna um lista de objetos com o nome e ID do cliente e o ID do produto comprado
             let clientPurchases: { clientId: number, clientName: string, productid: number }[] = []
             allSales.forEach(element => {
-                clientPurchases.push({ clientId: element.clientId, clientName: element.clientname, productid: element.productid })
+                clientPurchases.push({ clientId: element.clientId, clientName: element.clientname, productid: element.productId })
             })
 
             // Retorna o numero de vezes que um cliente comprou com o usuário
@@ -164,7 +164,7 @@ export class DashboardRepo implements IDashboardRepo {
 
             let productPurchases: { productId: number, sellerId: number, sellerName: string }[] = []
             allSales.forEach(element => {
-                productPurchases.push({ productId: element.productid, sellerId: element.userId, sellerName: element.seller })
+                productPurchases.push({ productId: element.productId, sellerId: element.userId, sellerName: element.seller })
             })
 
             // Retorna o numero de vezes que um cliente comprou com o usuário
