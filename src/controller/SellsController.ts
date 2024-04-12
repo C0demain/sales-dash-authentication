@@ -110,12 +110,19 @@ export class SellsController{
                 }
             })
 
-            await new SellsService().register(date, (await new UsersRepo().getByCpf(seller_cpf)).id,product_Id, (await new ClientRepo().getByCpf(cpf_client)).id, value);
+            await new SellsService().register(date, testUser.id, testProduct.id, testClient.id, value);
 
-            
-        }
-        catch{
-            
+            return res.status(200).json({
+                status: "Success",
+                message: "Successfully registered sell",
+            });
+
+        } catch (error) {
+            console.error("Register from table error:", error);
+            return res.status(500).json({
+                status: "Internal Server Error",
+                message: "Something went wrong with registerFromTable",
+            });
         }
     }
 }
