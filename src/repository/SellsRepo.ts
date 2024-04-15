@@ -39,7 +39,7 @@ export class SellsRepo implements ISellsRepo {
         clientId : client.id,
         client : client,
         clientname : client.name,
-        value : prod.value,
+        value : sells.value,
         user : user,
         userId : user.id,
 

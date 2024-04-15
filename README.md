@@ -37,7 +37,7 @@ DELETE /commissions/:commissionId -> exclui commissão de acordo com id
 #### /clients
 ```
 GET /client/getclients -> retorna todos os clientes
-POST /client/register -> insere novo cliente
+POST /products/register -> insere novo cliente
 ```
 
 #### /sells
