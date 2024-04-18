@@ -42,6 +42,8 @@ export class SellsRepo implements ISellsRepo {
         value : sells.value,
         user : user,
         userId : user.id,
+        new_client : sells.new_client,
+        new_product : sells.new_product,
 
       });
     } catch (error) {
@@ -109,7 +111,21 @@ export class SellsRepo implements ISellsRepo {
     }
   }
 
-  update(Sells: Sells): Promise<void> {
-    throw new Error("Method not implemented.");
+  async update(sells: Sells): Promise<void> {
+    try {
+      const new_sell = await Sells.findOne({
+        where: {
+          id: sells.id,
+        },
+      });
+
+      if (!new_sell) {
+        throw new Error("sell not found");
+      }
+
+      await new_sell.save();
+    } catch (error) {
+      throw new Error("Failed to update users!");
+    }
   }
 }

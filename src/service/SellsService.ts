@@ -10,13 +10,15 @@ interface ISellsService{
         userId : number,
         productid : number,
         clientId : number,
-        value : number,    
+        value : number,
+        new_client : boolean,
+        new_product : boolean    
     ): Promise<void>;
 }
 
 export class SellsService implements ISellsService{
     
-    async register(date: string, userId:number, productid: number, clientId : number, value: number): Promise<void> {
+    async register(date: string, userId:number, productid: number, clientId : number, value: number, new_client : boolean, new_product : boolean): Promise<void> {
         try{           
             const user = await Users.findByPk(userId);
             const client = await Client.findByPk(clientId);
@@ -44,6 +46,8 @@ export class SellsService implements ISellsService{
             newSell.value = value;
             newSell.user = user;
             newSell.userId = user.id;
+            newSell.new_client = new_client;
+            newSell.new_product = new_product;
             await new SellsRepo().save(newSell);        
         }
         catch(error){

@@ -18,8 +18,8 @@ export class SellsController{
     // register
     async register(req : Request, res : Response ){
         try{
-            const {date, seller_cpf, product_id, cpf_client, value} = req.body;
-            await new SellsService().register(date, (await new UsersRepo().getByCpf(seller_cpf)).id,product_id, (await new ClientRepo().getByCpf(cpf_client)).id, value);
+            const {date, seller_cpf, product_id, cpf_client, value, new_client, new_prodcut} = req.body;
+            await new SellsService().register(date, (await new UsersRepo().getByCpf(seller_cpf)).id,product_id, (await new ClientRepo().getByCpf(cpf_client)).id, value, new_client, new_prodcut);
             return res.status(200).json({
                 status : "success",
                 message : "sucessfully registered sells"
@@ -110,7 +110,7 @@ export class SellsController{
                 }
             })
 
-            await new SellsService().register(date, testUser.id, testProduct.id, testClient.id, value);
+            await new SellsService().register(date, testUser.id, testProduct.id, testClient.id, value,clientCreated, productCreated );
 
             return res.status(200).json({
                 status: "Success",

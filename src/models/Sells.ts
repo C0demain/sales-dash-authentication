@@ -17,71 +17,84 @@ export class Sells extends Model{
   public static VAR_CLIENT = "client" as string;
   public static VAR_VALUE = "value" as string;
   public static VAR_CLIENT_NAME = "client_name" as string;
+  public static VAR_NEW_CLIENT = "new_client" as string;
+  public static VAR_NEW_PRODUCT = "new_product" as string;
 
 
-@Column({
-    type : DataType.INTEGER,
-    primaryKey: true,
-    autoIncrement : true,
-    field: Sells.VAR_ID
-})
-id !: number;
-
-@Column({
-    type : DataType.STRING(100),
-    field : Sells.VAR_DATE
-})
-date !: string;
-
-@Column({
-    type : DataType.STRING(100),
-    field : Sells.VAR_SELLER
-})
-seller !: string;
-
-@ForeignKey(() => Users)
-  @Column
-  userId!: number;
-
-  @BelongsTo(() => Users)
-  user!: Users;
-
-
-@ForeignKey(() => Products) 
   @Column({
-    type : DataType.INTEGER,
-    field : Sells.VAR_PRODUCTID,
+      type : DataType.INTEGER,
+      primaryKey: true,
+      autoIncrement : true,
+      field: Sells.VAR_ID
   })
-  productId !: number;
+  id !: number;
 
-  @BelongsTo(() => Products)
-  product!: Products;
+  @Column({
+      type : DataType.STRING(100),
+      field : Sells.VAR_DATE
+  })
+  date !: string;
 
+  @Column({
+      type : DataType.STRING(100),
+      field : Sells.VAR_SELLER
+  })
+  seller !: string;
 
-@Column({
-  type : DataType.STRING(100),
-  field : Sells.VAR_PRODUCTNAME,
-})
-productName !: string;
+  @ForeignKey(() => Users)
+    @Column
+    userId!: number;
 
-@Column({
-  type : DataType.STRING(100),
-  field : Sells.VAR_CLIENT_NAME,
-})
-clientname !: string;
-
-@ForeignKey(() => Client) 
-  @Column
-  clientId!: number;
-
-  @BelongsTo(() => Client)
-  client!: Client;
+    @BelongsTo(() => Users)
+    user!: Users;
 
 
-@Column({
-    type : DataType.DOUBLE,
-    field : Sells.VAR_VALUE
-})
-value !: number;
+  @ForeignKey(() => Products) 
+    @Column({
+      type : DataType.INTEGER,
+      field : Sells.VAR_PRODUCTID,
+    })
+    productId !: number;
 
+    @BelongsTo(() => Products)
+    product!: Products;
+
+
+  @Column({
+    type : DataType.STRING(100),
+    field : Sells.VAR_PRODUCTNAME,
+  })
+  productName !: string;
+
+  @Column({
+    type : DataType.STRING(100),
+    field : Sells.VAR_CLIENT_NAME,
+  })
+  clientname !: string;
+
+  @ForeignKey(() => Client) 
+    @Column
+    clientId!: number;
+
+    @BelongsTo(() => Client)
+    client!: Client;
+
+
+  @Column({
+      type : DataType.DOUBLE,
+      field : Sells.VAR_VALUE
+  })
+  value !: number;
+
+  @Column({
+    type : DataType.BOOLEAN,
+    field : Sells.VAR_NEW_CLIENT,
+  })
+  new_client !: boolean;
+
+  @Column({
+    type : DataType.BOOLEAN,
+    field : Sells.VAR_NEW_PRODUCT,
+  })
+  new_product !: boolean;
 }
