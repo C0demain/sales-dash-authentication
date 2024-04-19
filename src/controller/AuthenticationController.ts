@@ -19,7 +19,7 @@ class AuthenticationController {
       return res.status(200).json({
         status: "Success",
         message: "Successfully logged in",
-        result: res_token
+        ...res_token
       });
     } catch (error) {
       console.error("Login error:", error);
