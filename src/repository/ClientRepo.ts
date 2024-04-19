@@ -1,3 +1,4 @@
+import { UniqueConstraintError } from "sequelize";
 import { Client } from "../models/Client";
 
 interface IClientRepo {
@@ -20,7 +21,8 @@ export class ClientRepo implements IClientRepo {
         cpf : client.cpf,
       });
     } catch (error) {
-      throw new Error("Failed to create client!");
+      if(error instanceof UniqueConstraintError) throw error
+      else throw new Error("Failed to create client!");
     }
   }
 

@@ -1,3 +1,4 @@
+import { UniqueConstraintError } from "sequelize";
 import { Client } from "../models/Client";
 import { ClientRepo } from "../repository/ClientRepo";
 
@@ -22,7 +23,9 @@ export class ClientService implements IClientService{
             await new ClientRepo().save(newClient);        
         }
         catch(error){
-        throw new Error("failed to register client")
+        if(error instanceof UniqueConstraintError) throw error
+        else throw new Error("failed to register client")
+
         }
     }
     
