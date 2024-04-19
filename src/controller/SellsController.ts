@@ -125,6 +125,46 @@ export class SellsController{
             });
         }
     }
+
+    async updateSell(req: Request, res: Response) {
+        const { sellId } = req.params;
+        const {date, seller_cpf, value } = req.body;
+        try {
+          const userRepo = new UsersRepo();
+          const sellsRepo = new SellsRepo();
+          const user = await userRepo.getByCpf(seller_cpf);
+          const sell = await sellsRepo.getById(parseInt(sellId));
+          if (!user) {
+            return res.status(404).json({
+              status: "Not found",
+              message: "User not found",
+            });
+          }
+          if (!sell) {
+            return res.status(404).json({
+              status: "Not found",
+              message: "Sell not found",
+            });
+          }
+          sell.date = date;
+          sell.seller = user.name;
+          sell.user = user;
+          sell.userId = user.id;
+          sell.value = value;
+
+
+          await sellsRepo.update(sell);
+          return res.status(200).json({
+            status: "Success",
+            message: "Successfully updated sell"
+          });
+        } catch (error) {
+          return res.status(500).json({
+            status: "Internal Server Error",
+            message: "Something went wrong with updateSell",
+          });
+        }
+      }
 }
 
 export default new SellsController();

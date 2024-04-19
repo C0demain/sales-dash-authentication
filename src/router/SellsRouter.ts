@@ -7,7 +7,8 @@ class SellsRouter extends BaseRoutes{
         this.router.post("/register", SellsController.register);
         this.router.get("/getall", SellsController.getSells);
         this.router.get("/getall/filter", SellsController.getFilteredSells);
-        this.router.post("/table", SellsController.registerFromTable)
+        this.router.post("/table", SellsController.registerFromTable);
+        this.router.put("/update/:sellId", SellsController.updateSell);
     }
     
 }
