@@ -119,13 +119,29 @@ export class SellsRepo implements ISellsRepo {
         },
       });
 
+      const user = await Users.findOne({
+        where:{
+          cpf : sells.user.cpf,
+        }
+      })
+
       if (!new_sell) {
         throw new Error("sell not found");
       }
 
+      if(!user){
+        throw new Error("Seller not in database");
+      }
+
+      new_sell.date = sells.date;
+      new_sell.seller = user.name;
+      new_sell.userId = user.id;
+      new_sell.value = sells.value;
+
+
       await new_sell.save();
     } catch (error) {
-      throw new Error("Failed to update users!");
+      throw new Error("Failed to update sell!");
     }
   }
 }
