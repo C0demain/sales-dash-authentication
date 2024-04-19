@@ -1,9 +1,13 @@
-# Como rodar o projeto base
+# Como rodar o projeto com banco de dados no docker
 
-1. `npm install` ou `yarn install` para instalar as dependencias. 
-2. `npm run dev` ou `yarn run dev` para rodar o projeto.
-3. Arquivo `.env.example` deve ser alterado de acordo com as variáveis de ambiente.
-4. Baixar PostgreSQL e criar banco
+1. `npm install` para instalar as dependencias. 
+2. Arquivo `.env.example` deve ser alterado para `.env` e de acordo com as variáveis de ambiente.
+3. Baixar docker: https://docs.docker.com/get-docker/
+4. `docker compose up -d` para inicializar os containers
+5. `npm run dev` para rodar o projeto.
+6. `http://localhost:5050` - abrir pgadmin e logar com as credencias default do .env
+
+obs: desinstalar o postgre local para não dar conflito de porta
 
 ### Requisições HTTP
 #### /auth
