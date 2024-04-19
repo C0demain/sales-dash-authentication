@@ -1,3 +1,4 @@
+import { UniqueConstraintError } from "sequelize";
 import { Sells } from "../models/Sells";
 import { Users } from "../models/Users";
 
@@ -27,7 +28,8 @@ export class UsersRepo implements IUsersRepo {
       });
     } catch (error) {
       console.log(error)
-      throw new Error("Failed to create users!");
+      if(error instanceof UniqueConstraintError) throw error
+      else throw new Error("Failed to create users!");
     }
   }
 

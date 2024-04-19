@@ -21,7 +21,7 @@ export class ClientController{
                 if(error instanceof UniqueConstraintError){
                     return res.status(400).json({
                         status: "Bad Request",
-                        message: "Attribute cpf_cnpj cannot be duplicated"
+                        message: error.errors[0].message
                     })
                 }else{
                     return res.status(500).json({

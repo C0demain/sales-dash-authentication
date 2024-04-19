@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { AuthenticationService } from "../service/Authentication";
 import { UsersRepo } from "../repository/UsersRepo";
 import { cp } from "fs";
+import { UniqueConstraintError } from "sequelize";
 
 class AuthenticationController {
   // login controller
@@ -38,14 +39,21 @@ class AuthenticationController {
       return res.status(200).json({
         status: "Success",
         message: "Successfully registered user",
-        role: role
       });
     } catch (error) {
       console.error("Registration error:", error);
-      return res.status(500).json({
-        status: "Internal Server Error",
-        message: "Something went wrong with register",
+      if(error instanceof UniqueConstraintError){
+        return res.status(400).json({
+          status: "Bad Request",
+          message: error.errors[0].message
+      })
+      }
+      else{
+        return res.status(500).json({
+          status: "Internal Server Error",
+          message: "Something went wrong with register",
       });
+    }
     }
   }
 

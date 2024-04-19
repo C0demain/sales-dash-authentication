@@ -2,6 +2,7 @@ import { Roles } from './../models/enum/Roles';
 import { Users } from "../models/Users";
 import { UsersRepo } from "../repository/UsersRepo";
 import Authentication from "../utils/Authentication";
+import { UniqueConstraintError } from 'sequelize';
 
 interface IAuthenticationService {
   login(email: string, password: string): Promise<string>;
@@ -59,7 +60,8 @@ export class AuthenticationService implements IAuthenticationService {
 
       await new UsersRepo().save(newUser);
     } catch (error) {
-      throw new Error("Failed to register user");
+      if(error instanceof UniqueConstraintError) throw error
+      else throw new Error("failed to register user")
     }
   }
 }
