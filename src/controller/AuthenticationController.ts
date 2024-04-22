@@ -2,6 +2,8 @@ import { Request, Response } from "express";
 import { AuthenticationService } from "../service/Authentication";
 import { UsersRepo } from "../repository/UsersRepo";
 import { cp } from "fs";
+import { UniqueConstraintError } from "sequelize";
+import NotFoundError from "../exceptions/NotFound";
 
 class AuthenticationController {
   // login controller
@@ -38,14 +40,21 @@ class AuthenticationController {
       return res.status(200).json({
         status: "Success",
         message: "Successfully registered user",
-        role: role
       });
     } catch (error) {
       console.error("Registration error:", error);
-      return res.status(500).json({
-        status: "Internal Server Error",
-        message: "Something went wrong with register",
+      if(error instanceof UniqueConstraintError){
+        return res.status(400).json({
+          status: "Bad Request",
+          message: error.errors[0].message
+      })
+      }
+      else{
+        return res.status(500).json({
+          status: "Internal Server Error",
+          message: "Something went wrong with register",
       });
+    }
     }
   }
 
@@ -71,23 +80,24 @@ class AuthenticationController {
     try {
       const userId = Number(req.params.id);
       const user = await new UsersRepo().getByIdWithSells(userId);
-      if (!user) {
-        return res.status(404).json({
-          status: "Not Found",
-          message: "User not found",
-        });
-      }
+      
       return res.status(200).json({
         status: "Success",
         message: "Successfully fetched user with sells",
         user: user,
       });
     } catch (error) {
-      console.error("Get user with sells error:", error);
-      return res.status(500).json({
-        status: "Internal Server Error",
-        message: "Something went wrong with getUserWithSells",
-      });
+      if(error instanceof NotFoundError){
+        return res.status(404).json({
+          status: "Not Found",
+          message: error.message,
+        });
+      }else{
+        return res.status(500).json({
+          status: "Internal Server Error",
+          message: "Something went wrong with deleteUser",
+        });
+      }
     }
   }
 
@@ -101,10 +111,17 @@ class AuthenticationController {
       });
     } catch (error) {
       console.error("Delete user error:", error);
-      return res.status(500).json({
-        status: "Internal Server Error",
-        message: "Something went wrong with deleteUser",
-      });
+      if(error instanceof NotFoundError){
+        return res.status(404).json({
+          status: "Not Found",
+          message: error.message,
+        });
+      }else{
+        return res.status(500).json({
+          status: "Internal Server Error",
+          message: "Something went wrong with deleteUser",
+        });
+      }
     }
   }
 
@@ -114,12 +131,7 @@ class AuthenticationController {
     try {
       const userRepo = new UsersRepo()
       const user = await userRepo.getById(parseInt(userId))
-      if (!user) {
-        return res.status(404).json({
-          status: "Not found",
-          message: "User not found",
-        });
-      }
+      
       user.name = name
       user.email = email
       user.cpf = cpf
@@ -130,10 +142,17 @@ class AuthenticationController {
         message: "Successfully updated user"
       });
     } catch (error) {
-      return res.status(500).json({
-        status: "Internal Server Error",
-        message: "Something went wrong with updateUser",
-      });
+      if(error instanceof NotFoundError){
+        return res.status(404).json({
+          status: "Not Found",
+          message: error.message,
+        });
+      }else{
+        return res.status(500).json({
+          status: "Internal Server Error",
+          message: "Something went wrong with updateUser",
+        });
+      }
     }
   }
 

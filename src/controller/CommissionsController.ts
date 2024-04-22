@@ -1,6 +1,7 @@
 import { Request , Response } from "express";
 import { CommissionsRepo } from "../repository/CommissionsRepo";
 import { Commissions } from "../models/Commissions";
+import NotFoundError from "../exceptions/NotFound";
 
 export class CommissionsController{
     async register(req: Request, res: Response){
@@ -43,25 +44,27 @@ export class CommissionsController{
     async getComission(req: Request, res: Response){
         const { commissionId } = req.params
         try{
-            const commission = await new CommissionsRepo().getById(parseInt(commissionId))
-            if (!commission) {
-              return res.status(404).json({
-                status: "Not found",
-                message: "Commission not found",
-              });
-            }
-            return res.status(200).json({
-                status: "Success",
-                message: "Successfully fetched commission",
-                commission: commission
-              });
+          const commission = await new CommissionsRepo().getById(parseInt(commissionId))
+          
+          return res.status(200).json({
+              status: "Success",
+              message: "Successfully fetched commission",
+              commission: commission
+            });
         }catch (error) {
+          if(error instanceof NotFoundError){
+            return res.status(404).json({
+              status: "Not Found",
+              message: error.message,
+            });
+          }else{
             return res.status(500).json({
               status: "Internal Server Error",
               message: "Something went wrong with getCommission",
             });
-          }
+        }
     }
+  }
 
     async updateCommission(req: Request, res: Response){
       const { commissionId } = req.params
@@ -69,12 +72,7 @@ export class CommissionsController{
       try{
         const commissionRepo = new CommissionsRepo()
         const commission = await commissionRepo.getById(parseInt(commissionId))
-        if (!commission){
-          return res.status(404).json({
-            status: "Not found",
-            message: "Commission not found",
-          });
-        }
+        
         commission.title = title
         commission.percentage = percentage
         await commissionRepo.update(commission)
@@ -83,12 +81,19 @@ export class CommissionsController{
           message: "Successfully updated commission"
         });
       }catch(error){
-        return res.status(500).json({
-          status: "Internal Server Error",
-          message: "Something went wrong with updateCommission",
+        if(error instanceof NotFoundError){
+          return res.status(404).json({
+            status: "Not Found",
+            message: error.message,
+          });
+        }else{
+          return res.status(500).json({
+            status: "Internal Server Error",
+            message: "Something went wrong with updateCommission",
         });
       }
     }
+  }
 
     async deleteCommission(req: Request, res: Response){
       const { commissionId } = req.params
@@ -99,14 +104,19 @@ export class CommissionsController{
           message: "Successfully deleted commission",
         });
       }catch (error) {
-        console.error("Delete commission error:", error);
-        return res.status(500).json({
-          status: "Internal Server Error",
-          message: "Something went wrong with deleteCommission",
-        });
+        if(error instanceof NotFoundError){
+          return res.status(404).json({
+            status: "Not Found",
+            message: error.message,
+          });
+        }else{
+          return res.status(500).json({
+            status: "Internal Server Error",
+            message: "Something went wrong with deleteCommission",
+          });
     }
       }
-
+    }
 }
 
 export default new CommissionsController()

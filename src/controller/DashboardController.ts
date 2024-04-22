@@ -1,6 +1,7 @@
 
 import { Request, Response } from "express";
 import { DashboardRepo } from "../repository/DashboardRepo";
+import NotFoundError from "../exceptions/NotFound";
 
 export class DashboardController {
     async getLatestSales(req: Request, res: Response) {
@@ -33,10 +34,17 @@ export class DashboardController {
                 userSales: userSales
             });
         } catch (error) {
-            return res.status(500).json({
-                status: "Internal Server Error",
-                message: "User not found or does not exist",
-            })
+            if(error instanceof NotFoundError){
+                return res.status(404).json({
+                    status: "Not Found",
+                    message: error.message,
+                });
+            }else{
+                return res.status(500).json({
+                    status: "Internal Server Error",
+                    message: "Something went wrong with getUserStats",
+                });
+            }
         }
     }
 
@@ -51,11 +59,17 @@ export class DashboardController {
                 productStats: productSales
             });
         } catch (error) {
-            console.error();
-            return res.status(500).json({
-                status: "Internal Server Error",
-                message: "Something went wrong with getProductStats",
-            })
+            if(error instanceof NotFoundError){
+                return res.status(404).json({
+                    status: "Not Found",
+                    message: error.message,
+                });
+            }else{
+                return res.status(500).json({
+                    status: "Internal Server Error",
+                    message: "Something went wrong with getClientStats",
+                });
+            }
         }
     }
 
@@ -70,11 +84,17 @@ export class DashboardController {
                 clientStats: totalPurchases
             });
         } catch (error) {
-            console.error();
-            return res.status(500).json({
-                status: "Internal Server Error",
-                message: "Something went wrong with getClientStats",
-            })
+            if(error instanceof NotFoundError){
+                return res.status(404).json({
+                    status: "Not Found",
+                    message: error.message,
+                });
+            }else{
+                return res.status(500).json({
+                    status: "Internal Server Error",
+                    message: "Something went wrong with getClientStats",
+                });
+            }
         }
     }
 

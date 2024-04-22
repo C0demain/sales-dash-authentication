@@ -1,6 +1,7 @@
 import { Request , Response } from "express";
 import { ClientRepo } from "../repository/ClientRepo";
 import { ClientService } from "../service/ClientService";
+import { UniqueConstraintError } from "sequelize";
 
 export class ClientController{
     
@@ -17,10 +18,17 @@ export class ClientController{
             }
             catch(error){
                 console.error("Registration error:", error);
-                return res.status(500).json({
-                    status: "Internal Server Error",
-                    message: "Something went wrong with register",
-                  });
+                if(error instanceof UniqueConstraintError){
+                    return res.status(400).json({
+                        status: "Bad Request",
+                        message: error.errors[0].message
+                    })
+                }else{
+                    return res.status(500).json({
+                        status: "Internal Server Error",
+                        message: "Something went wrong with register",
+                      });
+                }
             }
 
         }
