@@ -1,6 +1,7 @@
 import { UniqueConstraintError } from "sequelize";
 import { Sells } from "../models/Sells";
 import { Users } from "../models/Users";
+import NotFoundError from "../exceptions/NotFound";
 
 interface IUsersRepo {
   save(users: Users): Promise<void>;
@@ -43,7 +44,7 @@ export class UsersRepo implements IUsersRepo {
       });
 
       if (!new_user) {
-        throw new Error("Users not found");
+        throw new NotFoundError(`User with id '${user.id}' not found`);
       }
 
       new_user.name = user.name
@@ -53,7 +54,9 @@ export class UsersRepo implements IUsersRepo {
 
       await new_user.save();
     } catch (error) {
-      throw new Error("Failed to update users!");
+      if(error instanceof NotFoundError) throw error
+      else throw new Error("Failed to update users!");
+      
     }
   }
 
@@ -65,13 +68,14 @@ export class UsersRepo implements IUsersRepo {
       });
   
       if (!user) {
-        throw new Error("User not found");
+        throw new NotFoundError(`User with id '${userId}' not found`);
       }
   
       // Excluir o usuário
       await user.destroy();
     } catch (error) {
-      throw new Error("Failed to delete user!");
+      if(error instanceof NotFoundError) throw error
+      else throw new Error("Failed to delete user!");
     }
   }
   
@@ -86,12 +90,13 @@ export class UsersRepo implements IUsersRepo {
       });
 
       if (!new_users) {
-        throw new Error("Users not found");
+        throw new NotFoundError(`User with id '${usersId}' not found`);
       }
       // users data
       return new_users;
     } catch (error) {
-      throw new Error("Failed to get user!");
+      if(error instanceof NotFoundError) throw error
+      else throw new Error("Failed to get user!");
     }
   }
 
@@ -110,11 +115,12 @@ export class UsersRepo implements IUsersRepo {
         where: { email: email },
       });
       if (!new_users) {
-        throw new Error("Users not found!");
+        throw new NotFoundError(`User with email '${email}' not found`);
       }
       return new_users;
     } catch (error) {
-      throw new Error("Failed to fecth user by email!");
+      if(error instanceof NotFoundError) throw error
+      else throw new Error("Failed to fecth user by email!");
     }
   } 
 
@@ -124,18 +130,25 @@ export class UsersRepo implements IUsersRepo {
         where: { cpf: userCpf },
       });
       if (!new_users) {
-        throw new Error("Users not found!");
+        throw new NotFoundError(`User with cpf '${userCpf}' not found`);
       }
       return new_users;
     } catch (error) {
-      throw new Error("Failed to fecth user by cpf!");
+      if(error instanceof NotFoundError) throw error
+      else throw new Error("Failed to fecth user by cpf!");
     }
   } 
   async getByIdWithSells(userId: number): Promise<Users | null> {
     try {
-      return await Users.findByPk(userId, { include: [{ model: Sells }] });
+      const user = await Users.findByPk(userId, { include: [{ model: Sells }] });
+      if(!user){
+        throw new NotFoundError(`User with id '${userId}' not found`);
+      }
+
+      return user
     } catch (error) {
-      throw new Error("Failed to get user with sells!");
+      if(error instanceof NotFoundError) throw error
+      else throw new Error("Failed to get user with sells!");
     }
   }
 
