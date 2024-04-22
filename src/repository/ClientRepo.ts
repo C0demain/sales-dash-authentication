@@ -1,5 +1,6 @@
 import { UniqueConstraintError } from "sequelize";
 import { Client } from "../models/Client";
+import NotFoundError from "../exceptions/NotFound";
 
 interface IClientRepo {
   save(client: Client): Promise<void>;
@@ -35,13 +36,12 @@ export class ClientRepo implements IClientRepo {
         },
       });
 
-      if (!new_client) {
-        throw new Error("Client not found");
-      }
+      if (!new_client) throw new NotFoundError(`Client with id '${client}' not found`);
 
       await new_client.save();
     } catch (error) {
-      throw new Error("Failed to update client!");
+      if(error instanceof NotFoundError) throw error
+      else throw new Error("Failed to update client!");
     }
   }
 
@@ -52,14 +52,13 @@ export class ClientRepo implements IClientRepo {
         where: { id: clientId },
       });
   
-      if (!client) {
-        throw new Error("User not found");
-      }
+      if (!client) throw new NotFoundError(`Client with id '${clientId}' not found`);
   
       // Excluir o usuário
       await client.destroy();
     } catch (error) {
-      throw new Error("Failed to delete client!");
+      if(error instanceof NotFoundError) throw error
+      else throw new Error("Failed to delete client!");
     }
   }
   
@@ -73,13 +72,13 @@ export class ClientRepo implements IClientRepo {
         },
       });
 
-      if (!new_client) {
-        throw new Error("Client not found");
-      }
+      if (!new_client) throw new NotFoundError(`Client with id '${clientId}' not found`);
+
       // client data
       return new_client;
     } catch (error) {
-      throw new Error("Failed to get client!");
+      if(error instanceof NotFoundError) throw error
+      else throw new Error("Failed to get client!");
     }
   }
 
@@ -91,12 +90,12 @@ export class ClientRepo implements IClientRepo {
         },
       });
 
-      if (!new_client) {
-        throw new Error("Client not found");
-      }
+      if (!new_client) throw new NotFoundError(`Client with cpf '${clientcpf}' not found`);
+
       return new_client;
     } catch (error) {
-      throw new Error("Failed to get client!");
+      if(error instanceof NotFoundError) throw error
+      else throw new Error("Failed to get client!");
     }
   }
 

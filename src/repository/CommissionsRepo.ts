@@ -1,10 +1,11 @@
+import NotFoundError from "../exceptions/NotFound";
 import { Commissions } from "../models/Commissions";
 
 interface ICommissionsRepo {
   save(Commissions: Commissions): Promise<void>;
   update(Commissions: Commissions): Promise<void>;
   delete(CommissionsId: number): Promise<void>;
-  getById(CommissionsId: number): Promise<Commissions|null>;
+  getById(CommissionsId: number): Promise<Commissions>;
   getAll(): Promise<Commissions[]>;
 }
 
@@ -26,34 +27,29 @@ export class CommissionsRepo implements ICommissionsRepo {
   async delete(CommissionId: number): Promise<void> {
     try {
       //  find existing Commissions
-      const newCommission = await Commissions.findOne({
-        where: {
-          id: CommissionId,
-        },
-      });
+      const newCommission = await Commissions.findByPk(CommissionId)
 
-      if (!newCommission) {
-        throw new Error("Commission not found");
-      }
+      if (!newCommission) throw new NotFoundError(`Commission with id '${CommissionId}' not found`);
+
       // delete
       await newCommission.destroy();
     } catch (error) {
-      throw new Error("Failed to delete Commission!");
+      if(error instanceof NotFoundError) throw error
+      else throw new Error("Failed to delete Commission!");
     }
   }
 
-  async getById(CommissionId: number): Promise<Commissions|null> {
+  async getById(CommissionId: number): Promise<Commissions> {
     try {
       //  find existing Commissions
-      const newCommission = await Commissions.findOne({
-        where: {
-          id: CommissionId,
-        },
-      });
+      const newCommission = await Commissions.findByPk(CommissionId)
+
+      if(!newCommission) throw new NotFoundError(`Commission with id '${CommissionId}' not found`)
       // Commissions data
       return newCommission;
     } catch (error) {
-      throw new Error("Failed to fetch commission data!");
+      if(error instanceof NotFoundError) throw error
+      else throw new Error("Failed to fetch commission data!");
     }
   }
 
@@ -65,11 +61,17 @@ export class CommissionsRepo implements ICommissionsRepo {
     }
   }
 
-  async update(Commissions: Commissions): Promise<void> {
+  async update(commission: Commissions): Promise<void> {
     try{
-      await Commissions.save()
+      const newCommission = await Commissions.findByPk(Number(commission.id))
+
+      if(!newCommission) throw new NotFoundError(`Commission with id '${commission.id}' not found`);
+
+      await commission.save()
+
     }catch(error){
-      throw new Error("Failed to update data!");
+      if(error instanceof NotFoundError) throw error
+      else throw new Error("Failed to update data!");
     }
   }
 }

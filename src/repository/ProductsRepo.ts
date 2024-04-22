@@ -1,3 +1,4 @@
+import NotFoundError from '../exceptions/NotFound';
 import { Products } from './../models/Products';
 
 interface IProductRepo {
@@ -26,38 +27,29 @@ export class ProductsRepo implements IProductRepo {
   async delete(ProductId: number): Promise<void> {
     try {
       //  find existing products
-      const newProduct = await Products.findOne({
-        where: {
-          id: ProductId,
-        },
-      });
+      const newProduct = await Products.findByPk(ProductId)
 
-      if (!newProduct) {
-        throw new Error("Product not found");
-      }
+      if (!newProduct) throw new NotFoundError(`Product with id '${ProductId}' not found`);
+
       // delete
       await newProduct.destroy();
     } catch (error) {
-      throw new Error("Failed to delete Product!");
+      if(error instanceof NotFoundError) throw error
+      else throw new Error("Failed to delete Product!");
     }
   }
 
   async getById(ProductId: number): Promise<Products> {
     try {
       //  find existing Products
-      const newProduct = await Products.findOne({
-        where: {
-          id: ProductId,
-        },
-      });
+      const newProduct = await Products.findByPk(ProductId)
     
-      if (!newProduct) {
-        throw new Error("Product not found");
-      }
+      if (!newProduct) throw new NotFoundError(`Product with id '${ProductId}' not found`);
 
       return newProduct;
     } catch (error) {
-      throw new Error("Failed to fetch product data!");
+      if(error instanceof NotFoundError) throw error
+      else throw new Error("Failed to fetch product data!");
     }
   }
 
@@ -69,11 +61,15 @@ export class ProductsRepo implements IProductRepo {
     }
   }
 
-  async update(Products: Products): Promise<void> {
+  async update(Product: Products): Promise<void> {
     try{
-      await Products.save()
+      const newProduct = await Products.findByPk(Product.id)
+      if(!newProduct) throw new NotFoundError(`Product with id '${Product.id}' not found`);
+      
+      await Product.save()
     }catch(error){
-      throw new Error("Failed to update data!");
+      if(error instanceof NotFoundError) throw error
+      else throw new Error("Failed to update data!");
     }
   }
 }

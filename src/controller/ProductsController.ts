@@ -1,6 +1,7 @@
 import { ProductsService } from './../service/ProductsService';
 import { Request, Response } from "express";
 import { ProductsRepo } from "../repository/ProductsRepo";
+import NotFoundError from '../exceptions/NotFound';
 
 export class ProductsController {
     async register(req: Request, res: Response) {
@@ -43,21 +44,24 @@ export class ProductsController {
         const { productId } = req.params
         try {
             const product = await new ProductsRepo().getById(parseInt(productId))
-            if (!product) {
-                return res.status(404).json({
-                    status: "Not found",
-                    message: "Product not found",
-                });
-            }
+            
             return res.status(200).json({
                 status: "Success",
                 product: product
             });
         } catch (error) {
-            return res.status(500).json({
-                status: "Internal Server Error",
-                message: "Something went wrong with getProduct",
-            });
+            if(error instanceof NotFoundError){
+                return res.status(404).json({
+                    status: "Not Found",
+                    message: error.message,
+                });
+            }else{
+                return res.status(500).json({
+                    status: "Internal Server Error",
+                    message: "Something went wrong with getProduct",
+                });
+            }
+            
         }
     }
 
@@ -67,12 +71,7 @@ export class ProductsController {
         try {
             const productRepo = new ProductsRepo()
             const product = await productRepo.getById(parseInt(productId))
-            if (!product) {
-                return res.status(404).json({
-                    status: "Not found",
-                    message: "Product not found",
-                });
-            }
+            
             product.name = name
             product.description = description
             product.value = value
@@ -82,10 +81,17 @@ export class ProductsController {
                 message: "Successfully updated product"
             });
         } catch (error) {
-            return res.status(500).json({
-                status: "Internal Server Error",
-                message: "Something went wrong with updateProduct",
-            });
+            if(error instanceof NotFoundError){
+                return res.status(404).json({
+                    status: "Not Found",
+                    message: error.message,
+                });
+            }else{
+                return res.status(500).json({
+                    status: "Internal Server Error",
+                    message: "Something went wrong with updateProduct",
+                });
+            }
         }
     }
 
@@ -98,11 +104,17 @@ export class ProductsController {
                 message: "Successfully deleted product",
             });
         } catch (error) {
-            console.error("Delete product error:", error);
-            return res.status(500).json({
-                status: "Internal Server Error",
-                message: "Something went wrong with deleteProduct",
-            });
+            if(error instanceof NotFoundError){
+                return res.status(404).json({
+                    status: "Not Found",
+                    message: error.message,
+                });
+            }else{
+                return res.status(500).json({
+                    status: "Internal Server Error",
+                    message: "Something went wrong with deleteProduct",
+                });
+            }
         }
     }
 

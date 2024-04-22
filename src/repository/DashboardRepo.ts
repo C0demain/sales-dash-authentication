@@ -2,6 +2,7 @@ import { reverse } from "dns";
 import { Sells } from "../models/Sells";
 import { ClientRepo } from "./ClientRepo";
 import { UsersRepo } from "./UsersRepo";
+import NotFoundError from "../exceptions/NotFound";
 
 interface IDashboardRepo {
 }
@@ -44,6 +45,9 @@ export class DashboardRepo implements IDashboardRepo {
     async getUserStats(id: any, date?: Date) {
         try {
             const u = await new UsersRepo().getById(id)
+
+            if(!u) throw new NotFoundError(`User with id '${id}' not found`);
+
             const userName = u.name
             const sales = await Sells.count({
                 where: {
@@ -85,7 +89,8 @@ export class DashboardRepo implements IDashboardRepo {
 
             return { userId: id, name: userName, totalSales: sales, totalValue: totalValue, salesPerClient: occurrencesClients, productsSold: occurrencesProducts, sales: clientPurchases }
         } catch (error) {
-            throw new Error(`Failed to get sales stats from userId: ${id}`)
+            if(error instanceof NotFoundError) throw error
+            else throw new Error('Failed to get user stats')
         }
     }
 
@@ -140,6 +145,9 @@ export class DashboardRepo implements IDashboardRepo {
     async getClientStats(client: any) {
         try {
             const c = await new ClientRepo().getById(client)
+
+            if(!c) throw new NotFoundError(`Client with id '${client}' not found`);
+
             const clientName = c.name
             const sales = await Sells.count({
                 where: {
@@ -182,7 +190,8 @@ export class DashboardRepo implements IDashboardRepo {
 
             return { clientId: client, clientName: clientName, totalPurchases: sales, totalValue: totalValue, productsPurchased: occurrencesProducts, purchasedWith: occurrencesUsers, sales: productPurchases }
         } catch (error) {
-            throw new Error("Failed to get client stats")
+            if(error instanceof NotFoundError) throw error
+            else throw new Error("Failed to get client stats")
         }
     }
 
