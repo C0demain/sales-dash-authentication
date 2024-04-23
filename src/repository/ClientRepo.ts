@@ -36,12 +36,15 @@ export class ClientRepo implements IClientRepo {
         },
       });
 
-      if (!new_client) throw new NotFoundError(`Client with id '${client}' not found`);
+      if (!new_client) throw new NotFoundError(`Client with id ${client.id} not found`);
+
+      new_client.name = client.name;
+      new_client.cpf = client.cpf;
+      new_client.segment = client.segment;
 
       await new_client.save();
     } catch (error) {
-      if(error instanceof NotFoundError) throw error
-      else throw new Error("Failed to update client!");
+      throw new Error("Failed to update client!")
     }
   }
 

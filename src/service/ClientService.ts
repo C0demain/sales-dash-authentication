@@ -7,7 +7,7 @@ interface IClientService{
         name: string,
         segment : string,
         cpf : string,    
-    ): Promise<void>;   
+    ): Promise<void>;
 }
 
 export class ClientService implements IClientService{

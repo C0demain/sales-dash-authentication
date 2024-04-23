@@ -2,6 +2,7 @@ import { Request , Response } from "express";
 import { ClientRepo } from "../repository/ClientRepo";
 import { ClientService } from "../service/ClientService";
 import { UniqueConstraintError } from "sequelize";
+import NotFoundError from "../exceptions/NotFound";
 
 export class ClientController{
     
@@ -50,6 +51,32 @@ export class ClientController{
             });
           }
     }
+
+    async updateClient(req : Request, res : Response){
+        try {
+            const {clientId} = req.params;
+            const {name, cpf, segment} = req.body;
+
+            const new_client = await new ClientRepo().getById(parseInt(clientId));
+
+            if(!new_client) throw new NotFoundError("Client not found");
+
+            new_client.name = name;
+            new_client.cpf = cpf;
+            new_client.segment = segment;
+
+            await new ClientRepo().update(new_client);
+            
+            return res.status(200).json({
+                status: "Success",
+                message: "Successfully updated client"
+              });
+
+        } catch (error) {
+            if(error instanceof NotFoundError) throw error
+            else throw new Error("Failed to update client!");
+        }
     }
+}
 
 export default new ClientController();
