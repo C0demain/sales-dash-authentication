@@ -2,6 +2,7 @@ import { Model, Table, Column, DataType, ForeignKey, BelongsTo } from "sequelize
 import { Users } from "./Users";
 import { Client } from "./Client";
 import { Products } from "./Products";
+import { Commissions } from "./Commissions";
 
 @Table({
     tableName : Sells.VAR_TABLE_NAME,
@@ -19,9 +20,7 @@ export class Sells extends Model{
   public static VAR_CLIENT_NAME = "client_name" as string;
   public static VAR_NEW_CLIENT = "new_client" as string;
   public static VAR_NEW_PRODUCT = "new_product" as string;
-  public static VAR_COMMISSION_ID = 'commissionId' as string;
   public static VAR_COMMISSION_VALUE = 'commissionValue' as string;
-
   @Column({
       type : DataType.INTEGER,
       primaryKey: true,
@@ -99,13 +98,14 @@ export class Sells extends Model{
   })
   new_product !: boolean;
 
-  @Column({
-    type : DataType.INTEGER,
-    field : Sells.VAR_COMMISSION_ID,
-  })
-   commissionId !: number;
+  @ForeignKey(() => Commissions) 
+  @Column
+  commissionId!: number;
 
-   @Column({
+  @BelongsTo(() => Commissions)
+  commission!: Commissions;
+  
+  @Column({
     type : DataType.FLOAT,
     field : Sells.VAR_COMMISSION_VALUE,
   })

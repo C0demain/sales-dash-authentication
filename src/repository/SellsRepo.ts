@@ -3,6 +3,7 @@ import { Client } from "../models/Client";
 import { Products } from "../models/Products";
 import { Sells } from "../models/Sells";
 import { Users } from "../models/Users";
+import { Commissions } from "../models/Commissions";
 
 interface ISellsRepo {
   save(Sells: Sells): Promise<void>;
@@ -94,7 +95,7 @@ export class SellsRepo implements ISellsRepo {
   async getAll(): Promise<Sells[]> {
     try {
       return await Sells.findAll({
-        include: [Users, Client],
+        include: [Users, Client, Commissions],
       });
     } catch (error) {
       throw new Error("Failed to feacth all data!");
