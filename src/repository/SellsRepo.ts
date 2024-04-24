@@ -25,10 +25,10 @@ export class SellsRepo implements ISellsRepo {
         throw new Error("User not found");
       } 
       if(!client){
-        throw new Error("client not found");
+        throw new Error("Client not found");
       } 
       if(!prod){
-        throw new Error("product not found");
+        throw new Error("Product not found");
       } 
       await Sells.create({
         date : sells.date,
@@ -44,7 +44,8 @@ export class SellsRepo implements ISellsRepo {
         userId : user.id,
         new_client : sells.new_client,
         new_product : sells.new_product,
-
+        commissionId: sells.commissionId,
+        commissionValue: sells.commissionValue
       });
     } catch (error) {
       throw new Error("Failed to create Sell!");

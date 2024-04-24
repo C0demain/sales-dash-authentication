@@ -19,7 +19,8 @@ export class Sells extends Model{
   public static VAR_CLIENT_NAME = "client_name" as string;
   public static VAR_NEW_CLIENT = "new_client" as string;
   public static VAR_NEW_PRODUCT = "new_product" as string;
-
+  public static VAR_COMMISSION_ID = 'commissionId' as string;
+  public static VAR_COMMISSION_VALUE = 'commissionValue' as string;
 
   @Column({
       type : DataType.INTEGER,
@@ -97,4 +98,16 @@ export class Sells extends Model{
     field : Sells.VAR_NEW_PRODUCT,
   })
   new_product !: boolean;
+
+  @Column({
+    type : DataType.INTEGER,
+    field : Sells.VAR_COMMISSION_ID,
+  })
+   commissionId !: number;
+
+   @Column({
+    type : DataType.FLOAT,
+    field : Sells.VAR_COMMISSION_VALUE,
+  })
+   commissionValue !: number;
 }

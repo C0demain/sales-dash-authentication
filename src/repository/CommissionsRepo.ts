@@ -10,8 +10,6 @@ interface ICommissionsRepo {
 }
 
 export class CommissionsRepo implements ICommissionsRepo {
-
-  
   async save(commissions: Commissions): Promise<void> {
     try {
       await Commissions.create({

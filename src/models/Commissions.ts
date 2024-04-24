@@ -1,4 +1,5 @@
-import { Model, Table, Column, DataType } from "sequelize-typescript";
+import { QueryInterface } from "sequelize";
+import { Model, Table, Column, DataType, Sequelize } from "sequelize-typescript";
 
 @Table({
     tableName : Commissions.VAR_TABLE_NAME,
@@ -30,6 +31,4 @@ title !: string;
     field : Commissions.VAR_PERCENTAGE
 })
 percentage !: number;
-
-
 }

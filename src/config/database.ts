@@ -29,7 +29,7 @@ class Database {
       host: this.POSTGRES_HOST,
       port: this.POSTGRES_PORT,
       dialect: "postgres",
-      models:[Users, Sells, Commissions, Products, Client]
+      models: [Users, Sells, Commissions, Products, Client]
     });
 
     await this.sequelize
