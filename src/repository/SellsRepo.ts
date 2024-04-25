@@ -11,10 +11,11 @@ interface ISellsRepo {
   delete(SellsId: number): Promise<void>;
   getById(SellsId: number): Promise<Sells>;
   getAll(): Promise<Sells[]>;
+  checkProduct(prodId : number): Promise<Sells | null>;
 }
 
 export class SellsRepo implements ISellsRepo {
-
+  
   
   async save(sells: Sells): Promise<void> {
     try {
@@ -52,7 +53,7 @@ export class SellsRepo implements ISellsRepo {
       throw new Error("Failed to create Sell!");
     }
   }
-
+  
   async delete(SellsId: number): Promise<void> {
     try {
       //  find existing Sells
@@ -62,7 +63,7 @@ export class SellsRepo implements ISellsRepo {
         },
         include : [Users],
       });
-
+      
       if (!new_Sells) {
         throw new Error("Sells not found");
       }
@@ -72,7 +73,7 @@ export class SellsRepo implements ISellsRepo {
       throw new Error("Failed to delete Sells!");
     }
   }
-
+  
   async getById(SellsId: number): Promise<Sells> {
     try {
       //  find existing Sells
@@ -81,7 +82,7 @@ export class SellsRepo implements ISellsRepo {
           id: SellsId,
         },
       });
-
+      
       if (!new_Sells) {
         throw new Error("Sells not found");
       }
@@ -91,7 +92,7 @@ export class SellsRepo implements ISellsRepo {
       throw new Error("Failed to delete Sells!");
     }
   }
-
+  
   async getAll(): Promise<Sells[]> {
     try {
       return await Sells.findAll({
@@ -101,7 +102,7 @@ export class SellsRepo implements ISellsRepo {
       throw new Error("Failed to feacth all data!");
     }
   }
-
+  
   async getFiltered(filters: WhereOptions): Promise<Sells[]> {
     try {
       return await Sells.findAll({
@@ -112,7 +113,7 @@ export class SellsRepo implements ISellsRepo {
       throw new Error("Failed to feacth all data!");
     }
   }
-
+  
   async update(sells: Sells): Promise<void> {
     try {
       const new_sell = await Sells.findOne({
@@ -120,30 +121,43 @@ export class SellsRepo implements ISellsRepo {
           id: sells.id,
         },
       });
-
+      
       const user = await Users.findOne({
         where:{
           cpf : sells.user.cpf,
         }
       })
-
+      
       if (!new_sell) {
         throw new Error("sell not found");
       }
-
+      
       if(!user){
         throw new Error("Seller not in database");
       }
-
+      
       new_sell.date = sells.date;
       new_sell.seller = user.name;
       new_sell.userId = user.id;
       new_sell.value = sells.value;
-
-
+      
+      
       await new_sell.save();
     } catch (error) {
       throw new Error("Failed to update sell!");
+    }
+  }
+  async checkProduct(prodID : number): Promise<Sells| null> {
+      try{
+        const sell = await Sells.findOne({
+        where: {
+          productId: prodID,
+        }
+      });
+      return sell;
+    }
+    catch(error){
+      throw new Error("Impossible to complete operation");
     }
   }
 }

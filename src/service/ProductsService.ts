@@ -13,11 +13,10 @@ export class ProductsService implements IProductsService{
     
     async register(name: string, description: string, value: number): Promise<void> {
         try{           
-        
             const newProduct = new Products();
             newProduct.name = name;
             newProduct.description = description
-            newProduct.value = value;
+            newProduct.value = value;           
           
             await new ProductsRepo().save(newProduct);        
         }
