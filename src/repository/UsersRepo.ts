@@ -109,6 +109,18 @@ export class UsersRepo implements IUsersRepo {
     }
   }
 
+  async getAllSellers(): Promise<Users[]> {
+    try {
+      return await Users.findAll({
+        where: {
+          role: 'user'
+        }
+      });
+    } catch (error) {
+      throw new Error("Failed to feacth all users!");
+    }
+  }
+
   async findByEmail(email: string): Promise<Users> {
     try {
       const new_users = await Users.findOne({
