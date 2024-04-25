@@ -76,6 +76,23 @@ class AuthenticationController {
     }
   }
 
+  async getSellers(req: Request, res: Response) {
+    try {
+      const users = await new UsersRepo().getAllSellers();
+      return res.status(200).json({
+        status: "Success",
+        message: "Successfully fetched users",
+        users: users,
+      });
+    } catch (error) {
+      console.error("Get users error:", error);
+      return res.status(500).json({
+        status: "Internal Server Error",
+        message: "Something went wrong with getUsers",
+      });
+    }
+  }
+
   async getUserWithSells(req: Request, res: Response) {
     try {
       const userId = Number(req.params.id);
