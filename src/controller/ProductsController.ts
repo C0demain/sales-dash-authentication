@@ -2,12 +2,13 @@ import { ProductsService } from './../service/ProductsService';
 import { Request, Response } from "express";
 import { ProductsRepo } from "../repository/ProductsRepo";
 import NotFoundError from '../exceptions/NotFound';
+import { SellsRepo } from '../repository/SellsRepo';
 
 export class ProductsController {
     async register(req: Request, res: Response) {
         try {
             const {name, description, value } = req.body
-            await new ProductsService().register(name, description, value);
+            const prod = await new ProductsService().register(name, description, value);         
             return res.status(200).json({
                 status: "success",
                 message: "sucessfully registered product"
@@ -98,11 +99,15 @@ export class ProductsController {
     async deleteProduct(req: Request, res: Response) {
         const { productId } = req.params
         try {
-            await new ProductsRepo().delete(parseInt(productId))
-            return res.status(200).json({
-                status: "Success",
-                message: "Successfully deleted product",
-            });
+            const check = await new SellsRepo().checkProduct(parseInt(productId));
+            if(check == null){
+                await new ProductsRepo().delete(parseInt(productId));           
+                return res.status(204).json({
+                    status: "No content",
+                    message: "Successfully deleted product",
+                });
+            }
+            else throw new Error();
         } catch (error) {
             if(error instanceof NotFoundError){
                 return res.status(404).json({
@@ -110,9 +115,9 @@ export class ProductsController {
                     message: error.message,
                 });
             }else{
-                return res.status(500).json({
-                    status: "Internal Server Error",
-                    message: "Something went wrong with deleteProduct",
+                return res.status(403).json({
+                    status: "Forbidden",
+                    message: "Cant delete products with sells related",
                 });
             }
         }

@@ -197,7 +197,7 @@ export class DashboardRepo implements IDashboardRepo {
 
     async sortTotalValue() {
         try {
-            const usersList = await new UsersRepo().getAll()
+            const usersList = await new UsersRepo().getAllSellers()
 
             let idList: number[] = []
             usersList.forEach(element => idList.push(element.id))

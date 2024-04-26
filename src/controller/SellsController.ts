@@ -8,6 +8,8 @@ import { UsersRepo } from "../repository/UsersRepo";
 import { SellsService } from "../service/SellsService";
 import Authentication from "../utils/Authentication";
 import { Commissions } from "../models/Commissions";
+import { Op } from "sequelize";
+import { addDays, subtractDays } from "../utils/Dates";
 
 export class SellsController {
 
@@ -62,11 +64,16 @@ export class SellsController {
     }
   }
   async getFilteredSells(req: Request, res: Response) {
-    const { userId, productId, clientId } = req.query
+    const { userId, productId, clientId, startDate, endDate } = req.query
     let filters = {}
     if (userId) filters = { ...filters, ...{ userId: userId } }
     if (productId) filters = { ...filters, ...{ productId: productId } }
     if (clientId) filters = { ...filters, ...{ clientId: clientId } }
+
+    // Filter sells between two optional dates
+    const newStartDate = startDate ? subtractDays(new Date(startDate.toString()), 1) : new Date('1970-01-01')
+    const newEndDate = endDate ? new Date(endDate.toString()) : new Date()
+    filters = { ...filters, ...{ date: {[Op.between]: [newStartDate, newEndDate]} } }
 
     try {
       const sells = await new SellsRepo().getFiltered(filters);
