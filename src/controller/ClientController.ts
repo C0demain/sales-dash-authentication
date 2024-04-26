@@ -77,6 +77,32 @@ export class ClientController{
             else throw new Error("Failed to update client!");
         }
     }
+        async deleteClient(req: Request, res: Response) {
+        const { clientId } = req.params
+        try {
+            const check = await new SellsRepo().checkProduct(parseInt(clientId));
+            if(check == null){
+                await new ClientRepo().delete(parseInt(clientId));           
+                return res.status(204).json({
+                    status: "No content",
+                    message: "Successfully deleted client",
+                });
+            }
+            else throw new Error();
+        } catch (error) {
+            if(error instanceof NotFoundError){
+                return res.status(404).json({
+                    status: "Not Found",
+                    message: error.message,
+                });
+            }else{
+                return res.status(403).json({
+                    status: "Forbidden",
+                    message: "Cant delete client with sells related.",
+                });
+            }
+        }
+    }
 }
 
 export default new ClientController();
