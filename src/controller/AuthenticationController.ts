@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { AuthenticationService } from "../service/Authentication";
 import { UsersRepo } from "../repository/UsersRepo";
-import { cp } from "fs";
 import { UniqueConstraintError } from "sequelize";
 import NotFoundError from "../exceptions/NotFound";
 
@@ -9,15 +8,17 @@ class AuthenticationController {
   // login controller
   async login(req: Request, res: Response) {
     try {
-      const { email, password, role } = req.body;
+      const { email, password } = req.body;
       const token = await new AuthenticationService().login(email, password);
+      const user = await new UsersRepo().findByEmail(email);
+
       if (token === "") {
         return res.status(400).json({
           status: "Bad Request",
           message: "Incorrect email or password"
         });
       }
-      const res_token = { type: "Bearer", token: token };
+      const res_token = { type: "Bearer", token: token, userId: user.id };
       return res.status(200).json({
         status: "Success",
         message: "Successfully logged in",
