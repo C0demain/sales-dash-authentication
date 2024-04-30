@@ -1,4 +1,3 @@
-
 import { Request, Response } from "express";
 import { DashboardRepo } from "../repository/DashboardRepo";
 import NotFoundError from "../exceptions/NotFound";

@@ -4,7 +4,6 @@ import { UsersRepo } from "../repository/UsersRepo";
 import { UniqueConstraintError } from "sequelize";
 import NotFoundError from "../exceptions/NotFound";
 import { SellsRepo } from "../repository/SellsRepo";
-import { Roles } from "../models/enum/Roles";
 
 class AuthenticationController {
   // login controller
@@ -20,11 +19,11 @@ class AuthenticationController {
           message: "Incorrect email or password"
         });
       }
-      const res_token = { type: "Bearer", token: token, userId: user.id };
+      const res_user = { userId: user.id, token: token };
       return res.status(200).json({
         status: "Success",
         message: "Successfully logged in",
-        ...res_token
+        ...res_user
       });
     } catch (error) {
       console.error("Login error:", error);

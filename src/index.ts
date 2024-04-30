@@ -46,9 +46,9 @@ declare global {
 }
 
 class App {
+
   public app: Application;
 
-  // init
   constructor() {
     this.app = express();
     this.databaseSync();
@@ -56,10 +56,9 @@ class App {
     this.routes();
   }
 
-  // add routes
   protected routes(): void {
     this.app.route("/").get((req: Request, res: Response) => {
-      res.send("welcome home");
+      res.send("Welcome to Sales Dash Backend.");
     });
     this.app.use("/api/v1/auth", AuthenticationRouter);
     this.app.use("/api/v1/sells", SellsRouter);
@@ -69,33 +68,35 @@ class App {
     this.app.use("/api/v1/dashboard", DashboardRouter)
   }
 
-  // add database sync
-  protected databaseSync(): void {
-    const db = new Database();
-    db.sequelize?.sync();
-    db.sequelize?.afterBulkSync(createInitialCommissions)
+  protected async databaseSync(): Promise<void> {
+    const db = Database.getInstance();
+    try {
+      await db.sequelize?.sync();
+      await db.connect(true);
+      db.sequelize?.afterBulkSync(createInitialCommissions);
+    } catch (error) {
+      console.error("❌ Error synchronizing models or connecting to the database:", error);
+      process.exit(1);
+    }
   }
 
-  // add plugin
   protected plugins(): void {
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
 
-    // Use o middleware cors com opções
     this.app.use(cors({
       origin: true, // Origens permitidas
       methods: ['GET', 'POST', 'PUT', 'DELETE'] // Métodos HTTP permitidos
     }));
 
-    const limiter = rateLimit({
-      windowMs: 60 * 1000,
-      max: 1000,
-      message: "Limite de requisições excedido. Por favor, tente novamente mais tarde.",
-    });
-    this.app.use(limiter);
+    // const limiter = rateLimit({
+    //   windowMs: 60 * 1000,
+    //   max: 1000,
+    //   message: "Limite de requisições excedido. Por favor, tente novamente mais tarde.",
+    // });
+    // this.app.use(limiter);
   }
 }
-
 
 const port: number = 8000;
 const app = new App().app;
