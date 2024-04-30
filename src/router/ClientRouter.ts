@@ -8,6 +8,7 @@ class ClientRouter extends BaseRoutes{
         this.router.post("/register" , ClientController.register);
         this.router.get("/getclients" , ClientController.getClients);
         this.router.put("/update/:clientId" , ClientController.updateClient);
+        this.router.delete("/delete/:clientId" , ClientController.deleteClient);
    }
 
 }
