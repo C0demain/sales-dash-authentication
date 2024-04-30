@@ -160,4 +160,18 @@ export class SellsRepo implements ISellsRepo {
       throw new Error("Impossible to complete operation");
     }
   }
+
+  async checkSeller(userID : number): Promise<Sells| null> {
+    try{
+      const sell = await Sells.findOne({
+      where: {
+        sellerId: userID,
+      }
+    });
+    return sell;
+  }
+  catch(error){
+    throw new Error("Impossible to complete operation");
+  }
+}
 }

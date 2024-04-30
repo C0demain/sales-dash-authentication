@@ -3,6 +3,8 @@ import { AuthenticationService } from "../service/Authentication";
 import { UsersRepo } from "../repository/UsersRepo";
 import { UniqueConstraintError } from "sequelize";
 import NotFoundError from "../exceptions/NotFound";
+import { SellsRepo } from "../repository/SellsRepo";
+import { Roles } from "../models/enum/Roles";
 
 class AuthenticationController {
   // login controller
@@ -122,26 +124,35 @@ class AuthenticationController {
   async deleteUser(req: Request, res: Response) {
     const { userId } = req.params
     try {
-      await new UsersRepo().delete(parseInt(userId))
-      return res.status(200).json({
-        status: "Success",
-        message: "Successfully deleted user",
-      });
+        const check = await new SellsRepo().checkProduct(parseInt(userId));
+        if(check == null){
+          if( ((await new UsersRepo().getById(parseInt(userId))).role).toString() == "admin" ){
+            return res.status(403).json({
+              status: "Forbidden",
+              message: "Cant delete admin",
+            })
+          }
+            await new UsersRepo().delete(parseInt(userId));           
+            return res.status(204).json({
+                status: "No content",
+                message: "Successfully deleted user",
+            });
+        }
+        else throw new Error();
     } catch (error) {
-      console.error("Delete user error:", error);
-      if(error instanceof NotFoundError){
-        return res.status(404).json({
-          status: "Not Found",
-          message: error.message,
-        });
-      }else{
-        return res.status(500).json({
-          status: "Internal Server Error",
-          message: "Something went wrong with deleteUser",
-        });
-      }
+        if(error instanceof NotFoundError){
+            return res.status(404).json({
+                status: "Not Found",
+                message: error.message,
+            });
+        }else{
+            return res.status(403).json({
+                status: "Forbidden",
+                message: "Cant delete Seller with sells related",
+            });
+        }
     }
-  }
+}
 
   async updateUser(req: Request, res: Response) {
     const { userId } = req.params
