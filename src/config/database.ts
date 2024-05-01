@@ -28,7 +28,7 @@ class Database {
       port: this.POSTGRES_PORT,
       dialect: "postgres",
       models: [Users, Sells, Commissions, Products, Client],
-      logging: false
+      logging: true
     });
   }
 

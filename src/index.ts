@@ -1,5 +1,4 @@
 import express, { Application, Request, Response, } from "express";
-import rateLimit from "express-rate-limit";
 import cors from "cors";
 import Database from "./config/database";
 import AuthenticationRouter from "./router/AuthenticationRouter";
@@ -68,16 +67,11 @@ class App {
     this.app.use("/api/v1/dashboard", DashboardRouter)
   }
 
-  protected async databaseSync(): Promise<void> {
+  protected databaseSync(): void {
     const db = Database.getInstance();
-    try {
-      await db.sequelize?.sync();
-      await db.connect(true);
-      db.sequelize?.afterBulkSync(createInitialCommissions);
-    } catch (error) {
-      console.error("❌ Error synchronizing models or connecting to the database:", error);
-      process.exit(1);
-    }
+    db.connect(true);
+    db.sequelize?.sync();
+    db.sequelize?.afterBulkSync(createInitialCommissions)
   }
 
   protected plugins(): void {
@@ -88,13 +82,6 @@ class App {
       origin: true, // Origens permitidas
       methods: ['GET', 'POST', 'PUT', 'DELETE'] // Métodos HTTP permitidos
     }));
-
-    // const limiter = rateLimit({
-    //   windowMs: 60 * 1000,
-    //   max: 1000,
-    //   message: "Limite de requisições excedido. Por favor, tente novamente mais tarde.",
-    // });
-    // this.app.use(limiter);
   }
 }
 

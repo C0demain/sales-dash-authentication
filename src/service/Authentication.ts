@@ -1,4 +1,3 @@
-import { Roles } from './../models/enum/Roles';
 import { Users } from "../models/Users";
 import { UsersRepo } from "../repository/UsersRepo";
 import Authentication from "../utils/Authentication";
@@ -11,7 +10,6 @@ interface IAuthenticationService {
     password: string,
     name: string,
     cpf: string,
-    role: [Roles.Admin, Roles.User]
   ): Promise<void>;
 }
 
@@ -47,7 +45,6 @@ export class AuthenticationService implements IAuthenticationService {
     password: string,
     name: string,
     cpf: string,
-    role: [Roles.Admin, Roles.User]
   ): Promise<void> {
     try {
       const hashedPassword: string = await Authentication.passwordHash(password);
@@ -56,7 +53,6 @@ export class AuthenticationService implements IAuthenticationService {
       newUser.password = hashedPassword;
       newUser.name = name;
       newUser.cpf = cpf;
-      newUser.role = role;
 
       await new UsersRepo().save(newUser);
     } catch (error) {

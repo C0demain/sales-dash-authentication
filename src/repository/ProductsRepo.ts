@@ -15,7 +15,6 @@ export class ProductsRepo implements IProductRepo {
     try {
       await Products.create({
         name: products.name,
-        description: products.description,
         value: products.value
 
       });

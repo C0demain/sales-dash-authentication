@@ -1,5 +1,6 @@
 import { Model, Table, Column, DataType, HasMany } from "sequelize-typescript";
 import { Sells } from "./Sells";
+import { Roles } from "./enum/Roles";
 
 @Table({
   tableName: Users.VAR_TABLE_NAME,
@@ -51,9 +52,10 @@ export class Users extends Model {
   sells!: Sells[];
 
   @Column({
-    type: DataType.STRING(10),
+    type: DataType.STRING(5),
     field: Users.VAR_ROLE,
     allowNull: false,
+    defaultValue: Roles.User
   })
   role!: string[];
 }

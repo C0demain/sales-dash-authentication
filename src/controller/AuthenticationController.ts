@@ -15,13 +15,11 @@ class AuthenticationController {
 
       if (token === "") {
         return res.status(400).json({
-          status: "Bad Request",
           message: "Incorrect email or password"
         });
       }
       const res_user = { userId: user.id, token: token };
       return res.status(200).json({
-        status: "Success",
         message: "Successfully logged in",
         ...res_user
       });
@@ -37,26 +35,26 @@ class AuthenticationController {
   // register controller
   async register(req: Request, res: Response) {
     try {
-      const { name, email, password, cpf, role } = req.body;
-      await new AuthenticationService().register(email, password, name, cpf, role);
+      const { name, email, password, cpf } = req.body;
+      await new AuthenticationService().register(email, password, name, cpf);
       return res.status(200).json({
         status: "Success",
         message: "Successfully registered user",
       });
     } catch (error) {
       console.error("Registration error:", error);
-      if(error instanceof UniqueConstraintError){
+      if (error instanceof UniqueConstraintError) {
         return res.status(400).json({
           status: "Bad Request",
           message: error.errors[0].message
-      })
+        })
       }
-      else{
+      else {
         return res.status(500).json({
           status: "Internal Server Error",
           message: "Something went wrong with register",
-      });
-    }
+        });
+      }
     }
   }
 
@@ -99,19 +97,19 @@ class AuthenticationController {
     try {
       const userId = Number(req.params.id);
       const user = await new UsersRepo().getByIdWithSells(userId);
-      
+
       return res.status(200).json({
         status: "Success",
         message: "Successfully fetched user with sells",
         user: user,
       });
     } catch (error) {
-      if(error instanceof NotFoundError){
+      if (error instanceof NotFoundError) {
         return res.status(404).json({
           status: "Not Found",
           message: error.message,
         });
-      }else{
+      } else {
         return res.status(500).json({
           status: "Internal Server Error",
           message: "Something went wrong with deleteUser",
@@ -123,35 +121,35 @@ class AuthenticationController {
   async deleteUser(req: Request, res: Response) {
     const { userId } = req.params
     try {
-        const check = await new SellsRepo().checkProduct(parseInt(userId));
-        if(check == null){
-          if( ((await new UsersRepo().getById(parseInt(userId))).role).toString() == "admin" ){
-            return res.status(403).json({
-              status: "Forbidden",
-              message: "Cant delete admin",
-            })
-          }
-            await new UsersRepo().delete(parseInt(userId));           
-            return res.status(204).json({
-                status: "No content",
-                message: "Successfully deleted user",
-            });
+      const check = await new SellsRepo().checkProduct(parseInt(userId));
+      if (check == null) {
+        if (((await new UsersRepo().getById(parseInt(userId))).role).toString() == "admin") {
+          return res.status(403).json({
+            status: "Forbidden",
+            message: "Cant delete admin",
+          })
         }
-        else throw new Error();
+        await new UsersRepo().delete(parseInt(userId));
+        return res.status(204).json({
+          status: "No content",
+          message: "Successfully deleted user",
+        });
+      }
+      else throw new Error();
     } catch (error) {
-        if(error instanceof NotFoundError){
-            return res.status(404).json({
-                status: "Not Found",
-                message: error.message,
-            });
-        }else{
-            return res.status(403).json({
-                status: "Forbidden",
-                message: "Cant delete Seller with sells related",
-            });
-        }
+      if (error instanceof NotFoundError) {
+        return res.status(404).json({
+          status: "Not Found",
+          message: error.message,
+        });
+      } else {
+        return res.status(403).json({
+          status: "Forbidden",
+          message: "Cant delete Seller with sells related",
+        });
+      }
     }
-}
+  }
 
   async updateUser(req: Request, res: Response) {
     const { userId } = req.params
@@ -159,7 +157,7 @@ class AuthenticationController {
     try {
       const userRepo = new UsersRepo()
       const user = await userRepo.getById(parseInt(userId))
-      
+
       user.name = name
       user.email = email
       user.cpf = cpf
@@ -170,12 +168,12 @@ class AuthenticationController {
         message: "Successfully updated user"
       });
     } catch (error) {
-      if(error instanceof NotFoundError){
+      if (error instanceof NotFoundError) {
         return res.status(404).json({
           status: "Not Found",
           message: error.message,
         });
-      }else{
+      } else {
         return res.status(500).json({
           status: "Internal Server Error",
           message: "Something went wrong with updateUser",
@@ -183,8 +181,6 @@ class AuthenticationController {
       }
     }
   }
-
-
 }
 
 export default new AuthenticationController();

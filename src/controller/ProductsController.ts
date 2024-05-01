@@ -7,8 +7,8 @@ import { SellsRepo } from '../repository/SellsRepo';
 export class ProductsController {
     async register(req: Request, res: Response) {
         try {
-            const {name, description, value } = req.body
-            const prod = await new ProductsService().register(name, description, value);         
+            const {name, value } = req.body
+            const prod = await new ProductsService().register(name, value);         
             return res.status(200).json({
                 status: "success",
                 message: "sucessfully registered product"
@@ -68,13 +68,12 @@ export class ProductsController {
 
     async updateProduct(req: Request, res: Response) {
         const { productId } = req.params
-        const { name, description, value } = req.body
+        const { name, value } = req.body
         try {
             const productRepo = new ProductsRepo()
             const product = await productRepo.getById(parseInt(productId))
             
             product.name = name
-            product.description = description
             product.value = value
             await productRepo.update(product)
             return res.status(200).json({

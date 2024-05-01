@@ -1,5 +1,6 @@
 import bcrypt from 'bcrypt';
 import { Users } from "../models/Users";
+import { Roles } from '../models/enum/Roles';
 
 export class Seeders {
   public static async defaultUsers(): Promise<void> {
@@ -12,16 +13,16 @@ export class Seeders {
       await Users.bulkCreate([
         {
           name: 'Admin',
-          email: 'admin@example.com',
+          email: 'admin@gmail.com',
           password: hashedPasswordAdmin,
-          role: 'admin',
+          role: Roles.Admin,
           cpf: '123.456.789-00'
         },
         {
           name: 'User',
-          email: 'user@example.com',
+          email: 'user@gmail.com',
           password: hashedPasswordUser,
-          role: 'user',
+          role: Roles.User,
           cpf: '987.654.321-00'
         }
       ]);

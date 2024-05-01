@@ -17,7 +17,6 @@ interface IUsersRepo {
 
 export class UsersRepo implements IUsersRepo {
   
-
   async save(users: Users): Promise<void> {
     try {
       await Users.create({
@@ -25,7 +24,6 @@ export class UsersRepo implements IUsersRepo {
         password: users.password,
         email: users.email,
         cpf: users.cpf,
-        role: users.role
       });
     } catch (error) {
       console.log(error)
@@ -79,7 +77,6 @@ export class UsersRepo implements IUsersRepo {
     }
   }
   
-
   async getById(usersId: number): Promise<Users> {
     try {
       //  find existing users
@@ -99,7 +96,6 @@ export class UsersRepo implements IUsersRepo {
       else throw new Error("Failed to get user!");
     }
   }
-
   
   async getAll(): Promise<Users[]> {
     try {
@@ -150,6 +146,7 @@ export class UsersRepo implements IUsersRepo {
       else throw new Error("Failed to fecth user by cpf!");
     }
   } 
+
   async getByIdWithSells(userId: number): Promise<Users | null> {
     try {
       const user = await Users.findByPk(userId, { include: [{ model: Sells }] });
@@ -163,6 +160,4 @@ export class UsersRepo implements IUsersRepo {
       else throw new Error("Failed to get user with sells!");
     }
   }
-
-
 }
