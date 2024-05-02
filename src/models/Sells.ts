@@ -12,12 +12,9 @@ export class Sells extends Model{
   public static VAR_TABLE_NAME = "sells" as string;
   public static VAR_ID = "id" as string;
   public static VAR_DATE = "date" as string;
-  public static VAR_SELLER = "seller" as string;
   public static VAR_PRODUCTID = "productId" as string;
-  public static VAR_PRODUCTNAME = "productName" as string;
   public static VAR_CLIENT = "client" as string;
   public static VAR_VALUE = "value" as string;
-  public static VAR_CLIENT_NAME = "client_name" as string;
   public static VAR_NEW_CLIENT = "new_client" as string;
   public static VAR_NEW_PRODUCT = "new_product" as string;
   public static VAR_COMMISSION_VALUE = 'commissionValue' as string;
@@ -34,12 +31,6 @@ export class Sells extends Model{
       field : Sells.VAR_DATE
   })
   date !: string;
-
-  @Column({
-      type : DataType.STRING(100),
-      field : Sells.VAR_SELLER
-  })
-  seller !: string;
 
   @ForeignKey(() => Users)
     @Column
@@ -58,19 +49,6 @@ export class Sells extends Model{
 
     @BelongsTo(() => Products)
     product!: Products;
-
-
-  @Column({
-    type : DataType.STRING(100),
-    field : Sells.VAR_PRODUCTNAME,
-  })
-  productName !: string;
-
-  @Column({
-    type : DataType.STRING(100),
-    field : Sells.VAR_CLIENT_NAME,
-  })
-  clientname !: string;
 
   @ForeignKey(() => Client) 
     @Column

@@ -4,6 +4,8 @@ import { DashboardRepo } from "../repository/DashboardRepo";
 import NotFoundError from "../exceptions/NotFound";
 import { subtractDays } from "../utils/Dates";
 import { Op, WhereOptions } from "sequelize";
+import { Products } from "../models/Products";
+import { Client } from "../models/Client";
 
 export class DashboardController {
     async getLatestSales(req: Request, res: Response) {
@@ -11,10 +13,19 @@ export class DashboardController {
             const limit: number = 50
             const order: string = 'DESC'
             const lastSales = await new DashboardRepo().getLatestSells(limit, order)
+            const enhancedSales = lastSales.map(sale => {
+                return {
+                    ...sale.toJSON(), 
+                    seller: sale.user.name,
+                    productName : sale.product.name,
+                    clientname : sale.client.name,
+
+                };
+            });
             return res.status(200).json({
                 status: "Success",
                 message: `Showing up to ${limit} sales in ${order} order`,
-                lastSales: lastSales
+                lastSales: enhancedSales
             });
         } catch (error) {
             console.error();

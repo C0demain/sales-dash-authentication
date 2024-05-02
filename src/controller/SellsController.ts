@@ -60,11 +60,19 @@ export class SellsController {
 
     try {
       const sells = await new SellsRepo().getFiltered(filters);
+      const esells = sells.map(sale => {
+        return {
+            ...sale.toJSON(), 
+            seller: sale.user.name,
+            productName : sale.product.name,
+            clientname : sale.client.name,
 
+        };
+    });
       return res.status(200).json({
         status: "Success",
         message: "Successfully fetched sells",
-        sells: sells,
+        sells: esells,
       });
     } catch (error) {
       console.error("Get sells error:", error);
@@ -150,7 +158,6 @@ export class SellsController {
         });
       }
       sell.date = date;
-      sell.seller = user.name;
       sell.user = user;
       sell.userId = user.id;
       sell.value = value;
@@ -172,10 +179,19 @@ export class SellsController {
   async getSells(req: Request, res: Response) {
     try {
       const sells = await new SellsRepo().getAll();
+      const esells = sells.map(sale => {
+        return {
+            ...sale.toJSON(), 
+            seller: sale.user.name,
+            productName : sale.product.name,
+            clientname : sale.client.name,
+
+        };
+    });
       return res.status(200).json({
         status: "Success",
         message: "Successfully fetched sells",
-        sell: sells,
+        sell: esells,
       });
     } catch (error) {
       console.error("Get client error:", error);

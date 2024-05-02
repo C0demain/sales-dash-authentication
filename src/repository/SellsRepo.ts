@@ -19,7 +19,7 @@ export class SellsRepo implements ISellsRepo {
   
   async save(sells: Sells): Promise<void> {
     try {
-      const user = await Users.findOne({ where: { email: sells.seller } });
+      const user = await Users.findOne({ where: { id: sells.userId} });
       const client = await Client.findOne({ where : {cpf : sells.client.cpf }});
       const prod = await Products.findOne({where :{id : sells.productId}});
       console.log(client)
@@ -34,13 +34,10 @@ export class SellsRepo implements ISellsRepo {
       } 
       await Sells.create({
         date : sells.date,
-        seller : user.name,
         product : prod,
-        productName: prod.name,
         productId : prod.id,
         clientId : client.id,
         client : client,
-        clientname : client.name,
         value : sells.value,
         user : user,
         userId : user.id,
@@ -96,7 +93,7 @@ export class SellsRepo implements ISellsRepo {
   async getAll(): Promise<Sells[]> {
     try {
       return await Sells.findAll({
-        include: [Users, Client, Commissions],
+        include: [Users, Client,Products, Commissions],
       });
     } catch (error) {
       throw new Error("Failed to feacth all data!");
@@ -124,7 +121,7 @@ export class SellsRepo implements ISellsRepo {
       
       const user = await Users.findOne({
         where:{
-          cpf : sells.user.cpf,
+          id : sells.userId,
         }
       })
       
@@ -137,7 +134,6 @@ export class SellsRepo implements ISellsRepo {
       }
       
       new_sell.date = sells.date;
-      new_sell.seller = user.name;
       new_sell.userId = user.id;
       new_sell.value = sells.value;
       

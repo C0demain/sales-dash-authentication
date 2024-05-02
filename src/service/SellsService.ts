@@ -39,10 +39,8 @@ export class SellsService implements ISellsService{
             
             const newSell = new Sells();
             newSell.date = date;
-            newSell.seller = user.email;
             newSell.product = prod;
             newSell.productId = prod.id;
-            newSell.clientname = client.name;
             newSell.client = client;
             newSell.clientId = client.id;
             newSell.value = value;
