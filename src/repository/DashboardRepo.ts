@@ -28,6 +28,7 @@ export class DashboardRepo implements IDashboardRepo {
     //Não funciona por enquanto
     async getStatsFromDate(filters: WhereOptions) {
         try {
+            console.log(filters)
             const allSales = await Sells.findAll({
               where: filters, 
               include: [Users, Client, Products]
@@ -41,10 +42,14 @@ export class DashboardRepo implements IDashboardRepo {
                 where: filters
             }) || 0
 
+            let totalCommissions = await Sells.sum('commissionValue',{
+                where: filters
+            }) || 0
+
             // Retorna um lista de objetos com o nome e ID do cliente e o ID do produto comprado
-            let clientPurchases: { clientId: number, clientName: string, productid: number }[] = []
+            let clientPurchases: { clientId: number, clientName: string, productid: number, productName:string, sellerId: number, sellerName: string }[] = []
             allSales.forEach(element => {
-                clientPurchases.push({ clientId: element.clientId, clientName: element.clientname, productid: element.productId })
+                clientPurchases.push({ clientId: element.clientId, clientName: element.clientname, productid: element.productId, productName: element.productName, sellerId: element.userId, sellerName: element.seller})
             })
 
             // Retorna o numero de vezes que um cliente comprou com o usuário
@@ -55,12 +60,18 @@ export class DashboardRepo implements IDashboardRepo {
             });
 
             const occurrencesProducts: { [key: string]: number } = {};
-            clientPurchases.forEach((buyer: { productid: any; }) => {
-                const key = `${buyer.productid}`;
+            clientPurchases.forEach((buyer: { productName: any; }) => {
+                const key = `${buyer.productName}`;
                 occurrencesProducts[key] = (occurrencesProducts[key] || 0) + 1;
             });
 
-            return { totalSales, totalValue, salesPerClient: occurrencesClients, productsSold: occurrencesProducts, sales: clientPurchases }
+            const occurrencesUser: { [key: string]: number } = {};
+            clientPurchases.forEach((buyer: { sellerId: any; sellerName: any; }) => {
+                const key = `${buyer.sellerName}`;
+                occurrencesUser[key] = (occurrencesUser[key] || 0) + 1;
+            });
+
+            return { filters, totalSales, totalValue, totalCommissions, clientPurchases: occurrencesClients, productsSold: occurrencesProducts, userSells: occurrencesUser }
 
           } catch (error) {
             throw new Error("Failed to fetch data!");
@@ -258,6 +269,7 @@ export class DashboardRepo implements IDashboardRepo {
             throw new Error(``)
         }
     }
+
     // Valor total no dia/mes
     // Vendas no dia/mês
     // Total de vendas por vendedor *
