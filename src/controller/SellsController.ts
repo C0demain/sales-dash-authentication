@@ -168,6 +168,23 @@ export class SellsController {
       });
     }
   }
+
+  async getSells(req: Request, res: Response) {
+    try {
+        const sells = await new SellsRepo().getAll();
+        return res.status(200).json({
+            status: "Success",
+            message: "Successfully fetched sells",
+            sell: sells,
+        });
+    } catch (error) {
+        console.error("Get client error:", error);
+        return res.status(500).json({
+            status: "Internal Server Error",
+            message: "Something went wrong with getsells",
+        });
+    }
+}
 }
 
 const getCommission = (clientCreated: boolean, productCreated: boolean):number => {
@@ -181,5 +198,7 @@ const getCommission = (clientCreated: boolean, productCreated: boolean):number =
     return 4
   }
 }
+
+
 
 export default new SellsController();
