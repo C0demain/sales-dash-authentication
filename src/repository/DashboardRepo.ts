@@ -99,6 +99,12 @@ export class DashboardRepo implements IDashboardRepo {
                 }
             })
 
+            let totalCommissions = await Sells.sum('commissionValue',{
+                where: {
+                    userId: id
+                }
+            }) || 0
+            
             // Retorna um lista de objetos com o nome e ID do cliente e o ID do produto comprado
             let clientPurchases: { clientId: number, clientName: string, productid: number }[] = []
             allSales.forEach(element => {
@@ -118,7 +124,7 @@ export class DashboardRepo implements IDashboardRepo {
                 occurrencesProducts[key] = (occurrencesProducts[key] || 0) + 1;
             });
 
-            return { userId: id, name: userName, totalSales: sales, totalValue: totalValue, salesPerClient: occurrencesClients, productsSold: occurrencesProducts, sales: clientPurchases }
+            return { userId: id, name: userName, totalSales: sales, totalValue: totalValue, totalCommissions: totalCommissions, salesPerClient: occurrencesClients, productsSold: occurrencesProducts, sales: clientPurchases }
         } catch (error) {
             if(error instanceof NotFoundError) throw error
             else throw new Error('Failed to get user stats')
@@ -144,6 +150,12 @@ export class DashboardRepo implements IDashboardRepo {
                 }
             })
 
+            let totalCommissions = await Sells.sum('commissionValue',{
+                where: {
+                    productId: id
+                }
+            }) || 0
+
             // Retorna um lista de objetos com o nome e ID do cliente e o ID do produto comprado
             let clientPurchases: { clientId: number, clientName: string, sellerId: number, sellerName: string }[] = []
             allSales.forEach(element => {
@@ -166,7 +178,7 @@ export class DashboardRepo implements IDashboardRepo {
             if (!totalValue) {
                 totalValue = 0
             }
-            return { productId: id, totalSales: sales, totalValue: totalValue, purchasesPerClient: occurrencesClient, soldPerUser: occurrencesUser, sales: clientPurchases }
+            return { productId: id, totalSales: sales, totalValue: totalValue, totalCommissions: totalCommissions, purchasesPerClient: occurrencesClient, soldPerUser: occurrencesUser,sales: clientPurchases}
         } catch (error) {
             throw new Error("Failed to get product stats")
         }
@@ -189,11 +201,13 @@ export class DashboardRepo implements IDashboardRepo {
                 where: {
                     clientId: client
                 }
-            })
+            }) || 0
 
-            if (!totalValue) {
-                totalValue = 0
-            }
+            let totalCommissions = await Sells.sum('commissionValue',{
+                where: {
+                    clientId: client
+                }
+            }) || 0
 
             const allSales = await Sells.findAll({
                 where: {
@@ -219,7 +233,7 @@ export class DashboardRepo implements IDashboardRepo {
                 occurrencesUsers[key] = (occurrencesUsers[key] || 0) + 1;
             });
 
-            return { clientId: client, clientName: clientName, totalPurchases: sales, totalValue: totalValue, productsPurchased: occurrencesProducts, purchasedWith: occurrencesUsers, sales: productPurchases }
+            return { clientId: client, clientName: clientName, totalPurchases: sales, totalValue: totalValue, totalCommissions:totalCommissions, productsPurchased: occurrencesProducts, purchasedWith: occurrencesUsers,sales: productPurchases }
         } catch (error) {
             if(error instanceof NotFoundError) throw error
             else throw new Error("Failed to get client stats")
