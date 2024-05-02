@@ -108,7 +108,6 @@ export class DashboardController {
         const newEndDate = endDate ? new Date(endDate.toString()) : new Date()
         console.log(newStartDate, newStartDate);        
         filters = { ...filters, ...{ date: {[Op.between]: [newStartDate, newEndDate]} } }
-        console.log(filters);
 
         try {
             const sales = await new DashboardRepo().getStatsFromDate(filters)

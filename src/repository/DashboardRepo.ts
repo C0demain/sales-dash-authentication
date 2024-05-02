@@ -25,10 +25,8 @@ export class DashboardRepo implements IDashboardRepo {
         }
     }
 
-    //Não funciona por enquanto
     async getStatsFromDate(filters: WhereOptions) {
         try {
-            console.log(filters)
             const allSales = await Sells.findAll({
               where: filters, 
               include: [Users, Client, Products]
@@ -71,7 +69,7 @@ export class DashboardRepo implements IDashboardRepo {
                 occurrencesUser[key] = (occurrencesUser[key] || 0) + 1;
             });
 
-            return { filters, totalSales, totalValue, totalCommissions, clientPurchases: occurrencesClients, productsSold: occurrencesProducts, userSells: occurrencesUser }
+            return { totalSales, totalValue, totalCommissions, clientPurchases: occurrencesClients, productsSold: occurrencesProducts, userSells: occurrencesUser }
 
           } catch (error) {
             throw new Error("Failed to fetch data!");
