@@ -1,8 +1,11 @@
-import { reverse } from "dns";
+import { WhereOptions } from "sequelize";
+import NotFoundError from "../exceptions/NotFound";
 import { Sells } from "../models/Sells";
 import { ClientRepo } from "./ClientRepo";
 import { UsersRepo } from "./UsersRepo";
-import NotFoundError from "../exceptions/NotFound";
+import { Users } from "../models/Users";
+import { Client } from "../models/Client";
+import { Products } from "../models/Products";
 
 interface IDashboardRepo {
 }
@@ -23,22 +26,44 @@ export class DashboardRepo implements IDashboardRepo {
     }
 
     //Não funciona por enquanto
-    async getStatsFromDate(date?: Date): Promise<Sells[]> {
-        if (!date) {
-            date = new Date()
-        }
-        date.toUTCString
+    async getStatsFromDate(filters: WhereOptions) {
         try {
-            const sales = await Sells.findAll({
-                where: {
-                    createdAt: {
-                        lt: date.toUTCString()
-                    }
-                }
+            const allSales = await Sells.findAll({
+              where: filters, 
+              include: [Users, Client, Products]
+            });
+
+            let totalSales = await Sells.count({
+                where: filters
+            }) || 0
+            
+            let totalValue = await Sells.sum('value', {
+                where: filters
+            }) || 0
+
+            // Retorna um lista de objetos com o nome e ID do cliente e o ID do produto comprado
+            let clientPurchases: { clientId: number, clientName: string, productid: number }[] = []
+            allSales.forEach(element => {
+                clientPurchases.push({ clientId: element.clientId, clientName: element.clientname, productid: element.productId })
             })
-            return sales
-        } catch (error) {
-            throw new Error("Failed to get sales from given date")
+
+            // Retorna o numero de vezes que um cliente comprou com o usuário
+            const occurrencesClients: { [key: string]: number } = {};
+            clientPurchases.forEach((buyer: { clientName: any; }) => {
+                const key = `${buyer.clientName}`;
+                occurrencesClients[key] = (occurrencesClients[key] || 0) + 1;
+            });
+
+            const occurrencesProducts: { [key: string]: number } = {};
+            clientPurchases.forEach((buyer: { productid: any; }) => {
+                const key = `${buyer.productid}`;
+                occurrencesProducts[key] = (occurrencesProducts[key] || 0) + 1;
+            });
+
+            return { totalSales, totalValue, salesPerClient: occurrencesClients, productsSold: occurrencesProducts, sales: clientPurchases }
+
+          } catch (error) {
+            throw new Error("Failed to fetch data!");
         }
     }
 
@@ -58,10 +83,7 @@ export class DashboardRepo implements IDashboardRepo {
                 where: {
                     userId: id
                 }
-            })
-            if (!totalValue) {
-                totalValue = 0
-            }
+            }) || 0
             const allSales = await Sells.findAll({
                 where: {
                     userId: id

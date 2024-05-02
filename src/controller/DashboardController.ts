@@ -2,6 +2,8 @@
 import { Request, Response } from "express";
 import { DashboardRepo } from "../repository/DashboardRepo";
 import NotFoundError from "../exceptions/NotFound";
+import { subtractDays } from "../utils/Dates";
+import { Op, WhereOptions } from "sequelize";
 
 export class DashboardController {
     async getLatestSales(req: Request, res: Response) {
@@ -100,8 +102,14 @@ export class DashboardController {
 
     //Não funciona ainda
     async getStatsFromDate(req: Request, res: Response) {
+        let filters = {}
+        const { startDate, endDate } = req.query
+        const newStartDate = startDate ? subtractDays(new Date(startDate.toString()), 1) : new Date('1970-01-01')
+        const newEndDate = endDate ? new Date(endDate.toString()) : new Date()
+        filters = { ...filters, ...{ date: {[Op.between]: [newStartDate, newEndDate]} } }
         try {
-            const sales = await new DashboardRepo().getStatsFromDate()
+            console.log(filters)
+            const sales = await new DashboardRepo().getStatsFromDate(filters)
             return res.status(200).json({
                 status: "Success",
                 message: `Showing stats from`,
