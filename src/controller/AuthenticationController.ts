@@ -49,7 +49,7 @@ class AuthenticationController {
       if(error instanceof UniqueConstraintError){
         return res.status(400).json({
           status: "Bad Request",
-          message: error.errors[0].message
+          message: error.errors[0]?.message
       })
       }
       else{
