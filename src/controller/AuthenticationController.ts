@@ -20,7 +20,7 @@ class AuthenticationController {
           message: "Incorrect email or password"
         });
       }
-      const res_token = { type: "Bearer", token: token, userId: user.id };
+      const res_token = { type: "Bearer", token: token, userId: user.id, role: user.role };
       return res.status(200).json({
         status: "Success",
         message: "Successfully logged in",
