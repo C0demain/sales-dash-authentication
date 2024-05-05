@@ -89,7 +89,7 @@ export class DashboardController {
     async getClientStats(req: Request, res: Response) {
         try {
             const id = req.params.id
-            const totalPurchases = await new DashboardRepo().getClientStats(id)
+            const totalPurchases = await new DashboardRepo().getClientStats(parseInt(id))
 
             return res.status(200).json({
                 status: "Success",
