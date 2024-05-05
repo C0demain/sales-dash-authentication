@@ -39,7 +39,7 @@ export class DashboardController {
     async getUserStats(req: Request, res: Response) {
         try {
             const userId = req.params.id
-            const userSales = await new DashboardRepo().getUserStats(userId)
+            const userSales = await new DashboardRepo().getUserStats(parseInt(userId))
 
             return res.status(200).json({
                 status: "Success",
@@ -80,7 +80,7 @@ export class DashboardController {
             }else{
                 return res.status(500).json({
                     status: "Internal Server Error",
-                    message: "Something went wrong with getClientStats",
+                    message: "Something went wrong with getProductStats",
                 });
             }
         }
