@@ -80,41 +80,42 @@ export class DashboardRepo implements IDashboardRepo {
         }
     }
 
-    async getUserStats(id: number) {
+    async getUserStats(id: number, filters: WhereOptions) {
         try {
             const user = await new UsersRepo().getById(id);
 
             if (!user) {
+                console.log("User not found");
                 throw new NotFoundError(`User with id '${id}' not found`);
             }
 
-            const userName = user.name;
-            const options = { userId: id };
+            const userName = user.name
+
             const [sales, totalValue, totalCommissions, allSales] = await Promise.all([
-                Sells.count({ where: options }),
-                Sells.sum('value', { where: options }) || 0,
-                Sells.sum('commissionValue', { where: options }) || 0,
-                Sells.findAll({ where: options })
+                Sells.count({ where: filters }),
+                Sells.sum('value', { where: filters }) || 0,
+                Sells.sum('commissionValue', { where: filters }) || 0,
+                Sells.findAll({ where: filters })
             ]);
 
-            const clientPurchases = await Promise.all(allSales.map(async (sale) => {
+            const soldUser = await Promise.all(allSales.map(async (sale) => {
                 const client = await new ClientRepo().getById(sale.clientId);
                 return { clientId: sale.clientId, clientName: client.name, productId: sale.productId };
             }));
 
             const occurrencesClients: { [key: string]: number } = {};
-            clientPurchases.forEach((buyer: { clientId: number; clientName: string; }) => {
+            soldUser.forEach((buyer: { clientId: number; clientName: string; }) => {
                 const key = `${buyer.clientName}`;
-                occurrencesClients[key] = (occurrencesClients[buyer.clientName] || 0) + 1;
+                occurrencesClients[key] = (occurrencesClients[key] || 0) + 1;
             });
 
             const occurrencesProducts: { [key: string]: number } = {};
-            clientPurchases.forEach((buyer: { productId: any }) => {
+            soldUser.forEach((buyer: { productId: any }) => {
                 const key = `${buyer.productId}`;
                 occurrencesProducts[key] = (occurrencesProducts[key] || 0) + 1;
             });
 
-            return { userId: id, name: userName, totalSales: sales, totalValue, totalCommissions, salesPerClient: occurrencesClients, productsSold: occurrencesProducts, sales: clientPurchases };
+            return { userId: id, name: userName, totalSales: sales, totalValue, totalCommissions, salesPerClient: occurrencesClients, productsSold: occurrencesProducts, sales: soldUser };
         } catch (error) {
             if (error instanceof NotFoundError) {
                 throw error;
@@ -124,139 +125,132 @@ export class DashboardRepo implements IDashboardRepo {
         }
     }
 
-    
+    async getProductStats(id: number, filters: WhereOptions) {
+        try {
+            const product = await new ProductsRepo().getById(id)
 
-    async getProductStats(id: any, date ?: Date) {
-    try {
-        const product = await new ProductsRepo().getById(id)
-
-        if (!product) {
-            throw new NotFoundError(`User with id '${id}' not found`);
-        }
-
-        const options = {where: {productId: id}}
-        const [sales, totalValue, totalCommissions, allSales] = await Promise.all([
-            await Sells.count(options) || 0,
-            await Sells.sum('value', options) || 0,
-            await Sells.sum('commissionValue', options) || 0,
-            await Sells.findAll(options)]
-        )
-
-        const productPurchases = await Promise.all(allSales.map(
-            async sale => {
-                const user = await new UsersRepo().getById(sale.userId)
-                const client = await new ClientRepo().getById(sale.clientId)
-                return {clientId: client.id, clientName: client.name, userId: user.id, userName: user.name}
+            if (!product) {
+                throw new NotFoundError(`User with id '${id}' not found`);
             }
-        ))
 
-        // Retorna o numero de vezes que um cliente comprou com o usuário
-        const occurrencesClient: { [key: string]: number } = {};
-        productPurchases.forEach((buyer: { clientId: number; clientName: string; }) => {
-            const key = `${buyer.clientName}`;
-            occurrencesClient[key] = (occurrencesClient[key] || 0) + 1;
-        });
+            const options = { where: { productId: id } }
+            const [sales, totalValue, totalCommissions, allSales] = await Promise.all([
+                await Sells.count(options) || 0,
+                await Sells.sum('value', options) || 0,
+                await Sells.sum('commissionValue', options) || 0,
+                await Sells.findAll(options)]
+            )
 
-        const occurrencesUser: { [key: string]: number } = {};
-        productPurchases.forEach((buyer: { userName: string; }) => {
-            const key = `${buyer.userName}`;
-            occurrencesUser[key] = (occurrencesUser[key] || 0) + 1;
-        });
+            const productPurchases = await Promise.all(allSales.map(
+                async sale => {
+                    const user = await new UsersRepo().getById(sale.userId)
+                    const client = await new ClientRepo().getById(sale.clientId)
+                    return { clientId: client.id, clientName: client.name, userId: user.id, userName: user.name }
+                }
+            ))
 
-        return { productId: id, productName: product.name ,totalSales: sales, totalValue: totalValue, totalCommissions: totalCommissions, purchasesPerClient: occurrencesClient, soldPerUser: occurrencesUser, sales: productPurchases }
-    } catch (error) {
-        throw new Error("Failed to get product stats")
+            // Retorna o numero de vezes que um cliente comprou com o usuário
+            const occurrencesClient: { [key: string]: number } = {};
+            productPurchases.forEach((buyer: { clientId: number; clientName: string; }) => {
+                const key = `${buyer.clientName}`;
+                occurrencesClient[key] = (occurrencesClient[key] || 0) + 1;
+            });
+
+            const occurrencesUser: { [key: string]: number } = {};
+            productPurchases.forEach((buyer: { userName: string; }) => {
+                const key = `${buyer.userName}`;
+                occurrencesUser[key] = (occurrencesUser[key] || 0) + 1;
+            });
+
+            return { productId: id, productName: product.name, totalSales: sales, totalValue: totalValue, totalCommissions: totalCommissions, purchasesPerClient: occurrencesClient, soldPerUser: occurrencesUser, sales: productPurchases }
+        } catch (error) {
+            throw new Error("Failed to get product stats")
+        }
     }
-}
 
     // Fazer filtragem por categoria
-    async getClientStats(id: number) {
-    try {
-        const client = await new ClientRepo().getById(id)
-        const clientName = client.name
+    async getClientStats(id: number, filters: WhereOptions) {
+        try {
+            const client = await new ClientRepo().getById(id)
+            const clientName = client.name
 
-        if (!client) throw new NotFoundError(`Client with id '${client}' not found`);
+            if (!client) throw new NotFoundError(`Client with id '${client}' not found`);
 
-        const options = {where: {clientId: id}}
-        const [totalValue, totalCommissions, sales, allSales] = await Promise.all([
-            Sells.sum('value', options),
-            Sells.sum('commissionValue', options),
-            Sells.count(options),
-            Sells.findAll(options)
-        ])
+            const options = { where: { clientId: id } }
+            const [totalValue, totalCommissions, sales, allSales] = await Promise.all([
+                Sells.sum('value', options),
+                Sells.sum('commissionValue', options),
+                Sells.count(options),
+                Sells.findAll(options)
+            ])
 
-        const productPurchases = await Promise.all(allSales.map(
-            async sale => {
-                const user = await new UsersRepo().getById(sale.userId)
-                const product = await new ProductsRepo().getById(sale.productId)
-                return({ productId: sale.productId, productName: product.name, sellerId: sale.userId, sellerName: user.name })
-            }
-        ))
+            const clientPurchases = await Promise.all(allSales.map(
+                async sale => {
+                    const user = await new UsersRepo().getById(sale.userId)
+                    const product = await new ProductsRepo().getById(sale.productId)
+                    return ({ productId: sale.productId, productName: product.name, sellerId: sale.userId, sellerName: user.name })
+                }
+            ))
 
-        // Retorna o numero de vezes que um cliente comprou com o usuário
-        const occurrencesProducts: { [key: string]: number } = {};
-        productPurchases.forEach((buyer: { productId: any }) => {
-            const key = `${buyer.productId}`;
-            occurrencesProducts[key] = (occurrencesProducts[key] || 0) + 1;
-        });
+            // Retorna o numero de vezes que um cliente comprou com o usuário
+            const occurrencesProducts: { [key: string]: number } = {};
+            clientPurchases.forEach((buyer: { productId: any }) => {
+                const key = `${buyer.productId}`;
+                occurrencesProducts[key] = (occurrencesProducts[key] || 0) + 1;
+            });
 
-        const occurrencesUsers: { [key: string]: number } = {};
-        productPurchases.forEach((buyer: { sellerName: any }) => {
-            const key = `${buyer.sellerName}`;
-            occurrencesUsers[key] = (occurrencesUsers[key] || 0) + 1;
-        });
+            const occurrencesUsers: { [key: string]: number } = {};
+            clientPurchases.forEach((buyer: { sellerName: any }) => {
+                const key = `${buyer.sellerName}`;
+                occurrencesUsers[key] = (occurrencesUsers[key] || 0) + 1;
+            });
 
-        return { clientId: client, clientName: clientName, totalPurchases: sales, totalValue: totalValue, totalCommissions: totalCommissions, productsPurchased: occurrencesProducts, purchasedWith: occurrencesUsers, sales: productPurchases }
-    } catch (error) {
-        if (error instanceof NotFoundError) throw error
-        else throw new Error("Failed to get client stats")
+            return { clientId: client, clientName: clientName, totalPurchases: sales, totalValue: totalValue, totalCommissions: totalCommissions, productsPurchased: occurrencesProducts, purchasedWith: occurrencesUsers, sales: clientPurchases }
+        } catch (error) {
+            if (error instanceof NotFoundError) throw error
+            else throw new Error("Failed to get client stats")
+        }
     }
-}
 
     async sortTotalValue() {
-    try {
-        const usersList = await new UsersRepo().getAllSellers()
+        try {
+            const usersList = await new UsersRepo().getAllSellers()
 
-        let idList: number[] = []
-        usersList.forEach(element => idList.push(element.id))
-        let valueList: { name: string, id: number, value: number, productsSold: number, totalCommissions: number }[] = []
-        for (let x of idList) {
-            let user = await new UsersRepo().getById(x)
-            let userName = user.name
-            let totalValue = await Sells.sum('value', {
-                where: {
-                    userId: x
+            let idList: number[] = []
+            usersList.forEach(element => idList.push(element.id))
+            let valueList: { name: string, id: number, value: number, productsSold: number, totalCommissions: number }[] = []
+            for (let x of idList) {
+                let user = await new UsersRepo().getById(x)
+                let userName = user.name
+                let totalValue = await Sells.sum('value', {
+                    where: {
+                        userId: x
+                    }
+                })
+                let totalCommissions = await Sells.sum('commissionValue', {
+                    where: {
+                        userId: x
+                    },
+                })
+                const productsSold = await Sells.count({
+                    where: {
+                        userId: x
+                    }
+                })
+                if (!totalValue) {
+                    totalValue = 0
                 }
-            })
-            let totalCommissions = await Sells.sum('commissionValue', {
-                where: {
-                    userId: x
-                },
-            })
-            const productsSold = await Sells.count({
-                where: {
-                    userId: x
+                if (!totalCommissions) {
+                    totalCommissions = 0
                 }
-            })
-            if (!totalValue) {
-                totalValue = 0
+                valueList.push({ name: userName, id: x, value: totalValue, productsSold: productsSold, totalCommissions: totalCommissions })
             }
-            if (!totalCommissions) {
-                totalCommissions = 0
-            }
-            valueList.push({ name: userName, id: x, value: totalValue, productsSold: productsSold, totalCommissions: totalCommissions })
+
+            valueList.sort((a, b) => a.value - b.value);
+
+            return valueList.reverse()
+        } catch (error) {
+            throw new Error(``)
         }
-
-        valueList.sort((a, b) => a.value - b.value);
-
-        return valueList.reverse()
-    } catch (error) {
-        throw new Error(``)
     }
-}
-
-    // Valor total no dia/mes
-    // Vendas no dia/mês
-    // Total de vendas por vendedor *
-    // Vendas por produto *
 }
