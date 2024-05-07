@@ -48,6 +48,13 @@ export class DashboardRepo implements IDashboardRepo {
                 where: filters
             }) || 0
 
+                if (!totalValue || totalValue == null) {
+                    totalValue = 0
+                }
+                if (!totalCommissions || totalCommissions == null) {
+                    totalCommissions = 0
+                }
+
             // Retorna um lista de objetos com o nome e ID do cliente e o ID do produto comprado
             let clientPurchases: { clientId: number, clientName: string, productId: number, productName: string, sellerId: number, sellerName: string }[] = []
             allSales.forEach(element => {
@@ -91,12 +98,19 @@ export class DashboardRepo implements IDashboardRepo {
 
             const userName = user.name
 
-            const [sales, totalValue, totalCommissions, allSales] = await Promise.all([
+            let [sales, totalValue, totalCommissions, allSales] = await Promise.all([
                 Sells.count({ where: filters }),
                 Sells.sum('value', { where: filters }) || 0,
                 Sells.sum('commissionValue', { where: filters }) || 0,
                 Sells.findAll({ where: filters })
             ]);
+            
+                if (!totalValue || totalValue == null) {
+                    totalValue = 0
+                }
+                if (!totalCommissions || totalCommissions == null) {
+                    totalCommissions = 0
+                }
 
             const soldUser = await Promise.all(allSales.map(async (sale) => {
                 const client = await new ClientRepo().getById(sale.clientId);
@@ -134,12 +148,19 @@ export class DashboardRepo implements IDashboardRepo {
             }
 
             const options = { where: { productId: id } }
-            const [sales, totalValue, totalCommissions, allSales] = await Promise.all([
+            let [sales, totalValue, totalCommissions, allSales] = await Promise.all([
                 await Sells.count(options) || 0,
                 await Sells.sum('value', options) || 0,
                 await Sells.sum('commissionValue', options) || 0,
                 await Sells.findAll(options)]
             )
+
+                if (!totalValue || totalValue == null) {
+                    totalValue = 0
+                }
+                if (!totalCommissions || totalCommissions == null) {
+                    totalCommissions = 0
+                }
 
             const productPurchases = await Promise.all(allSales.map(
                 async sale => {
@@ -177,12 +198,19 @@ export class DashboardRepo implements IDashboardRepo {
             if (!client) throw new NotFoundError(`Client with id '${client}' not found`);
 
             const options = { where: { clientId: id } }
-            const [totalValue, totalCommissions, sales, allSales] = await Promise.all([
+            let [totalValue, totalCommissions, sales, allSales] = await Promise.all([
                 Sells.sum('value', options),
                 Sells.sum('commissionValue', options),
                 Sells.count(options),
                 Sells.findAll(options)
             ])
+
+                if (!totalValue || totalValue == null) {
+                    totalValue = 0
+                }
+                if (!totalCommissions || totalCommissions == null) {
+                    totalCommissions = 0
+                }
 
             const clientPurchases = await Promise.all(allSales.map(
                 async sale => {
@@ -237,10 +265,10 @@ export class DashboardRepo implements IDashboardRepo {
                         userId: x
                     }
                 })
-                if (!totalValue) {
+                if (!totalValue || totalValue == null) {
                     totalValue = 0
                 }
-                if (!totalCommissions) {
+                if (!totalCommissions || totalCommissions == null) {
                     totalCommissions = 0
                 }
                 valueList.push({ name: userName, id: x, value: totalValue, productsSold: productsSold, totalCommissions: totalCommissions })

@@ -1,12 +1,9 @@
 
 import { Request, Response } from "express";
-import { DashboardRepo } from "../repository/DashboardRepo";
+import { Op } from "sequelize";
 import NotFoundError from "../exceptions/NotFound";
+import { DashboardRepo } from "../repository/DashboardRepo";
 import { subtractDays } from "../utils/Dates";
-import { Op, WhereOptions } from "sequelize";
-import { Products } from "../models/Products";
-import { Client } from "../models/Client";
-import { parse } from "path";
 
 export class DashboardController {
     async getUserStats(req: Request, res: Response) {
@@ -15,10 +12,12 @@ export class DashboardController {
             const { id, startDate, endDate } = req.query
             const newStartDate = startDate ? subtractDays(new Date(startDate.toString()), 1) : new Date('1970-01-01')
             const newEndDate = endDate ? new Date(endDate.toString()) : new Date()
-            const newUserId = id?.toString() || "0"
+            const newUserId = parseInt(id?.toString() || "0")
             filters = { ...filters, ...{ userId: id, date: {[Op.between]: [newStartDate, newEndDate]} } }
+
+            console.log(id, newUserId)
             
-            const userSales = await new DashboardRepo().getUserStats(parseInt(newUserId), filters)
+            const userSales = await new DashboardRepo().getUserStats(newUserId, filters)
 
             return res.status(200).json({
                 status: "Success",
