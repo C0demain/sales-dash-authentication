@@ -13,10 +13,10 @@ export class DashboardController {
             const newStartDate = startDate ? subtractDays(new Date(startDate.toString()), 1) : new Date('1970-01-01')
             const newEndDate = endDate ? new Date(endDate.toString()) : new Date()
             const newUserId = parseInt(id?.toString() || "0")
-            filters = { ...filters, ...{ userId: id, date: {[Op.between]: [newStartDate, newEndDate]} } }
+            filters = { ...filters, ...{ userId: id, date: { [Op.between]: [newStartDate, newEndDate] } } }
 
             console.log(id, newUserId)
-            
+
             const userSales = await new DashboardRepo().getUserStats(newUserId, filters)
 
             return res.status(200).json({
@@ -25,12 +25,12 @@ export class DashboardController {
                 userSales: userSales
             });
         } catch (error) {
-            if(error instanceof NotFoundError){
+            if (error instanceof NotFoundError) {
                 return res.status(404).json({
                     status: "Not Found",
                     message: error.message,
                 });
-            }else{
+            } else {
                 return res.status(500).json({
                     status: "Internal Server Error",
                     message: "Something went wrong with getUserStats",
@@ -46,7 +46,7 @@ export class DashboardController {
             const newStartDate = startDate ? subtractDays(new Date(startDate.toString()), 1) : new Date('1970-01-01')
             const newEndDate = endDate ? new Date(endDate.toString()) : new Date()
             const newProductId = id?.toString() || "0"
-            filters = { ...filters, ...{ productId: id, date: {[Op.between]: [newStartDate, newEndDate]} } }
+            filters = { ...filters, ...{ productId: id, date: { [Op.between]: [newStartDate, newEndDate] } } }
 
             const productSales = await new DashboardRepo().getProductStats(parseInt(newProductId), filters)
 
@@ -56,12 +56,12 @@ export class DashboardController {
                 productStats: productSales
             });
         } catch (error) {
-            if(error instanceof NotFoundError){
+            if (error instanceof NotFoundError) {
                 return res.status(404).json({
                     status: "Not Found",
                     message: error.message,
                 });
-            }else{
+            } else {
                 return res.status(500).json({
                     status: "Internal Server Error",
                     message: "Something went wrong with getProductStats",
@@ -77,7 +77,7 @@ export class DashboardController {
             const newStartDate = startDate ? subtractDays(new Date(startDate.toString()), 1) : new Date('1970-01-01')
             const newEndDate = endDate ? new Date(endDate.toString()) : new Date()
             const newClientStats = id?.toString() || "0"
-            filters = { ...filters, ...{ clientId: id, date: {[Op.between]: [newStartDate, newEndDate]} } }
+            filters = { ...filters, ...{ clientId: id, date: { [Op.between]: [newStartDate, newEndDate] } } }
 
             const productSales = await new DashboardRepo().getClientStats(parseInt(newClientStats), filters)
 
@@ -87,12 +87,12 @@ export class DashboardController {
                 clientStats: productSales
             });
         } catch (error) {
-            if(error instanceof NotFoundError){
+            if (error instanceof NotFoundError) {
                 return res.status(404).json({
                     status: "Not Found",
                     message: error.message,
                 });
-            }else{
+            } else {
                 return res.status(500).json({
                     status: "Internal Server Error",
                     message: "Something went wrong with getClientStats",
@@ -107,12 +107,12 @@ export class DashboardController {
         const { startDate, endDate } = req.query
         const newStartDate = startDate ? subtractDays(new Date(startDate.toString()), 1) : new Date('1970-01-01')
         const newEndDate = endDate ? new Date(endDate.toString()) : new Date()
-        console.log(newStartDate, newStartDate);        
-        filters = { ...filters, ...{ date: {[Op.between]: [newStartDate, newEndDate]} } }
+        console.log(newStartDate, newStartDate);
+        filters = { ...filters, ...{ date: { [Op.between]: [newStartDate, newEndDate] } } }
 
 
         console.log(filters);
-        
+
 
         try {
             const sales = await new DashboardRepo().getStatsFromDate(filters)
@@ -132,10 +132,14 @@ export class DashboardController {
 
     async getRanking(req: Request, res: Response) {
         try {
-            const ranking = await new DashboardRepo().sortTotalValue()
+            const { startDate, endDate } = req.query
+            const newStartDate = startDate ? subtractDays(new Date(startDate.toString()), 1) : new Date('1970-01-01')
+            const newEndDate = endDate ? new Date(endDate.toString()) : new Date()
+            
+            const ranking = await new DashboardRepo().sortTotalValue(newStartDate, newEndDate)
             return res.status(200).json({
                 status: "Success",
-                message: `Showing ranking in order`,
+                message: `Showing ranking from interval: ${newStartDate} to ${newEndDate}`,
                 ranking: ranking
             });
         } catch (error) {
