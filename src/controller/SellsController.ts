@@ -16,8 +16,9 @@ export class SellsController {
   async register(req: Request, res: Response) {
     try {
       const { date, seller_cpf, product_id, cpf_client, value} = req.body;
+      const formatted_seller_cpf = seller_cpf.replace(/[.-]/g, '');
       const clientCreated = await Client.findOne({
-        where: { cpf: cpf_client }
+        where: { cpf: formatted_seller_cpf }
       })      
       const productCreated = await Products.findOne({
         where: { id: product_id }
@@ -30,7 +31,7 @@ export class SellsController {
       const commission = await Commissions.findByPk(commissionId)
       const commissionValue = commission!.percentage * value
 
-      await new SellsService().register(date, (await new UsersRepo().getByCpf(seller_cpf)).id, product_id, (await new ClientRepo().getByCpf(cpf_client)).id, value, clientIsNew, productIsNew, commissionId, commissionValue);
+      await new SellsService().register(date, (await new UsersRepo().getByCpf(formatted_seller_cpf)).id, product_id, (await new ClientRepo().getByCpf(cpf_client)).id, value, clientIsNew, productIsNew, commissionId, commissionValue);
       return res.status(200).json({
         status: "success",
         message: "sucessfully registered sells"
@@ -90,9 +91,9 @@ export class SellsController {
         where: { cpf: seller_cpf },
         defaults: {
           name: seller,
-          cpf: seller_cpf,
+          cpf: seller_cpf.replace(/[.-]/g, ''),
           email: seller.replace(/\s+/g, '') + "@gmail.com",
-          password: await Authentication.passwordHash(seller_cpf),
+          password: await Authentication.passwordHash(seller_cpf.replace(/[.-]/g, '')),
           role: role,
         }
       })
@@ -143,7 +144,7 @@ export class SellsController {
     try {
       const userRepo = new UsersRepo();
       const sellsRepo = new SellsRepo();
-      const user = await userRepo.getByCpf(seller_cpf);
+      const user = await userRepo.getByCpf(seller_cpf.replace(/[.-]/g, ''));
       const sell = await sellsRepo.getById(parseInt(sellId));
       if (!user) {
         return res.status(404).json({
