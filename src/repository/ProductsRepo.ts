@@ -15,9 +15,6 @@ export class ProductsRepo implements IProductRepo {
     try {
       await Products.create({
         name: products.name,
-        description: products.description,
-        value: products.value
-
       });
     } catch (error) {
       throw new Error("Failed to create Product!");
@@ -61,12 +58,12 @@ export class ProductsRepo implements IProductRepo {
     }
   }
 
-  async update(Product: Products): Promise<void> {
+  async update(product: Products): Promise<void> {
     try{
-      const newProduct = await Products.findByPk(Product.id)
-      if(!newProduct) throw new NotFoundError(`Product with id '${Product.id}' not found`);
+      const newProduct = await Products.findByPk(product.id)
+      if(!newProduct) throw new NotFoundError(`Product with id '${product.id}' not found`);
       
-      await Product.save()
+      await product.save()
     }catch(error){
       if(error instanceof NotFoundError) throw error
       else throw new Error("Failed to update data!");

@@ -14,9 +14,7 @@ export class ProductsService implements IProductsService{
     async register(name: string, description: string, value: number): Promise<void> {
         try{           
             const newProduct = new Products();
-            newProduct.name = name;
-            newProduct.description = description
-            newProduct.value = value;           
+            newProduct.name = name;          
           
             await new ProductsRepo().save(newProduct);        
         }

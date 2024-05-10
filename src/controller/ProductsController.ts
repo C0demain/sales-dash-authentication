@@ -74,8 +74,6 @@ export class ProductsController {
             const product = await productRepo.getById(parseInt(productId))
             
             product.name = name
-            product.description = description
-            product.value = value
             await productRepo.update(product)
             return res.status(200).json({
                 status: "Success",
