@@ -2,51 +2,21 @@ import { Op, WhereOptions } from "sequelize";
 import NotFoundError from "../exceptions/NotFound";
 import { Sells } from "../models/Sells";
 import { ClientRepo } from "./ClientRepo";
-import { UsersRepo } from "./UsersRepo";
-import { Users } from "../models/Users";
-import { Client } from "../models/Client";
-import { Products } from "../models/Products";
-import { Commissions } from "../models/Commissions";
-import { log } from "console";
 import { ProductsRepo } from "./ProductsRepo";
+import { UsersRepo } from "./UsersRepo";
 
 interface IDashboardRepo {
 }
 
 export class DashboardRepo implements IDashboardRepo {
-    async getLatestSells(limit: number, order: string): Promise<Sells[]> {
-        try {
-            // Vendas recentes até determinado limite
-            const sales = await Sells.findAll({
-                include: [Client, Products, Users, Commissions],
-                limit: limit,
-                //Order pode ser 'ASC' ou 'DESC'
-                order: [['createdAt', order]]
-            })
-            return sales
-        } catch (error) {
-            throw new Error("Failed to get latest sales");
-        }
-    }
-
     async getStatsFromDate(filters: WhereOptions) {
         try {
-            const allSales = await Sells.findAll({
-                where: filters,
-                include: [Users, Client, Products]
-            });
-
-            let totalSales = await Sells.count({
-                where: filters
-            }) || 0
-
-            let totalValue = await Sells.sum('value', {
-                where: filters
-            }) || 0
-
-            let totalCommissions = await Sells.sum('commissionValue', {
-                where: filters
-            }) || 0
+            let [totalSales, totalValue, totalCommissions, allSales] = await Promise.all([
+                Sells.count({ where: filters }) || 0,
+                Sells.sum('value', { where: filters }) || 0,
+                Sells.sum('commissionValue', { where: filters }) || 0,
+                Sells.findAll({ where: filters })
+            ]);            
 
             if (!totalValue || totalValue == null) {
                 totalValue = 0
@@ -55,11 +25,12 @@ export class DashboardRepo implements IDashboardRepo {
                 totalCommissions = 0
             }
 
-            // Retorna um lista de objetos com o nome e ID do cliente e o ID do produto comprado
-            let clientPurchases: { clientId: number, clientName: string, productId: number, productName: string, sellerId: number, sellerName: string }[] = []
-            allSales.forEach(element => {
-                clientPurchases.push({ clientId: element.clientId, clientName: element.client.name, productId: element.productId, productName: element.product.name, sellerId: element.userId, sellerName: element.user.name })
-            })
+            const clientPurchases = await Promise.all(allSales.map(async (sale) => {
+                const client = await new ClientRepo().getById(sale.clientId);
+                const product = await new ProductsRepo().getById(sale.productId)
+                const user = await new UsersRepo().getById(sale.clientId)
+                return { sellerId: sale.userId, sellerName: user.name, clientId: sale.clientId, clientName: client.name, productId: sale.productId, productName: product.name };
+            }));
 
             // Retorna o numero de vezes que um cliente comprou com o usuário
             const occurrencesClients: { [key: string]: number } = {};
@@ -245,12 +216,11 @@ export class DashboardRepo implements IDashboardRepo {
             let idList: number[] = []
             usersList.forEach(element => idList.push(element.id))
             let valueList: { name: string, id: number, value: number, productsSold: number, totalCommissions: number }[] = []
-            console.log(usersList)
             for (let x of idList) {
                 let user = await new UsersRepo().getById(x)
                 let userName = user.name
-                const filters = { userId: x, date: { [Op.between]: [startDate, endDate] }}
-                
+                const filters = { userId: x, date: { [Op.between]: [startDate, endDate] } }
+
                 let [totalValue, totalCommissions, productsSold] = [
                     await Sells.sum('value', {
                         where: filters

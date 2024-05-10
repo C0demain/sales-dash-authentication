@@ -107,12 +107,9 @@ export class DashboardController {
         const { startDate, endDate } = req.query
         const newStartDate = startDate ? subtractDays(new Date(startDate.toString()), 1) : new Date('1970-01-01')
         const newEndDate = endDate ? new Date(endDate.toString()) : new Date()
-        console.log(newStartDate, newStartDate);
         filters = { ...filters, ...{ date: { [Op.between]: [newStartDate, newEndDate] } } }
 
-
         console.log(filters);
-
 
         try {
             const sales = await new DashboardRepo().getStatsFromDate(filters)
@@ -135,7 +132,7 @@ export class DashboardController {
             const { startDate, endDate } = req.query
             const newStartDate = startDate ? subtractDays(new Date(startDate.toString()), 1) : new Date('1970-01-01')
             const newEndDate = endDate ? new Date(endDate.toString()) : new Date()
-            
+
             const ranking = await new DashboardRepo().sortTotalValue(newStartDate, newEndDate)
             return res.status(200).json({
                 status: "Success",
