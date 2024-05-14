@@ -44,7 +44,7 @@ export class ClientRepo implements IClientRepo {
 
       await new_client.save();
     } catch (error) {
-      throw new Error("Failed to update client!")
+      throw error
     }
   }
 

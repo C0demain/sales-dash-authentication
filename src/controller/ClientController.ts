@@ -23,7 +23,7 @@ export class ClientController {
             if (error instanceof UniqueConstraintError) {
                 return res.status(400).json({
                     status: "Bad Request",
-                    message: error.errors[0].message
+                    message: error.errors[0]?.message
                 })
             } else {
                 return res.status(500).json({
@@ -74,8 +74,23 @@ export class ClientController {
             });
 
         } catch (error) {
-            if (error instanceof NotFoundError) throw error
-            else throw new Error("Failed to update client!");
+            if (error instanceof NotFoundError){
+                return res.status(404).json({
+                    status: "Not Found",
+                    message: error.message,
+                });
+            }else if(error instanceof UniqueConstraintError){
+                return res.status(400).json({
+                    status: "Bad Request",
+                    message: error.message,
+                });
+            }
+            else{
+                return res.status(500).json({
+                    status: "Internal Server Error",
+                    message: "Something went wrong with updateClient",
+                });
+            }
         }
     }
     async deleteClient(req: Request, res: Response) {
