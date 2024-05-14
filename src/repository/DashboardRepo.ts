@@ -28,7 +28,7 @@ export class DashboardRepo implements IDashboardRepo {
             const clientPurchases = await Promise.all(allSales.map(async (sale) => {
                 const client = await new ClientRepo().getById(sale.clientId);
                 const product = await new ProductsRepo().getById(sale.productId)
-                const user = await new UsersRepo().getById(sale.clientId)
+                const user = await new UsersRepo().getById(sale.userId)
                 return { sellerId: sale.userId, sellerName: user.name, clientId: sale.clientId, clientName: client.name, productId: sale.productId, productName: product.name };
             }));
 
