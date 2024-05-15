@@ -63,10 +63,12 @@ class App {
     this.app.use("/api/v1/dashboard", DashboardRouter)
   }
 
-  protected databaseSync(): void {
-    const db = new Database();
-    db.sequelize?.sync();
-    db.sequelize?.afterBulkSync(createInitialCommissions)
+  protected async databaseSync(): Promise<void> {
+    const db = Database.getInstance();
+    await db.connect(true);
+    await db.sequelize?.sync();
+    await createInitialCommissions();
+    db.sequelize?.afterBulkSync(createInitialCommissions);
   }
 
   protected plugins(): void {
