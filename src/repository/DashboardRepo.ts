@@ -1,4 +1,4 @@
-import { Op, WhereOptions } from "sequelize";
+import { Op, WhereOptions, where } from "sequelize";
 import NotFoundError from "../exceptions/NotFound";
 import { Sells } from "../models/Sells";
 import { ClientRepo } from "./ClientRepo";
@@ -8,52 +8,42 @@ import { UsersRepo } from "./UsersRepo";
 interface IDashboardRepo {
 }
 
+interface MonthSaleStats{
+    month: string
+    year: number
+    totalValue: number
+    totalSales: number
+}
+
+const meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
+
 export class DashboardRepo implements IDashboardRepo {
     async getStatsFromDate(filters: WhereOptions) {
         try {
-            let [totalSales, totalValue, totalCommissions, allSales] = await Promise.all([
-                Sells.count({ where: filters }) || 0,
-                Sells.sum('value', { where: filters }) || 0,
-                Sells.sum('commissionValue', { where: filters }) || 0,
-                Sells.findAll({ where: filters })
-            ]);            
+            const stats: MonthSaleStats[] = []
+            const sales = await Sells.findAll({where: filters})
+            for(let s of sales){
+                let date = new Date(s.date)
+                let oldSale = stats.find(sale => sale.month == meses[date.getMonth()] && sale.year == date.getFullYear())
+                if(stats.length === 0 || !oldSale){
+                    let newSale: MonthSaleStats = { 
+                        month: meses[date.getMonth()],
+                        year: date.getFullYear(),
+                        totalSales: 1,
+                        totalValue: s.value 
+                    }
+                    stats.push(newSale)
+                }else{
+                    oldSale.totalValue += s.value
+                    oldSale.totalSales += 1
+                }
 
-            if (!totalValue || totalValue == null) {
-                totalValue = 0
             }
-            if (!totalCommissions || totalCommissions == null) {
-                totalCommissions = 0
-            }
 
-            const clientPurchases = await Promise.all(allSales.map(async (sale) => {
-                const client = await new ClientRepo().getById(sale.clientId);
-                const product = await new ProductsRepo().getById(sale.productId)
-                const user = await new UsersRepo().getById(sale.userId)
-                return { sellerId: sale.userId, sellerName: user.name, clientId: sale.clientId, clientName: client.name, productId: sale.productId, productName: product.name };
-            }));
-
-            // Retorna o numero de vezes que um cliente comprou com o usuário
-            const occurrencesClients: { [key: string]: number } = {};
-            clientPurchases.forEach((buyer: { clientName: any; }) => {
-                const key = `${buyer.clientName}`;
-                occurrencesClients[key] = (occurrencesClients[key] || 0) + 1;
-            });
-
-            const occurrencesProducts: { [key: string]: number } = {};
-            clientPurchases.forEach((buyer: { productName: any; }) => {
-                const key = `${buyer.productName}`;
-                occurrencesProducts[key] = (occurrencesProducts[key] || 0) + 1;
-            });
-
-            const occurrencesUser: { [key: string]: number } = {};
-            clientPurchases.forEach((buyer: { sellerId: any; sellerName: any; }) => {
-                const key = `${buyer.sellerName}`;
-                occurrencesUser[key] = (occurrencesUser[key] || 0) + 1;
-            });
-
-            return { totalSales, totalValue, totalCommissions, clientPurchases: occurrencesClients, productsSold: occurrencesProducts, userSells: occurrencesUser }
+            return stats
 
         } catch (error) {
+            console.log(error)
             throw new Error("Failed to fetch data!");
         }
     }
