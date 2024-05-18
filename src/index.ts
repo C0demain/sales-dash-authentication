@@ -10,32 +10,6 @@ import ClientRouter from "./router/ClientRouter";
 import DashboardRouter from "./router/DashboardRouter";
 import { Commissions } from "./models/Commissions";
 
-const createInitialCommissions = async () => {
-  const commissionExists = await Commissions.findOne({
-    where: { id: 1 }
-  })
-  if (commissionExists == null) {
-    Commissions.bulkCreate
-      ([
-        {
-          title: "Cliente Novo/Produto Novo",
-          percentage: 0.20
-        },
-        {
-          title: "Cliente Novo/Produto Velho",
-          percentage: 0.10
-        }, {
-          title: "Cliente Velho/Produto Novo",
-          percentage: 0.05
-        },
-        {
-          title: "Cliente Velho/Produto Velho",
-          percentage: 0.02
-        }
-      ])
-  }
-}
-
 declare global {
   namespace Express {
     interface Request {
@@ -67,8 +41,6 @@ class App {
     const db = Database.getInstance();
     await db.connect(true);
     await db.sequelize?.sync();
-    await createInitialCommissions();
-    db.sequelize?.afterBulkSync(createInitialCommissions);
   }
 
   protected plugins(): void {

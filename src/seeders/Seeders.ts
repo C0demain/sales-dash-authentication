@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import { Users } from "../models/Users";
 import { Roles } from '../models/enum/Roles';
+import { Commissions } from '../models/Commissions';
 
 export class Seeders {
   public static async defaultUsers(): Promise<void> {
@@ -26,6 +27,32 @@ export class Seeders {
           cpf: '987.654.321-00'
         }
       ]);
+    }
+  }
+  
+  public static async defaultCommissions(): Promise<void> {
+    const commissionExists = await Commissions.findOne({
+      where: { id: 1 }
+    })
+    if (commissionExists == null) {
+      Commissions.bulkCreate
+        ([
+          {
+            title: "Cliente Novo/Produto Novo",
+            percentage: 0.20
+          },
+          {
+            title: "Cliente Novo/Produto Velho",
+            percentage: 0.10
+          }, {
+            title: "Cliente Velho/Produto Novo",
+            percentage: 0.05
+          },
+          {
+            title: "Cliente Velho/Produto Velho",
+            percentage: 0.02
+          }
+        ])
     }
   }
 }
