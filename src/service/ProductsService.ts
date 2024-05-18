@@ -3,15 +3,13 @@ import { ProductsRepo } from "../repository/ProductsRepo";
 
 interface IProductsService{
     register(
-        name: string,
-        description: string,
-        value : number,    
+        name: string  
     ): Promise<void>;
 }
 
 export class ProductsService implements IProductsService{
     
-    async register(name: string, description: string, value: number): Promise<void> {
+    async register(name: string): Promise<void> {
         try{           
             const newProduct = new Products();
             newProduct.name = name;          

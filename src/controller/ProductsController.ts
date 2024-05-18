@@ -3,12 +3,13 @@ import { Request, Response } from "express";
 import { ProductsRepo } from "../repository/ProductsRepo";
 import NotFoundError from '../exceptions/NotFound';
 import { SellsRepo } from '../repository/SellsRepo';
+import { UsersRepo } from '../repository/UsersRepo';
 
 export class ProductsController {
     async register(req: Request, res: Response) {
         try {
-            const {name, description, value } = req.body
-            const prod = await new ProductsService().register(name, description, value);         
+            const {name} = req.body
+            await new ProductsService().register(name);         
             return res.status(200).json({
                 status: "success",
                 message: "sucessfully registered product"
@@ -25,18 +26,27 @@ export class ProductsController {
     //plural = produtos
     async getProducts(req: Request, res: Response) {
         try {
-            const products = await new ProductsRepo().getAll();
+            const userId = req.query.userId
+            const newUserId = (userId) ? parseInt(userId?.toString()) : undefined
+            const products = await new ProductsRepo().getAll(newUserId);
             return res.status(200).json({
                 status: "Success",
                 message: "Successfully fetched products",
                 products: products
             });
         } catch (error) {
-            console.error("Get products error:", error);
-            return res.status(500).json({
-                status: "Internal Server Error",
-                message: "Something went wrong with getProducts",
-            });
+            if (error instanceof NotFoundError) {
+                return res.status(404).json({
+                    status: "Not Found",
+                    message: error.message,
+                });
+            } else {
+                console.error("Get products error:", error);
+                return res.status(500).json({
+                    status: "Internal Server Error",
+                    message: "Something went wrong with getProducts",
+                });
+            }
         }
     }
 
