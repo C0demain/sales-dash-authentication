@@ -37,7 +37,8 @@ export class ClientController {
 
     async getClients(req: Request, res: Response) {
         try {
-            const client = await new ClientRepo().getAll();
+            const userId = (req.query.userId) ? parseInt(req.query.userId.toString()) : undefined
+            const client = await new ClientRepo().getAll(userId);
             console.log(client);
             return res.status(200).json({
                 status: "Success",
@@ -45,11 +46,18 @@ export class ClientController {
                 client: client,
             });
         } catch (error) {
-            console.error("Get client error:", error);
-            return res.status(500).json({
-                status: "Internal Server Error",
-                message: "Something went wrong with getClients",
-            });
+            if (error instanceof NotFoundError) {
+                return res.status(404).json({
+                    status: "Not Found",
+                    message: error.message,
+                });
+            } else {
+                console.error("Get products error:", error);
+                return res.status(500).json({
+                    status: "Internal Server Error",
+                    message: "Something went wrong with getClients",
+                });
+            }
         }
     }
 

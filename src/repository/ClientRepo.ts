@@ -1,14 +1,15 @@
 import { UniqueConstraintError } from "sequelize";
 import { Client } from "../models/Client";
 import NotFoundError from "../exceptions/NotFound";
+import { Users } from "../models/Users";
+import { SellsRepo } from "./SellsRepo";
 
 interface IClientRepo {
   save(client: Client): Promise<void>;
   update(client: Client): Promise<void>;
   delete(clientId: number): Promise<void>;
   getById(clientId: number): Promise<Client>;
-  getAll(): Promise<Client[]>;
-
+  getAll(userId: number | undefined): Promise<Client[]>;
   delete(clientId: number): Promise<void>;
 }
 
@@ -103,11 +104,27 @@ export class ClientRepo implements IClientRepo {
   }
 
 
-  async getAll(): Promise<Client[]> {
+  async getAll(userId: number | undefined): Promise<Client[]> {
     try {
-      return await Client.findAll();
+      if (userId !== undefined) {
+        const user = await Users.findByPk(userId)
+        if (!user) {
+          console.log("User not found");
+          throw new NotFoundError(`User with id '${userId}' not found`);
+        }
+
+        const sales = await new SellsRepo().getFiltered({ userId })
+        const userProducts = await Promise.all(sales.map(async sale => {
+          return await this.getById(sale.productId)
+        }))
+
+        return userProducts;
+      } else {
+        return await Client.findAll()
+      }
     } catch (error) {
-      throw new Error("Failed to feacth all client!");
+      if (error instanceof NotFoundError) throw error
+      else throw new Error("Failed to fetch all data!");
     }
   }
 
