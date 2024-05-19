@@ -147,12 +147,12 @@ export class DashboardRepo implements IDashboardRepo {
 
             const valueList = await Promise.all(usersList.map(async (user) => {
                 const filters = { userId: user.id, date: { [Op.between]: [startDate, endDate] } }
-                const salesInfo = this.salesInfo(filters)
+                const salesInfo = await this.salesInfo(filters)
 
-                return { name: user.name, id: user.id, ...salesInfo }
+                return { name: user.name, id: user.id, value: salesInfo.totalValue, productsSold: salesInfo.totalSales, commissions: salesInfo.totalCommissions }
             }))
 
-            return valueList.sort((a, b) => a.totalValue - b.totalValue).reverse()
+            return valueList.sort((a, b) => a.value - b.value).reverse()
         } catch (error) {
             throw new Error("Failed to sort by total value");
         }
