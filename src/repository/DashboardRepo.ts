@@ -147,7 +147,7 @@ export class DashboardRepo implements IDashboardRepo {
 
             const valueList = await Promise.all(usersList.map(async (user) => {
                 const filters = { userId: user.id, date: { [Op.between]: [startDate, endDate] } }
-                const salesInfo = this.salesInfo(filters)
+                const salesInfo = await this.salesInfo(filters)
 
                 return { name: user.name, id: user.id, ...salesInfo }
             }))
