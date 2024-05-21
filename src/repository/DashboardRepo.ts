@@ -20,7 +20,7 @@ interface MonthSaleStats {
 
 // }
 
-const meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
+const meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
 
 export class DashboardRepo implements IDashboardRepo {
     async getStatsFromDate(filters: WhereOptions) {
@@ -28,7 +28,7 @@ export class DashboardRepo implements IDashboardRepo {
             const stats: MonthSaleStats[] = []
             const sales = await Sells.findAll({ where: filters })
             for (const s of sales) {
-                const date = new Date(s.date)
+                const date = new Date(s.date+'T00:00')
                 const oldSale = stats.find(sale => sale.month == meses[date.getMonth()] && sale.year == date.getFullYear())
                 if (stats.length === 0 || !oldSale) {
                     const newSale: MonthSaleStats = {
