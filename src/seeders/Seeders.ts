@@ -17,14 +17,14 @@ export class Seeders {
           email: 'admin@gmail.com',
           password: hashedPasswordAdmin,
           role: Roles.Admin,
-          cpf: '123.456.789-00'
+          cpf: '000.000.000-00'
         },
         {
           name: 'User',
           email: 'user@gmail.com',
           password: hashedPasswordUser,
           role: Roles.User,
-          cpf: '987.654.321-00'
+          cpf: '111.111.111-11'
         }
       ]);
     }

@@ -88,7 +88,7 @@ export class SellsController {
     try {
       const { date, seller, seller_cpf, product, product_Id, client, cpf_client, client_department, value, payment_method, role } = req.body;
       const [testUser, userCreated] = await Users.findOrCreate({
-        where: { cpf: seller_cpf },
+        where: { cpf: seller_cpf.replace(/[.-]/g, '') },
         defaults: {
           name: seller,
           cpf: seller_cpf.replace(/[.-]/g, ''),
@@ -97,6 +97,7 @@ export class SellsController {
           role: role,
         }
       })
+      console.log(testUser);
 
       const [testClient, clientCreated] = await Client.findOrCreate({
         where: { cpf: cpf_client },
@@ -119,8 +120,6 @@ export class SellsController {
       const commissionId:number = getCommission(clientCreated, productCreated)
       const commission = await Commissions.findByPk(commissionId)
       const commissionValue = commission!.percentage * value
-
-      console.log(commissionId, commissionValue);
 
       await new SellsService().register(date, testUser.id, testProduct.id, testClient.id, value, clientCreated, productCreated, commissionId, commissionValue);
 
