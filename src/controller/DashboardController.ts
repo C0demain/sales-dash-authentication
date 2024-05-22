@@ -105,8 +105,8 @@ export class DashboardController {
     async getStatsFromDate(req: Request, res: Response) {
         let filters = {}
         const { startDate, endDate } = req.query
-        const newStartDate = startDate ? subtractDays(new Date(startDate.toString()), 1) : new Date('1970-01-01')
-        const newEndDate = endDate ? new Date(endDate.toString()) : new Date()
+        const newStartDate = startDate ? new Date(startDate.toString()+'T00:00') : new Date('1970-01-01')
+        const newEndDate = endDate ? new Date(endDate.toString()+'T00:00') : new Date()
         filters = { ...filters, ...{ date: { [Op.between]: [newStartDate, newEndDate] } } }
 
         console.log(filters);

@@ -26,7 +26,7 @@ export class DashboardRepo implements IDashboardRepo {
     async getStatsFromDate(filters: WhereOptions) {
         try {
             const stats: MonthSaleStats[] = []
-            const sales = await Sells.findAll({ where: filters })
+            const sales = await Sells.findAll({ where: filters, order: [['date', 'ASC']]})
             for (const s of sales) {
                 const date = new Date(s.date+'T00:00')
                 const oldSale = stats.find(sale => sale.month == meses[date.getMonth()] && sale.year == date.getFullYear())
