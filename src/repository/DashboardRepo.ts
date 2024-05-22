@@ -14,6 +14,7 @@ interface MonthSaleStats {
     year: number
     totalValue: number
     totalSales: number
+    totalCommissionValue: number
 }
 
 // interface UserStats {
@@ -35,12 +36,14 @@ export class DashboardRepo implements IDashboardRepo {
                         month: meses[date.getMonth()],
                         year: date.getFullYear(),
                         totalSales: 1,
-                        totalValue: s.value
+                        totalValue: s.value,
+                        totalCommissionValue: s.commissionValue
                     }
                     stats.push(newSale)
                 } else {
                     oldSale.totalValue += s.value
                     oldSale.totalSales += 1
+                    oldSale.totalCommissionValue += s.commissionValue
                 }
 
             }
