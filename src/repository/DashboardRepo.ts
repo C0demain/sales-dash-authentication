@@ -4,6 +4,7 @@ import { Sells } from "../models/Sells";
 import { ClientRepo } from "./ClientRepo";
 import { ProductsRepo } from "./ProductsRepo";
 import { UsersRepo } from "./UsersRepo";
+import { Commissions } from "../models/Commissions";
 
 interface IDashboardRepo {
     getStatsFromDate(filters: WhereOptions): Promise<MonthSaleStats[]>
@@ -15,6 +16,16 @@ interface MonthSaleStats {
     totalValue: number
     totalSales: number
     totalCommissionValue: number
+}
+
+interface CommissionMonthSaleStats {
+    month: string
+    year: number
+    commissionValues: Array<{
+        title: string
+        totalValue: number
+        totalSales: number
+    }>
 }
 
 // interface UserStats {
@@ -44,6 +55,53 @@ export class DashboardRepo implements IDashboardRepo {
                     oldSale.totalValue += s.value
                     oldSale.totalSales += 1
                     oldSale.totalCommissionValue += s.commissionValue
+                }
+
+            }
+
+            return stats
+
+        } catch (error) {
+            console.log(error)
+            throw new Error("Failed to fetch data!");
+        }
+    }
+
+    async getCommissionStatsFromDate(filters: WhereOptions) {
+        try {
+            const stats: CommissionMonthSaleStats[] = []
+            const defaultCommissionStats = []
+            for(let com of await Commissions.findAll()){
+                defaultCommissionStats.push({
+                    title: com.title,
+                    totalValue: 0,
+                    totalSales: 0,
+                })
+            }
+            const sales = await Sells.findAll({ where: filters, order: [['date', 'ASC']], include: Commissions})
+            const logSales = sales.map(s => {
+                return {month: meses[new Date(s.date+'T00:00').getMonth()],
+                commissionName: s.commission.title,
+                commissionValue: s.commissionValue
+                }
+            })
+            console.table(logSales)
+            for (const s of sales) {
+                const date = new Date(s.date+'T00:00')
+                const oldSale = stats.find(sale => sale.month == meses[date.getMonth()] && sale.year == date.getFullYear())
+                if (stats.length === 0 || !oldSale) {
+                    const commissionStatsCopy = JSON.parse(JSON.stringify(defaultCommissionStats))
+                    commissionStatsCopy[s.commissionId-1].totalValue = s.commissionValue
+                    commissionStatsCopy[s.commissionId-1].totalSales = 1
+                    const newSale: CommissionMonthSaleStats = {
+                        month: meses[date.getMonth()],
+                        year: date.getFullYear(),
+                        commissionValues: commissionStatsCopy,
+                    }
+                    stats.push(newSale)
+                } else {
+                    oldSale.commissionValues[s.commissionId-1].totalValue += s.commissionValue
+                    oldSale.commissionValues[s.commissionId-1].totalSales += 1
                 }
 
             }

@@ -7,6 +7,7 @@ class DashboardRouter extends BaseRoutes {
         this.router.get("/product", DashboardController.getProductStats);
         this.router.get("/client", DashboardController.getClientStats);
         this.router.get("/date", DashboardController.getStatsFromDate);
+        this.router.get("/date/commission", DashboardController.getCommissionStatsFromDate);
         this.router.get('/ranking', DashboardController.getRanking)
     }
 }

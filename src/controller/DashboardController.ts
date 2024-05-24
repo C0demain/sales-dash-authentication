@@ -129,6 +129,34 @@ export class DashboardController {
         }
     }
 
+    async getCommissionStatsFromDate(req: Request, res: Response) {
+        let filters = {}
+        const { userId } = req.query
+        const { startDate, endDate } = req.query
+        const newStartDate = startDate ? new Date(startDate.toString()+'T00:00') : new Date('1970-01-01')
+        const newEndDate = endDate ? new Date(endDate.toString()+'T00:00') : new Date()
+        filters = { ...filters, ...{ date: { [Op.between]: [newStartDate, newEndDate] } } }
+
+        if (userId) filters = { ...filters, userId: userId }
+
+        console.log(filters);
+
+        try {
+            const sales = await new DashboardRepo().getCommissionStatsFromDate(filters)
+            return res.status(200).json({
+                status: "Success",
+                message: `Showing stats from`,
+                stats: sales
+            });
+        } catch (error) {
+            console.error();
+            return res.status(500).json({
+                status: "Internal Server Error",
+                message: "Something went wrong with getStatsFromDate",
+            })
+        }
+    }
+
     async getRanking(req: Request, res: Response) {
         try {
             const { startDate, endDate } = req.query
