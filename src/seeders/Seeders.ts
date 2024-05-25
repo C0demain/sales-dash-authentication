@@ -8,21 +8,21 @@ export class Seeders {
     const existingUsersCount = await Users.count();
 
     if (existingUsersCount === 0) {
-      const hashedPasswordAdmin = await bcrypt.hash('admin', 10);
-      const hashedPasswordUser = await bcrypt.hash('user', 10);
+      const hashedPasswordGestor = await bcrypt.hash('gestor', 10);
+      const hashedPasswordVendedor = await bcrypt.hash('vendedor', 10);
 
       await Users.bulkCreate([
         {
-          name: 'Admin',
-          email: 'admin@gmail.com',
-          password: hashedPasswordAdmin,
+          name: 'Gestor',
+          email: 'gestor@gmail.com',
+          password: hashedPasswordGestor,
           role: Roles.Admin,
           cpf: '000.000.000-00'
         },
         {
-          name: 'User',
-          email: 'user@gmail.com',
-          password: hashedPasswordUser,
+          name: 'Vendedor',
+          email: 'vendedor@gmail.com',
+          password: hashedPasswordVendedor,
           role: Roles.User,
           cpf: '111.111.111-11'
         }
