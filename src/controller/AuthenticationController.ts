@@ -4,7 +4,6 @@ import { UsersRepo } from "../repository/UsersRepo";
 import { UniqueConstraintError } from "sequelize";
 import NotFoundError from "../exceptions/NotFound";
 import { SellsRepo } from "../repository/SellsRepo";
-import { Roles } from "../models/enum/Roles";
 
 class AuthenticationController {
   // login controller
@@ -46,18 +45,44 @@ class AuthenticationController {
       });
     } catch (error) {
       console.error("Registration error:", error);
-      if(error instanceof UniqueConstraintError){
+      if (error instanceof UniqueConstraintError) {
         return res.status(400).json({
           status: "Bad Request",
           message: error.errors[0]?.message
-      })
+        })
       }
-      else{
+      else {
         return res.status(500).json({
           status: "Internal Server Error",
           message: "Something went wrong with register",
-      });
+        });
+      }
     }
+  }
+
+  //register for admin with nodemailer
+  async registerAdmin(req: Request, res: Response) {
+    try {
+      const { name, email, cpf } = req.body;
+      await new AuthenticationService().registerAdmin(email, name, cpf);
+      return res.status(200).json({
+        status: "Success",
+        message: "Successfully registered Admin",
+      });
+    } catch (error) {
+      console.error("Registration error:", error);
+      if (error instanceof UniqueConstraintError) {
+        return res.status(400).json({
+          status: "Bad Request",
+          message: error.errors[0]?.message
+        })
+      }
+      else {
+        return res.status(500).json({
+          status: "Internal Server Error",
+          message: "Something went wrong with register admin",
+        });
+      }
     }
   }
 
@@ -100,19 +125,19 @@ class AuthenticationController {
     try {
       const userId = Number(req.params.id);
       const user = await new UsersRepo().getByIdWithSells(userId);
-      
+
       return res.status(200).json({
         status: "Success",
         message: "Successfully fetched user with sells",
         user: user,
       });
     } catch (error) {
-      if(error instanceof NotFoundError){
+      if (error instanceof NotFoundError) {
         return res.status(404).json({
           status: "Not Found",
           message: error.message,
         });
-      }else{
+      } else {
         return res.status(500).json({
           status: "Internal Server Error",
           message: "Something went wrong with deleteUser",
@@ -124,68 +149,80 @@ class AuthenticationController {
   async deleteUser(req: Request, res: Response) {
     const { userId } = req.params
     try {
-        const check = await new SellsRepo().checkProduct(parseInt(userId));
-        if(check == null){
-          if( ((await new UsersRepo().getById(parseInt(userId))).role).toString() == "admin" ){
-            return res.status(403).json({
-              status: "Forbidden",
-              message: "Cant delete admin",
-            })
-          }
-            await new UsersRepo().delete(parseInt(userId));           
-            return res.status(204).json({
-                status: "No content",
-                message: "Successfully deleted user",
-            });
+      const check = await new SellsRepo().checkProduct(parseInt(userId));
+      if (check == null) {
+        if (((await new UsersRepo().getById(parseInt(userId))).role).toString() == "admin") {
+          return res.status(403).json({
+            status: "Forbidden",
+            message: "Cant delete admin",
+          })
         }
-        else throw new Error();
+        await new UsersRepo().delete(parseInt(userId));
+        return res.status(204).json({
+          status: "No content",
+          message: "Successfully deleted user",
+        });
+      }
+      else throw new Error();
     } catch (error) {
-        if(error instanceof NotFoundError){
-            return res.status(404).json({
-                status: "Not Found",
-                message: error.message,
-            });
-        }else{
-            return res.status(403).json({
-                status: "Forbidden",
-                message: "Cant delete Seller with sells related",
-            });
-        }
-    }
-}
-
-  async updateUser(req: Request, res: Response) {
-    const { userId } = req.params
-    const { name, email, cpf, role } = req.body
-    try {
-      const userRepo = new UsersRepo()
-      const user = await userRepo.getById(parseInt(userId))
-      
-      user.name = name
-      user.email = email
-      user.cpf = cpf
-      user.role = role
-      await userRepo.update(user)
-      return res.status(200).json({
-        status: "Success",
-        message: "Successfully updated user"
-      });
-    } catch (error) {
-      if(error instanceof NotFoundError){
+      if (error instanceof NotFoundError) {
         return res.status(404).json({
           status: "Not Found",
           message: error.message,
         });
-      }else{
-        return res.status(500).json({
-          status: "Internal Server Error",
-          message: "Something went wrong with updateUser",
+      } else {
+        return res.status(403).json({
+          status: "Forbidden",
+          message: "Cant delete Seller with sells related",
         });
       }
     }
   }
 
+  async updateUserPassword(req: Request, res: Response) {
+    const { userId } = req.params;
+    const { email, password } = req.body;
 
+    try {
+      const userRepo = new UsersRepo();
+      const user = await userRepo.getById(parseInt(userId));
+
+      if (!user) {
+        throw new NotFoundError("User not found");
+      }
+
+      // Ensure the email matches the user's email
+      if (user.email !== email) {
+        return res.status(400).json({
+          status: "Bad Request",
+          message: "Email does not match with the user",
+        });
+      }
+
+      // Hash the new password and update the user
+      const authService = new AuthenticationService();
+      const hashedPassword = await authService.hashPassword(password);
+      user.password = hashedPassword;
+      await userRepo.update(user);
+
+      return res.status(200).json({
+        status: "Success",
+        message: "Successfully updated user password",
+      });
+    } catch (error) {
+      if (error instanceof NotFoundError) {
+        return res.status(404).json({
+          status: "Not Found",
+          message: error.message,
+        });
+      } else {
+        return res.status(500).json({
+          status: "Internal Server Error",
+          message: "Something went wrong with user password update",
+        });
+      }
+    }
+  }
 }
 
 export default new AuthenticationController();

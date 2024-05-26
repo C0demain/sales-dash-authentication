@@ -3,6 +3,8 @@ import { Users } from "../models/Users";
 import { UsersRepo } from "../repository/UsersRepo";
 import Authentication from "../utils/Authentication";
 import { UniqueConstraintError } from 'sequelize';
+import EmailService from '../email/EmailService';
+import crypto from 'crypto';
 
 interface IAuthenticationService {
   login(email: string, password: string): Promise<string>;
@@ -12,6 +14,15 @@ interface IAuthenticationService {
     name: string,
     cpf: string,
     role: [Roles.Admin, Roles.User]
+  ): Promise<void>;
+  registerAdmin(
+    email: string,
+    name: string,
+    cpf: string
+  ): Promise<void>;
+  update(
+    email: string,
+    password: string,
   ): Promise<void>;
 }
 
@@ -60,8 +71,60 @@ export class AuthenticationService implements IAuthenticationService {
 
       await new UsersRepo().save(newUser);
     } catch (error) {
-      if(error instanceof UniqueConstraintError) throw error
+      if (error instanceof UniqueConstraintError) throw error
       else throw new Error("failed to register user")
     }
   }
+
+  async registerAdmin(
+    email: string,
+    name: string,
+    cpf: string
+  ): Promise<void> {
+    try {
+      const adminPassword: string = this.generateRandomPassword(12);
+      const adminHashedPassword: string = await Authentication.passwordHash(adminPassword);
+      const newAdmin = new Users();
+      newAdmin.email = email;
+      newAdmin.password = adminHashedPassword;
+      newAdmin.name = name;
+      newAdmin.cpf = cpf;
+      newAdmin.role = [Roles.Admin]; 
+
+      // Salvar o novo usuário administrador
+      await new UsersRepo().saveAdmin(newAdmin); 
+      // Enviar a senha gerada por e-mail
+      await EmailService.sendEmail(email, "Senha de Acesso Gestor", `Primeira senha para login: ${adminPassword}`);
+
+    } catch (error) {
+      if (error instanceof UniqueConstraintError) throw error;
+      else throw new Error("failed to register admin");
+    }
+  }
+
+  private generateRandomPassword(length: number): string {
+    return crypto.randomBytes(length).toString('base64').slice(0, length);
+  }
+
+  async update(email: string, newPassword: string): Promise<void> {
+    try {
+      const user = await new UsersRepo().findByEmail(email);
+
+      if (!user) {
+        throw new Error("User not found");
+      }
+
+      const hashedPassword: string = await Authentication.passwordHash(newPassword);
+      user.password = hashedPassword;
+
+      await new UsersRepo().update(user);
+    } catch (error) {
+      throw new Error("Failed to update password");
+    }
+  }
+
+  async hashPassword(password: string): Promise<string> {
+    return await Authentication.passwordHash(password);
+  }
+
 }

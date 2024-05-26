@@ -8,7 +8,6 @@ import { UserBasicInfo } from "./models/interface/User";
 import ProductsRouter from "./router/ProductsRouter";
 import ClientRouter from "./router/ClientRouter";
 import DashboardRouter from "./router/DashboardRouter";
-import { Commissions } from "./models/Commissions";
 
 declare global {
   namespace Express {
