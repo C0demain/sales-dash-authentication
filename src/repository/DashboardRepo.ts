@@ -35,31 +35,36 @@ interface CommissionMonthSaleStats {
 const meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
 
 export class DashboardRepo implements IDashboardRepo {
-    async getStatsFromDate(filters: WhereOptions) {
+    async getStatsFromDate(filters: WhereOptions | any) {
         try {
             const stats: MonthSaleStats[] = []
             const sales = await Sells.findAll({ where: filters, order: [['date', 'ASC']]})
-            for (const s of sales) {
-                const date = new Date(s.date+'T00:00')
-                const oldSale = stats.find(sale => sale.month == meses[date.getMonth()] && sale.year == date.getFullYear())
-                if (stats.length === 0 || !oldSale) {
-                    const newSale: MonthSaleStats = {
-                        month: meses[date.getMonth()],
-                        year: date.getFullYear(),
-                        totalSales: 1,
-                        totalValue: s.value,
-                        totalCommissionValue: s.commissionValue
-                    }
-                    stats.push(newSale)
-                } else {
-                    oldSale.totalValue += s.value
-                    oldSale.totalSales += 1
-                    oldSale.totalCommissionValue += s.commissionValue
+            const [startDate, endDate]: Date[] = filters.date[Op.between]
+            var currentDate: Date = startDate
+            while(currentDate.getFullYear() <= endDate.getFullYear()){
+                stats.push({
+                    month: meses[currentDate.getMonth()],
+                    year: currentDate.getFullYear(),
+                    totalValue: 0,
+                    totalCommissionValue: 0,
+                    totalSales: 0
+                })
+                if(currentDate.getMonth() == endDate.getMonth() && currentDate.getFullYear() == endDate.getFullYear()){
+                    break
                 }
-
+                currentDate.setMonth(currentDate.getMonth()+1)
             }
-
+            for(let sale of sales){
+                const currentStat = stats.find(st => st.month == meses[new Date(sale.date+"T00:00").getMonth()] && st.year == new Date(sale.date+"T00:00").getFullYear())
+                if(currentStat){
+                    currentStat.totalValue += sale.value
+                    currentStat.totalCommissionValue += sale.commissionValue
+                    currentStat.totalSales += 1
+                }
+                
+            }
             return stats
+
 
         } catch (error) {
             console.log(error)
