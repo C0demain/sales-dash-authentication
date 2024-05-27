@@ -1,24 +1,26 @@
 import { Products } from "../models/Products";
 import { ProductsRepo } from "../repository/ProductsRepo";
 
-interface IProductsService{
+interface IProductsService {
     register(
-        name: string  
+        name: string,
+        description: string,
     ): Promise<void>;
 }
 
-export class ProductsService implements IProductsService{
-    
-    async register(name: string): Promise<void> {
-        try{           
+export class ProductsService implements IProductsService {
+
+    async register(name: string, description: string): Promise<void> {
+        try {
             const newProduct = new Products();
-            newProduct.name = name;          
-          
-            await new ProductsRepo().save(newProduct);        
+            newProduct.name = name;
+            newProduct.description = description;
+
+            await new ProductsRepo().save(newProduct);
         }
-        catch(error){
-        throw new Error("failed to register product")
+        catch (error) {
+            throw new Error("failed to register product")
         }
     }
-    
+
 }
