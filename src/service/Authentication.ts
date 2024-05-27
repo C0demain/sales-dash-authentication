@@ -3,7 +3,7 @@ import { Users } from "../models/Users";
 import { UsersRepo } from "../repository/UsersRepo";
 import Authentication from "../utils/Authentication";
 import { UniqueConstraintError } from 'sequelize';
-import EmailService from '../email/EmailService';
+import EmailService from './EmailService';
 import crypto from 'crypto';
 
 interface IAuthenticationService {
