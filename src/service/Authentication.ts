@@ -8,7 +8,7 @@ import crypto from 'crypto';
 
 interface IAuthenticationService {
   login(email: string, password: string): Promise<string>;
-  register(
+  registerUser(
     email: string,
     password: string,
     name: string,
@@ -19,10 +19,6 @@ interface IAuthenticationService {
     email: string,
     name: string,
     cpf: string
-  ): Promise<void>;
-  update(
-    email: string,
-    password: string,
   ): Promise<void>;
 }
 
@@ -53,12 +49,11 @@ export class AuthenticationService implements IAuthenticationService {
     }
   }
 
-  async register(
+  async registerUser(
     email: string,
     password: string,
     name: string,
     cpf: string,
-    role: [Roles.Admin, Roles.User]
   ): Promise<void> {
     try {
       const hashedPassword: string = await Authentication.passwordHash(password);
@@ -67,9 +62,9 @@ export class AuthenticationService implements IAuthenticationService {
       newUser.password = hashedPassword;
       newUser.name = name;
       newUser.cpf = cpf;
-      newUser.role = role;
+      newUser.role = [Roles.User];
 
-      await new UsersRepo().save(newUser);
+      await new UsersRepo().saveUser(newUser);
     } catch (error) {
       if (error instanceof UniqueConstraintError) throw error
       else throw new Error("failed to register user")
@@ -106,25 +101,25 @@ export class AuthenticationService implements IAuthenticationService {
     return crypto.randomBytes(length).toString('base64').slice(0, length);
   }
 
-  async update(email: string, newPassword: string): Promise<void> {
-    try {
-      const user = await new UsersRepo().findByEmail(email);
-
-      if (!user) {
-        throw new Error("User not found");
-      }
-
-      const hashedPassword: string = await Authentication.passwordHash(newPassword);
-      user.password = hashedPassword;
-
-      await new UsersRepo().update(user);
-    } catch (error) {
-      throw new Error("Failed to update password");
-    }
-  }
-
   async hashPassword(password: string): Promise<string> {
     return await Authentication.passwordHash(password);
   }
+
+  // async update(email: string, newPassword: string): Promise<void> {
+  //   try {
+  //     const user = await new UsersRepo().findByEmail(email);
+
+  //     if (!user) {
+  //       throw new Error("User not found");
+  //     }
+
+  //     const hashedPassword: string = await Authentication.passwordHash(newPassword);
+  //     user.password = hashedPassword;
+
+  //     await new UsersRepo().update(user);
+  //   } catch (error) {
+  //     throw new Error("Failed to update password");
+  //   }
+  // }
 
 }

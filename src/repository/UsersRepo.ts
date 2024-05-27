@@ -4,7 +4,7 @@ import { Users } from "../models/Users";
 import NotFoundError from "../exceptions/NotFound";
 
 interface IUsersRepo {
-  save(users: Users): Promise<void>;
+  saveUser(users: Users): Promise<void>;
   saveAdmin(users: Users): Promise<void>;
   update(users: Users): Promise<void>;
   delete(usersId: number): Promise<void>;
@@ -19,14 +19,14 @@ interface IUsersRepo {
 export class UsersRepo implements IUsersRepo {
 
 
-  async save(users: Users): Promise<void> {
+  async saveUser(users: Users): Promise<void> {
     try {
       await Users.create({
         name: users.name,
         password: users.password,
         email: users.email,
         cpf: users.cpf,
-        role: users.role
+        role: 'user'
       });
     } catch (error) {
       console.log(error)

@@ -35,10 +35,10 @@ class AuthenticationController {
   }
 
   // register controller
-  async register(req: Request, res: Response) {
+  async registerUser(req: Request, res: Response) {
     try {
-      const { name, email, password, cpf, role } = req.body;
-      await new AuthenticationService().register(email, password, name, cpf, role);
+      const { name, email, password, cpf } = req.body;
+      await new AuthenticationService().registerUser(email, password, name, cpf);
       return res.status(200).json({
         status: "Success",
         message: "Successfully registered user",
@@ -179,9 +179,9 @@ class AuthenticationController {
     }
   }
 
-  async updateUserPassword(req: Request, res: Response) {
+  async updateUser(req: Request, res: Response) {
     const { userId } = req.params;
-    const { email, password } = req.body;
+    const { name, email, password, cpf } = req.body;
 
     try {
       const userRepo = new UsersRepo();
@@ -191,23 +191,24 @@ class AuthenticationController {
         throw new NotFoundError("User not found");
       }
 
-      // Ensure the email matches the user's email
-      if (user.email !== email) {
-        return res.status(400).json({
-          status: "Bad Request",
-          message: "Email does not match with the user",
-        });
+      // Update user information if provided
+      if (name) user.name = name;
+      if (email) user.email = email;
+      if (cpf) user.cpf = cpf;
+
+
+      // Update password if provided
+      if (password) {
+        const authService = new AuthenticationService();
+        const hashedPassword = await authService.hashPassword(password);
+        user.password = hashedPassword;
       }
 
-      // Hash the new password and update the user
-      const authService = new AuthenticationService();
-      const hashedPassword = await authService.hashPassword(password);
-      user.password = hashedPassword;
       await userRepo.update(user);
 
       return res.status(200).json({
         status: "Success",
-        message: "Successfully updated user password",
+        message: "Successfully updated user",
       });
     } catch (error) {
       if (error instanceof NotFoundError) {
@@ -215,14 +216,64 @@ class AuthenticationController {
           status: "Not Found",
           message: error.message,
         });
+      } else if (error instanceof UniqueConstraintError) {
+        return res.status(400).json({
+          status: "Bad Request",
+          message: error.errors[0]?.message,
+        });
       } else {
         return res.status(500).json({
           status: "Internal Server Error",
-          message: "Something went wrong with user password update",
+          message: "Something went wrong with user update",
         });
       }
     }
   }
+
+  // async updateUserPassword(req: Request, res: Response) {
+  //   const { userId } = req.params;
+  //   const { email, password } = req.body;
+
+  //   try {
+  //     const userRepo = new UsersRepo();
+  //     const user = await userRepo.getById(parseInt(userId));
+
+  //     if (!user) {
+  //       throw new NotFoundError("User not found");
+  //     }
+
+  //     // Ensure the email matches the user's email
+  //     if (user.email !== email) {
+  //       return res.status(400).json({
+  //         status: "Bad Request",
+  //         message: "Email does not match with the user",
+  //       });
+  //     }
+
+  //     // Hash the new password and update the user
+  //     const authService = new AuthenticationService();
+  //     const hashedPassword = await authService.hashPassword(password);
+  //     user.password = hashedPassword;
+  //     await userRepo.update(user);
+
+  //     return res.status(200).json({
+  //       status: "Success",
+  //       message: "Successfully updated user password",
+  //     });
+  //   } catch (error) {
+  //     if (error instanceof NotFoundError) {
+  //       return res.status(404).json({
+  //         status: "Not Found",
+  //         message: error.message,
+  //       });
+  //     } else {
+  //       return res.status(500).json({
+  //         status: "Internal Server Error",
+  //         message: "Something went wrong with user password update",
+  //       });
+  //     }
+  //   }
+  // }
 }
 
 export default new AuthenticationController();
