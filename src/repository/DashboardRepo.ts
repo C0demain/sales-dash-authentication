@@ -84,13 +84,6 @@ export class DashboardRepo implements IDashboardRepo {
                 })
             }
             const sales = await Sells.findAll({ where: filters, order: [['date', 'ASC']], include: Commissions})
-            const logSales = sales.map(s => {
-                return {month: meses[new Date(s.date+'T00:00').getMonth()],
-                commissionName: s.commission.title,
-                commissionValue: s.commissionValue
-                }
-            })
-            console.table(logSales)
             for (const s of sales) {
                 const date = new Date(s.date+'T00:00')
                 const oldSale = stats.find(sale => sale.month == meses[date.getMonth()] && sale.year == date.getFullYear())
