@@ -28,7 +28,7 @@ class Authentication {
     cpf: string,
     role: string[]
   ): string {
-    const secretKey: string = process.env.JWT_SECRET_KEY || "my-secret";
+    const secretKey: string = "my-secret";
     const payload: Payload = {
       userId: id,
       email: email,
@@ -36,14 +36,14 @@ class Authentication {
       cpf: cpf,
       role: role
     };
-    const option = { expiresIn: process.env.JWT_EXPIRES_IN };
+    const option = { expiresIn: '24h' };
 
     return jwt.sign(payload, secretKey, option);
   }
 
   public static validateToken(token: string): Payload | null {
     try {
-      const secretKey: string = process.env.JWT_SECRET_KEY || "my-secret";
+      const secretKey: string = "my-secret";
       return jwt.verify(token, secretKey) as Payload;
     } catch (err) {
       return null;
