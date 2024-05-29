@@ -36,10 +36,10 @@ class App {
     this.app.use("/api/v1/dashboard", DashboardRouter)
   }
 
-  protected async databaseSync(): Promise<void> {
-    const db = Database.getInstance();
-    await db.connect(true);
-    await db.sequelize?.sync();
+  protected databaseSync(): void {
+    const db = new Database();
+    db.connectToPostgreSQL();
+    db.sequelize?.sync();
   }
 
   protected plugins(): void {
