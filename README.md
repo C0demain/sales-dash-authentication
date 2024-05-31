@@ -11,7 +11,8 @@
 GET /users -> retorna todas os usuários
 GET /users/:id -> retorna usuario de acordo com id
 POST /login -> recebe senha e email e retorna um token de autenticação
-POST /register -> insere novo usuário
+POST /registerUser -> insere novo usuário vendedor
+POST /registerAdmin -> insere novo usuário gestor
 PUT /user/:id -> altera usuario de acordo com id
 DELETE /user/:id -> retorna usuario de acordo com id
 ```
