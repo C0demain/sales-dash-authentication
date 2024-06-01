@@ -51,7 +51,7 @@ class Database {
 
       if (showLogs)
         console.log("✅ Models synchronized with database.");
-      await Seeders.defaultUsers();
+      await Seeders.defaultAdmin();
       await Seeders.defaultCommissions();
 
       if (showLogs) console.log("✅ Seeders executed successfully.");

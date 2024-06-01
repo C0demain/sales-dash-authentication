@@ -4,6 +4,7 @@ import { Op } from "sequelize";
 import NotFoundError from "../exceptions/NotFound";
 import { DashboardRepo } from "../repository/DashboardRepo";
 import { subtractDays } from "../utils/Dates";
+import { DatabaseCleaner } from "../service/DatabaseCleaner";
 
 export class DashboardController {
     async getUserStats(req: Request, res: Response) {
@@ -175,6 +176,15 @@ export class DashboardController {
                 status: "Internal Server Error",
                 message: "Something went wrong with getRanking",
             })
+        }
+    }
+
+    async cleanDatabase(req: Request, res: Response) {
+        try {
+            await DatabaseCleaner.cleanDatabase(res);
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ error: "Failed to clear and seed the database" });
         }
     }
 }
