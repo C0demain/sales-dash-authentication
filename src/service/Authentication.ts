@@ -104,22 +104,4 @@ export class AuthenticationService implements IAuthenticationService {
   async hashPassword(password: string): Promise<string> {
     return await Authentication.passwordHash(password);
   }
-
-  // async update(email: string, newPassword: string): Promise<void> {
-  //   try {
-  //     const user = await new UsersRepo().findByEmail(email);
-
-  //     if (!user) {
-  //       throw new Error("User not found");
-  //     }
-
-  //     const hashedPassword: string = await Authentication.passwordHash(newPassword);
-  //     user.password = hashedPassword;
-
-  //     await new UsersRepo().update(user);
-  //   } catch (error) {
-  //     throw new Error("Failed to update password");
-  //   }
-  // }
-
 }

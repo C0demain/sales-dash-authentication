@@ -7,7 +7,6 @@ export class Products extends Model {
     public static VAR_TABLE_NAME = "products" as string;
     public static VAR_ID = "id" as string;
     public static VAR_NAME = "name" as string;
-    public static VAR_DESCRIPTION = "description" as string;
 
     @Column({
         type: DataType.INTEGER,
@@ -23,9 +22,4 @@ export class Products extends Model {
     })
     name!: string;
 
-    @Column({
-        type: DataType.STRING,
-        field: Products.VAR_DESCRIPTION
-    })
-    description!: string;
 }

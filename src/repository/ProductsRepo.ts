@@ -16,8 +16,7 @@ export class ProductsRepo implements IProductRepo {
   async save(products: Products): Promise<void> {
     try {
       await Products.create({
-        name: products.name,
-        description: products.description
+        name: products.name
       });
     } catch (error) {
       throw new Error("Failed to create Product!");

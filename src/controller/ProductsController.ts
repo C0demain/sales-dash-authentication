@@ -8,8 +8,8 @@ import { UsersRepo } from '../repository/UsersRepo';
 export class ProductsController {
     async register(req: Request, res: Response) {
         try {
-            const {name, description} = req.body
-            await new ProductsService().register(name, description);         
+            const {name} = req.body
+            await new ProductsService().register(name);         
             return res.status(200).json({
                 status: "success",
                 message: "sucessfully registered product"
@@ -78,13 +78,12 @@ export class ProductsController {
 
     async updateProduct(req: Request, res: Response) {
         const { productId } = req.params
-        const { name, description} = req.body
+        const { name} = req.body
         try {
             const productRepo = new ProductsRepo()
             const product = await productRepo.getById(parseInt(productId))
             
             product.name = name
-            product.description = description
             await productRepo.update(product)
             return res.status(200).json({
                 status: "Success",
