@@ -13,11 +13,11 @@ export class ProductsService implements IProductsService {
         try {
             const newProduct = new Products();
             newProduct.name = name;
+            console.log(`Registering new product with name: ${newProduct.name}`);
 
             await new ProductsRepo().save(newProduct);
-        }
-        catch (error) {
-            throw new Error("failed to register product")
+        } catch (error) {
+            throw new Error("ProductsService failed to register product")
         }
     }
 

@@ -112,8 +112,6 @@ export class SellsController {
         where: { id: product_Id },
         defaults: {
           name: product,
-          description: "",
-          value: 0,
         }
       })
 
