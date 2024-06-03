@@ -6,7 +6,6 @@ interface Payload {
   email: string;
   name: string;
   cpf: string;
-  role: string[];
 }
 
 class Authentication {
@@ -25,18 +24,16 @@ class Authentication {
     id: number,
     email: string,
     name: string,
-    cpf: string,
-    role: string[]
+    cpf: string
   ): string {
     const secretKey: string = "my-secret";
     const payload: Payload = {
       userId: id,
       email: email,
       name: name,
-      cpf: cpf,
-      role: role
+      cpf: cpf
     };
-    const option = { expiresIn: '24h' };
+    const option = { expiresIn: '1h' };
 
     return jwt.sign(payload, secretKey, option);
   }

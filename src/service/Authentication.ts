@@ -41,8 +41,7 @@ export class AuthenticationService implements IAuthenticationService {
         user.id,
         user.email,
         user.name,
-        user.cpf,
-        user.role
+        user.cpf
       );
     } catch (error) {
       throw new Error("Failed to login");

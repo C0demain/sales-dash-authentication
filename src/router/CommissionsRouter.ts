@@ -1,14 +1,15 @@
 import BaseRoutes from "./BaseRouter";
 import CommissionsController from "../controller/CommissionsController";
+import { auth } from "../middleware/AuthMiddleware";
 
 class CommissionsRouter extends BaseRoutes{
     
     routes(): void {
-        this.router.post("/register", CommissionsController.register);
-        this.router.get("/getall", CommissionsController.getCommissions);
-        this.router.get('/:commissionId', CommissionsController.getComission)
-        this.router.put('/:commissionId', CommissionsController.updateCommission)
-        this.router.delete('/:commissionId', CommissionsController.deleteCommission)
+        this.router.post("/register", auth, CommissionsController.register);
+        this.router.get("/getall", auth, CommissionsController.getCommissions);
+        this.router.get('/:commissionId', auth, CommissionsController.getComission)
+        this.router.put('/:commissionId', auth, CommissionsController.updateCommission)
+        this.router.delete('/:commissionId', auth, CommissionsController.deleteCommission)
     }
     
 }

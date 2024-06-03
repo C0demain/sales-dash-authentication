@@ -2,27 +2,23 @@ import { NextFunction, Request, Response } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
 
 export const auth = (req: Request, res: Response, next: NextFunction): any => {
-  if (!req.headers.authorization) {
-    return res.status(401).send("No token!");
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    return res.status(401).json({ message: "No token provided" });
   }
 
-  let secretKey = process.env.JWT_SECRET_KEY || "secret";
-  const token: string = req.headers.authorization.split(" ")[1];
+  const token = authHeader.split(" ")[1];
+  const secretKey = process.env.JWT_SECRET_KEY || "my-secret";
 
   try {
-    const credential = jwt.verify(token, secretKey) as JwtPayload;
-
-    const { userId, email, role } = credential;
-
-    req.user = { id: userId, email: email, role };
-
+    const credential = jwt.verify(token, secretKey);
     if (credential) {
       req.app.locals.credential = credential;
       return next();
     }
-    return res.send("token invalid");
-  } catch (err) {
-    return res.send(err);
+    return res.status(403).json({ message: "Invalid token" });
+  } catch (err: any) {
+    return res.status(403).json({ message: "Invalid token", error: err.message });
   }
 };
 
