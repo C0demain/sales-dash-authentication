@@ -16,7 +16,7 @@ export class ProductsRepo implements IProductRepo {
   async save(products: Products): Promise<void> {
     try {
       await Products.create({
-        id: await Products.count() + 1,
+        id: parseInt(await Products.max('id')) + 1,
         name: products.name
       });
     } catch (error) {
