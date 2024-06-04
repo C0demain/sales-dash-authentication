@@ -33,7 +33,7 @@ class App {
     this.app.use("/api/v1/commissions", CommissionsRouter);
     this.app.use("/api/v1/products", ProductsRouter);
     this.app.use("/api/v1/clients", ClientRouter);
-    this.app.use("/api/v1/dashboard", DashboardRouter)
+    this.app.use("/api/v1/dashboard", DashboardRouter);
   }
 
   protected async databaseSync(): Promise<void> {
@@ -43,8 +43,8 @@ class App {
   }
 
   protected plugins(): void {
-    this.app.use(express.json());
-    this.app.use(express.urlencoded({ extended: true }));
+    this.app.use(express.json({ limit: '50mb' }));  // Increase the limit
+    this.app.use(express.urlencoded({ extended: true, limit: '50mb' }));  // Increase the limit
 
     this.app.use(cors({
       origin: true, 
@@ -58,4 +58,4 @@ const app = new App().app;
 
 app.listen(port, () => {
   console.log(`✅ Server started successfully. Server is running at http://localhost:${port}.`);
-})
+});

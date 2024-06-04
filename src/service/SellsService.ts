@@ -4,39 +4,50 @@ import { Sells } from "../models/Sells";
 import { Users } from "../models/Users";
 import { SellsRepo } from "../repository/SellsRepo";
 
-interface ISellsService{
+interface ISellsService {
     register(
-        date : string,
-        userId : number,
-        productid : number,
-        clientId : number,
-        value : number,
-        new_client : boolean,
-        new_product : boolean,
+        date: string,
+        userId: number,
+        productId: number,
+        clientId: number,
+        value: number,
+        new_client: boolean,
+        new_product: boolean,
         commissionId: number,
-        finalValue: number 
+        commissionValue: number
     ): Promise<void>;
+    registerMultiple(sells: any[]): Promise<void>;
 }
 
-export class SellsService implements ISellsService{
-    
-    async register(date: string, userId:number, productid: number, clientId : number, value: number, new_client : boolean, new_product : boolean, commissionId: number, commissionValue: number): Promise<void> {
-        try{           
+export class SellsService implements ISellsService {
+
+    async register(
+        date: string,
+        userId: number,
+        productId: number,
+        clientId: number,
+        value: number,
+        new_client: boolean,
+        new_product: boolean,
+        commissionId: number,
+        commissionValue: number
+    ): Promise<void> {
+        try {
             const user = await Users.findByPk(userId);
             const client = await Client.findByPk(clientId);
-            const prod = await Products.findByPk(productid);
+            const prod = await Products.findByPk(productId);
             if (!user) {
-            throw new Error("User not found");
+                throw new Error("User not found");
             }
 
-            if(client === null){
-                throw new Error("Client no found");
+            if (!client) {
+                throw new Error("Client not found");
             }
 
-            if(!prod){
-                throw new Error("product not found");
+            if (!prod) {
+                throw new Error("Product not found");
             }
-            
+
             const newSell = new Sells();
             newSell.date = date;
             newSell.product = prod;
@@ -50,11 +61,27 @@ export class SellsService implements ISellsService{
             newSell.new_product = new_product;
             newSell.commissionId = commissionId;
             newSell.commissionValue = commissionValue;
-            await new SellsRepo().save(newSell);        
-        }
-        catch(error){
-        throw new Error("failed to register sell")
+            await new SellsRepo().save(newSell);
+        } catch (error) {
+            throw new Error("Failed to register sell");
         }
     }
-    
+
+    async registerMultiple(sells: any[]): Promise<void> {
+        try {
+            for (const sell of sells) {
+                const {
+                    date, userId, productId, clientId, value,
+                    new_client, new_product, commissionId, commissionValue
+                } = sell;
+
+                await this.register(
+                    date, userId, productId, clientId, value,
+                    new_client, new_product, commissionId, commissionValue
+                );
+            }
+        } catch (error) {
+            throw new Error("Failed to register multiple sells");
+        }
+    }
 }

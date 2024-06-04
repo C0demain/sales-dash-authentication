@@ -15,11 +15,11 @@ export class SellsController {
 
   async register(req: Request, res: Response) {
     try {
-      const { date, seller_cpf, product_id, cpf_client, value} = req.body;
+      const { date, seller_cpf, product_id, cpf_client, value } = req.body;
       const formatted_seller_cpf = seller_cpf.replace(/[.-]/g, '');
       const clientCreated = await Client.findOne({
         where: { cpf: formatted_seller_cpf }
-      })      
+      })
       const productCreated = await Products.findOne({
         where: { id: product_id }
       })
@@ -57,19 +57,19 @@ export class SellsController {
     // Filter sells between two optional dates
     const newStartDate = startDate ? subtractDays(new Date(startDate.toString()), 1) : new Date('1970-01-01')
     const newEndDate = endDate ? new Date(endDate.toString()) : new Date()
-    filters = { ...filters, ...{ date: {[Op.between]: [newStartDate, newEndDate]} } }
+    filters = { ...filters, ...{ date: { [Op.between]: [newStartDate, newEndDate] } } }
 
     try {
       const sells = await new SellsRepo().getFiltered(filters);
       const esells = sells.map(sale => {
         return {
-            ...sale.toJSON(), 
-            seller: sale.user.name,
-            productName : sale.product.name,
-            clientname : sale.client.name,
+          ...sale.toJSON(),
+          seller: sale.user.name,
+          productName: sale.product.name,
+          clientname: sale.client.name,
 
         };
-    });
+      });
       return res.status(200).json({
         status: "Success",
         message: "Successfully fetched sells",
@@ -86,46 +86,84 @@ export class SellsController {
 
   async registerFromTable(req: Request, res: Response) {
     try {
-      const { date, seller, seller_cpf, product, product_Id, client, cpf_client, client_department, value, payment_method, role } = req.body;
-      const [testUser, userCreated] = await Users.findOrCreate({
-        where: { cpf: seller_cpf.replace(/[.-]/g, '') },
-        defaults: {
-          name: seller,
-          cpf: seller_cpf.replace(/[.-]/g, ''),
-          email: seller.replace(/\s+/g, '') + "@gmail.com",
-          password: await Authentication.passwordHash(seller_cpf.replace(/[.-]/g, '')),
-          role: role,
+      const sells = req.body.data; // Recebe o array de dados do frontend
+      const sellsService = new SellsService();
+      const batchSize = 100;
+  
+      // Função auxiliar para dividir array em lotes
+      const chunkArray = (array: any[], size: number) => {
+        const result = [];
+        for (let i = 0; i < array.length; i += size) {
+          result.push(array.slice(i, i + size));
         }
-      })
-      console.log(testUser);
-
-      const [testClient, clientCreated] = await Client.findOrCreate({
-        where: { cpf: cpf_client },
-        defaults: {
-          name: client,
-          segment: client_department,
-          cpf: cpf_client,
-        }
-      })
-
-      const [testProduct, productCreated] = await Products.findOrCreate({
-        where: { id: product_Id },
-        defaults: {
-          name: product,
-        }
-      })
-
-      const commissionId:number = getCommission(clientCreated, productCreated)
-      const commission = await Commissions.findByPk(commissionId)
-      const commissionValue = commission!.percentage * value
-
-      await new SellsService().register(date, testUser.id, testProduct.id, testClient.id, value, clientCreated, productCreated, commissionId, commissionValue);
-
+        return result;
+      };
+  
+      const batches = chunkArray(sells, batchSize);
+  
+      for (const batch of batches) {
+        const processedBatchPromises = batch.map(async (sell) => {
+          const {
+            date, seller, seller_cpf, product, product_Id,
+            client, cpf_client, client_department, value,
+            role
+          } = sell;
+  
+          const [testUser] = await Users.findOrCreate({
+            where: { cpf: seller_cpf.replace(/[.-]/g, '') },
+            defaults: {
+              name: seller,
+              cpf: seller_cpf.replace(/[.-]/g, ''),
+              email: seller.replace(/\s+/g, '') + "@gmail.com",
+              password: await Authentication.passwordHash(seller_cpf.replace(/[.-]/g, '')),
+              role: role,
+            }
+          });
+  
+          const [testClient, clientCreated] = await Client.findOrCreate({
+            where: { cpf: cpf_client.replace(/[.-]/g, '') },
+            defaults: {
+              name: client,
+              segment: client_department,
+              cpf: cpf_client.replace(/[.-]/g, ''),
+            }
+          });
+  
+          const [testProduct, productCreated] = await Products.findOrCreate({
+            where: { id: product_Id },
+            defaults: {
+              name: product,
+            }
+          });
+  
+          const commissionId: number = getCommission(clientCreated, productCreated);
+          const commission = await Commissions.findByPk(commissionId);
+          const commissionValue = commission!.percentage * value;
+  
+          // Adiciona os IDs e outras informações ao objeto de venda
+          return {
+            ...sell,
+            userId: testUser.id,
+            clientId: testClient.id,
+            productId: testProduct.id,
+            commissionId: commissionId,
+            commissionValue: commissionValue,
+            new_client: clientCreated,
+            new_product: productCreated
+          };
+        });
+  
+        const processedBatch = await Promise.all(processedBatchPromises);
+  
+        // Registra todas as vendas do lote
+        await sellsService.registerMultiple(processedBatch);
+      }
+  
       return res.status(200).json({
         status: "Success",
-        message: "Successfully registered sell",
+        message: "Successfully registered all sells",
       });
-
+  
     } catch (error) {
       console.error("Register from table error:", error);
       return res.status(500).json({
@@ -134,6 +172,7 @@ export class SellsController {
       });
     }
   }
+  
 
   async updateSell(req: Request, res: Response) {
     const { sellId } = req.params;
@@ -179,13 +218,13 @@ export class SellsController {
       const sells = await new SellsRepo().getAll();
       const esells = sells.map(sale => {
         return {
-            ...sale.toJSON(), 
-            seller: sale.user.name,
-            productName : sale.product.name,
-            clientname : sale.client.name,
+          ...sale.toJSON(),
+          seller: sale.user.name,
+          productName: sale.product.name,
+          clientname: sale.client.name,
 
         };
-    });
+      });
       return res.status(200).json({
         status: "Success",
         message: "Successfully fetched sells",
@@ -201,7 +240,7 @@ export class SellsController {
   }
 }
 
-const getCommission = (clientCreated: boolean, productCreated: boolean):number => {
+const getCommission = (clientCreated: boolean, productCreated: boolean): number => {
   if (clientCreated && productCreated) {
     return 1
   } else if (clientCreated) {
