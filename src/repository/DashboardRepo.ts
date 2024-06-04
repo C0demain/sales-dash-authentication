@@ -111,6 +111,42 @@ export class DashboardRepo implements IDashboardRepo {
             throw new Error("Failed to fetch data!");
         }
     }
+    async getClientStatsFromDate(filters: WhereOptions | any) {
+        try {
+            const stats: MonthSaleStats[] = []
+            const sales = await Sells.findAll({ where: filters, order: [['date', 'ASC']]})
+            const [startDate, endDate]: Date[] = filters.date[Op.between]
+            var currentDate: Date = startDate
+            while(currentDate.getFullYear() <= endDate.getFullYear()){
+                stats.push({
+                    month: meses[currentDate.getMonth()],
+                    year: currentDate.getFullYear(),
+                    totalValue: 0,
+                    totalCommissionValue: 0,
+                    totalSales: 0
+                })
+                if(currentDate.getMonth() == endDate.getMonth() && currentDate.getFullYear() == endDate.getFullYear()){
+                    break
+                }
+                currentDate.setMonth(currentDate.getMonth()+1)
+            }
+            for(let sale of sales){
+                const currentStat = stats.find(st => st.month == meses[new Date(sale.date+"T00:00").getMonth()] && st.year == new Date(sale.date+"T00:00").getFullYear())
+                if(currentStat){
+                    currentStat.totalValue += sale.value
+                    currentStat.totalCommissionValue += sale.commissionValue
+                    currentStat.totalSales += 1
+                }
+                
+            }
+            return stats
+
+
+        } catch (error) {
+            console.log(error)
+            throw new Error("Failed to fetch data!");
+        }
+    }
 
     async getUserStats(id: number, filters: WhereOptions) {
         try {
@@ -227,8 +263,8 @@ export class DashboardRepo implements IDashboardRepo {
 
     private salesInfo = async (filters: WhereOptions) => {
         const [totalValue, totalCommissions, totalSales] = await Promise.all([
-            await Sells.sum('value', { where: filters }) || 0,
-            await Sells.sum('commissionValue', { where: filters }) || 0,
+            parseFloat((await Sells.sum('value', { where: filters }) || 0).toFixed(2)),
+            parseFloat((await Sells.sum('commissionValue', { where: filters }) || 0).toFixed(2)),
             await Sells.count({ where: filters }) || 0,
         ])
         return { totalValue, totalCommissions, totalSales }
