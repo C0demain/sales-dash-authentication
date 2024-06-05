@@ -4,6 +4,7 @@ import { ClientService } from "../service/ClientService";
 import { UniqueConstraintError } from "sequelize";
 import NotFoundError from "../exceptions/NotFound";
 import { SellsRepo } from "../repository/SellsRepo";
+import { DuplicateCpfError } from "../exceptions/DuplicateCpfError";
 
 export class ClientController {
 
@@ -19,16 +20,15 @@ export class ClientController {
 
         }
         catch (error) {
-            console.error("Registration error:", error);
-            if (error instanceof UniqueConstraintError) {
+            if (error instanceof DuplicateCpfError) {
                 return res.status(400).json({
                     status: "Bad Request",
-                    message: error.errors[0]?.message
-                })
+                    message: error.message,
+                });
             } else {
                 return res.status(500).json({
                     status: "Internal Server Error",
-                    message: "Something went wrong with register",
+                    message: "Something went wrong while registering the client.",
                 });
             }
         }
@@ -82,18 +82,18 @@ export class ClientController {
             });
 
         } catch (error) {
-            if (error instanceof NotFoundError){
+            if (error instanceof NotFoundError) {
                 return res.status(404).json({
                     status: "Not Found",
                     message: error.message,
                 });
-            }else if(error instanceof UniqueConstraintError){
+            } else if (error instanceof UniqueConstraintError) {
                 return res.status(400).json({
                     status: "Bad Request",
                     message: error.message,
                 });
             }
-            else{
+            else {
                 return res.status(500).json({
                     status: "Internal Server Error",
                     message: "Something went wrong with updateClient",

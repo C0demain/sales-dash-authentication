@@ -5,6 +5,9 @@ import Authentication from "../utils/Authentication";
 import { UniqueConstraintError } from 'sequelize';
 import EmailService from './EmailService';
 import crypto from 'crypto';
+import { Client } from '../models/Client';
+import { DuplicateCpfError } from '../exceptions/DuplicateCpfError';
+import { DuplicateEmailError } from '../exceptions/DuplicateEmailError';
 
 interface IAuthenticationService {
   login(email: string, password: string): Promise<string>;
@@ -55,18 +58,39 @@ export class AuthenticationService implements IAuthenticationService {
     cpf: string,
   ): Promise<void> {
     try {
+      // Validar o email
+      const existingUserWithEmail = await Users.findOne({ where: { email } });
+      if (existingUserWithEmail) {
+        throw new DuplicateEmailError(`O email ${email} já está cadastrado.`);
+      }
+
+      const cleanUserCpf = cpf.replace(/[.-]/g, '');
+
+      const existingClientOrUser = await Promise.all([
+        Users.findOne({ where: { cpf: cleanUserCpf } }),
+        Client.findOne({ where: { cpf: cleanUserCpf } })
+      ]);
+
+      // Verificar se o CPF já existe em usuários ou clientes
+      if (existingClientOrUser.some(record => record !== null)) {
+        throw new DuplicateCpfError(`CPF ${cpf} já está cadastrado como usuário ou cliente.`);
+      }
+
       const hashedPassword: string = await Authentication.passwordHash(password);
       const newUser = new Users();
       newUser.email = email;
       newUser.password = hashedPassword;
       newUser.name = name;
-      newUser.cpf = cpf;
+      newUser.cpf = cleanUserCpf;
       newUser.role = [Roles.User];
 
       await new UsersRepo().saveUser(newUser);
     } catch (error) {
-      if (error instanceof UniqueConstraintError) throw error
-      else throw new Error("failed to register user")
+      if (error instanceof UniqueConstraintError || error instanceof DuplicateCpfError || error instanceof DuplicateEmailError) {
+        throw error;
+      } else {
+        throw new Error("Falha ao registrar o cliente.");
+      }
     }
   }
 
@@ -76,25 +100,47 @@ export class AuthenticationService implements IAuthenticationService {
     cpf: string
   ): Promise<void> {
     try {
+      // Validar o email
+      const existingUserWithEmail = await Users.findOne({ where: { email } });
+      if (existingUserWithEmail) {
+        throw new DuplicateEmailError(`O email ${email} já está cadastrado.`);
+      }
+
+      const cleanAdminCpf = cpf.replace(/[.-]/g, '');
+
+      const existingClientOrUser = await Promise.all([
+        Users.findOne({ where: { cpf: cleanAdminCpf } }),
+        Client.findOne({ where: { cpf: cleanAdminCpf } })
+      ]);
+
+      // Verificar se o CPF já existe em usuários ou clientes
+      if (existingClientOrUser.some(record => record !== null)) {
+        throw new DuplicateCpfError(`CPF ${cpf} já está cadastrado como usuário ou cliente.`);
+      }
+
       const adminPassword: string = this.generateRandomPassword(12);
       const adminHashedPassword: string = await Authentication.passwordHash(adminPassword);
       const newAdmin = new Users();
       newAdmin.email = email;
       newAdmin.password = adminHashedPassword;
       newAdmin.name = name;
-      newAdmin.cpf = cpf;
-      newAdmin.role = [Roles.Admin]; 
+      newAdmin.cpf = cleanAdminCpf;
+      newAdmin.role = [Roles.Admin];
 
       // Salvar o novo usuário administrador
-      await new UsersRepo().saveAdmin(newAdmin); 
+      await new UsersRepo().saveAdmin(newAdmin);
       // Enviar a senha gerada por e-mail
       await EmailService.sendEmail(email, "Senha de Acesso Gestor", `Primeira senha para login: ${adminPassword}`);
 
     } catch (error) {
-      if (error instanceof UniqueConstraintError) throw error;
-      else throw new Error("failed to register admin");
+      if (error instanceof UniqueConstraintError || error instanceof DuplicateCpfError || error instanceof DuplicateEmailError) {
+        throw error;
+      } else {
+        throw new Error("Falha ao registrar o cliente.");
+      }
     }
   }
+
 
   private generateRandomPassword(length: number): string {
     return crypto.randomBytes(length).toString('base64').slice(0, length);

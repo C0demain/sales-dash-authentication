@@ -4,6 +4,8 @@ import { UsersRepo } from "../repository/UsersRepo";
 import { UniqueConstraintError } from "sequelize";
 import NotFoundError from "../exceptions/NotFound";
 import { SellsRepo } from "../repository/SellsRepo";
+import { DuplicateCpfError } from "../exceptions/DuplicateCpfError";
+import { DuplicateEmailError } from "../exceptions/DuplicateEmailError";
 
 class AuthenticationController {
   // login controller
@@ -34,7 +36,7 @@ class AuthenticationController {
     }
   }
 
-  // register controller
+  // cadastro de vendedor
   async registerUser(req: Request, res: Response) {
     try {
       const { name, email, password, cpf } = req.body;
@@ -44,23 +46,21 @@ class AuthenticationController {
         message: "Successfully registered user",
       });
     } catch (error) {
-      console.error("Registration error:", error);
-      if (error instanceof UniqueConstraintError) {
-        return res.status(400).json({
-          status: "Bad Request",
-          message: error.errors[0]?.message
-        })
-      }
-      else {
-        return res.status(500).json({
-          status: "Internal Server Error",
-          message: "Something went wrong with register",
-        });
+      if (error instanceof DuplicateCpfError || error instanceof DuplicateEmailError) {
+          return res.status(400).json({
+              status: "Bad Request",
+              message: error.message,
+          });
+      } else {
+          return res.status(500).json({
+              status: "Internal Server Error",
+              message: "Something went wrong while registering the client.",
+          });
       }
     }
   }
 
-  //register for admin with nodemailer
+  //cadastro de gestor envia a primeira senha pelo gmail
   async registerAdmin(req: Request, res: Response) {
     try {
       const { name, email, cpf } = req.body;
@@ -70,18 +70,16 @@ class AuthenticationController {
         message: "Successfully registered Admin",
       });
     } catch (error) {
-      console.error("Registration error:", error);
-      if (error instanceof UniqueConstraintError) {
-        return res.status(400).json({
-          status: "Bad Request",
-          message: error.errors[0]?.message
-        })
-      }
-      else {
-        return res.status(500).json({
-          status: "Internal Server Error",
-          message: "Something went wrong with register admin",
-        });
+      if (error instanceof DuplicateCpfError || error instanceof DuplicateEmailError) {
+          return res.status(400).json({
+              status: "Bad Request",
+              message: error.message,
+          });
+      } else {
+          return res.status(500).json({
+              status: "Internal Server Error",
+              message: "Something went wrong while registering the client.",
+          });
       }
     }
   }
