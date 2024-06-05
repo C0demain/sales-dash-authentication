@@ -8,7 +8,7 @@ export const auth = (req: Request, res: Response, next: NextFunction): any => {
   }
 
   const token = authHeader.split(" ")[1];
-  const secretKey = process.env.JWT_SECRET_KEY || "my-secret";
+  const secretKey = process.env.JWT_SECRET_KEY || "sales-dash-secret";
 
   try {
     const credential = jwt.verify(token, secretKey);

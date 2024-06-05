@@ -26,21 +26,21 @@ class Authentication {
     name: string,
     cpf: string
   ): string {
-    const secretKey: string = "my-secret";
+    const secretKey: string = process.env.JWT_SECRET_KEY || "sales-dash-secret";
     const payload: Payload = {
       userId: id,
       email: email,
       name: name,
       cpf: cpf
     };
-    const option = { expiresIn: '1h' };
+    const option = { expiresIn: '24h' };
 
     return jwt.sign(payload, secretKey, option);
   }
 
   public static validateToken(token: string): Payload | null {
     try {
-      const secretKey: string = "my-secret";
+      const secretKey: string = process.env.JWT_SECRET_KEY || "sales-dash-secret";
       return jwt.verify(token, secretKey) as Payload;
     } catch (err) {
       return null;
