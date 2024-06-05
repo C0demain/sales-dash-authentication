@@ -15,8 +15,14 @@ export class ProductsRepo implements IProductRepo {
 
   async save(products: Products): Promise<void> {
     try {
+      // Obtém o valor máximo do ID existente no banco de dados
+      const maxId: string = await Products.max('id');
+
+      // Define o próximo ID como 1 se não houver registros existentes, ou maxId + 1 se houver
+      const nextId = maxId ? parseInt(maxId) + 1 : 1;
+
       await Products.create({
-        id: parseInt(await Products.max('id')) + 1,
+        id: nextId,
         name: products.name
       });
     } catch (error) {
