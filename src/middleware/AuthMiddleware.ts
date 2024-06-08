@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import jwt, { JwtPayload } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 
 export const auth = (req: Request, res: Response, next: NextFunction): any => {
   const authHeader = req.headers.authorization;
@@ -20,19 +20,4 @@ export const auth = (req: Request, res: Response, next: NextFunction): any => {
   } catch (err: any) {
     return res.status(403).json({ message: "Invalid token", error: err.message });
   }
-};
-
-export const authorize = (allowedRoles: string[]) => {
-  return (req: Request, res: Response, next: NextFunction) => {
-    const userRoles = req.user?.role;
-
-    if (
-      !userRoles ||
-      !userRoles.some((role: string) => allowedRoles.includes(role))
-    ) {
-      return res.status(403).json({ message: "Access denied" });
-    }
-
-    next();
-  };
 };

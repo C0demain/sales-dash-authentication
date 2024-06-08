@@ -3,7 +3,6 @@ import { auth } from "../middleware/AuthMiddleware";
 import BaseRoutes from "./BaseRouter";
 
 class ClientRouter extends BaseRoutes {
-
     routes(): void {
         this.router.post("/register", auth, ClientController.register);
         this.router.get("/getclients", auth, ClientController.getClients);

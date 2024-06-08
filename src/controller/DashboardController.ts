@@ -1,12 +1,9 @@
-
 import { Request, Response } from "express";
 import { Op } from "sequelize";
 import NotFoundError from "../exceptions/NotFound";
 import { DashboardRepo } from "../repository/DashboardRepo";
 import { subtractDays } from "../utils/Dates";
 import { DatabaseCleaner } from "../service/DatabaseCleaner";
-import { SellsRepo } from "../repository/SellsRepo";
-import { isStringObject } from "util/types";
 
 export class DashboardController {
     async getUserStats(req: Request, res: Response) {

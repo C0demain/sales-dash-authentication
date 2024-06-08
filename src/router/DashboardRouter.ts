@@ -1,6 +1,5 @@
 import DashboardController from "../controller/DashboardController";
 import { auth } from "../middleware/AuthMiddleware";
-import { DatabaseCleaner } from "../service/DatabaseCleaner";
 import BaseRoutes from "./BaseRouter";
 
 class DashboardRouter extends BaseRoutes {
@@ -16,4 +15,5 @@ class DashboardRouter extends BaseRoutes {
         this.router.post('/clean-database', auth, DashboardController.cleanDatabase)
     }
 }
+
 export default new DashboardRouter().router;

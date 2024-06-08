@@ -141,7 +141,6 @@ export class AuthenticationService implements IAuthenticationService {
     }
   }
 
-
   private generateRandomPassword(length: number): string {
     return crypto.randomBytes(length).toString('base64').slice(0, length);
   }

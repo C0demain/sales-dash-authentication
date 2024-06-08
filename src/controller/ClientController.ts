@@ -8,7 +8,6 @@ import { DuplicateCpfError } from "../exceptions/DuplicateCpfError";
 
 export class ClientController {
 
-    // register
     async register(req: Request, res: Response) {
         try {
             const { name, segment, cpf } = req.body;
@@ -17,7 +16,6 @@ export class ClientController {
                 status: "success",
                 message: "sucessfully registered client"
             })
-
         }
         catch (error) {
             if (error instanceof DuplicateCpfError) {
@@ -32,7 +30,6 @@ export class ClientController {
                 });
             }
         }
-
     }
 
     async getClients(req: Request, res: Response) {
@@ -101,6 +98,7 @@ export class ClientController {
             }
         }
     }
+
     async deleteClient(req: Request, res: Response) {
         const { clientId } = req.params
         try {

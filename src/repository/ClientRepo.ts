@@ -19,18 +19,18 @@ export class ClientRepo implements IClientRepo {
     try {
       await Client.create({
         name: client.name,
-        segment : client.segment,
-        cpf : client.cpf,
+        segment: client.segment,
+        cpf: client.cpf,
       });
     } catch (error) {
-      if(error instanceof UniqueConstraintError) throw error
+      if (error instanceof UniqueConstraintError) throw error
       else throw new Error("Failed to create client!");
     }
   }
 
   async update(client: Client): Promise<void> {
     try {
-      //  find existing client
+
       const new_client = await Client.findOne({
         where: {
           id: client.id,
@@ -51,25 +51,24 @@ export class ClientRepo implements IClientRepo {
 
   async delete(clientId: number): Promise<void> {
     try {
-      // Encontrar o usuário existente
+
       const client = await Client.findOne({
         where: { id: clientId },
       });
-  
+
       if (!client) throw new NotFoundError(`Client with id '${clientId}' not found`);
-  
-      // Excluir o usuário
+
       await client.destroy();
     } catch (error) {
-      if(error instanceof NotFoundError) throw error
+      if (error instanceof NotFoundError) throw error
       else throw new Error("Failed to delete client!");
     }
   }
-  
+
 
   async getById(clientId: number): Promise<Client> {
     try {
-      //  find existing client
+
       const new_client = await Client.findOne({
         where: {
           id: clientId,
@@ -78,10 +77,9 @@ export class ClientRepo implements IClientRepo {
 
       if (!new_client) throw new NotFoundError(`Client with id '${clientId}' not found`);
 
-      // client data
       return new_client;
     } catch (error) {
-      if(error instanceof NotFoundError) throw error
+      if (error instanceof NotFoundError) throw error
       else throw new Error("Failed to get client!");
     }
   }
@@ -98,7 +96,7 @@ export class ClientRepo implements IClientRepo {
 
       return new_client;
     } catch (error) {
-      if(error instanceof NotFoundError) throw error
+      if (error instanceof NotFoundError) throw error
       else throw new Error("Failed to get client!");
     }
   }
@@ -127,5 +125,4 @@ export class ClientRepo implements IClientRepo {
       else throw new Error("Failed to fetch all data!");
     }
   }
-
 }

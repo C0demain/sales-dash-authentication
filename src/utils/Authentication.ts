@@ -33,7 +33,7 @@ class Authentication {
       name: name,
       cpf: cpf
     };
-    const option = { expiresIn: '24h' };
+    const option = { expiresIn: '24h' }; //tempo para um usuário ficar logado com o mesmo token
 
     return jwt.sign(payload, secretKey, option);
   }

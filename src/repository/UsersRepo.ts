@@ -18,7 +18,6 @@ interface IUsersRepo {
 
 export class UsersRepo implements IUsersRepo {
 
-
   async saveUser(users: Users): Promise<void> {
     try {
       await Users.create({
@@ -53,7 +52,7 @@ export class UsersRepo implements IUsersRepo {
 
   async update(user: Users): Promise<void> {
     try {
-      //  find existing users
+
       const new_user = await Users.findOne({
         where: {
           id: user.id,
@@ -74,13 +73,12 @@ export class UsersRepo implements IUsersRepo {
     } catch (error) {
       if (error instanceof NotFoundError) throw error
       else throw new Error("Failed to update users!");
-
     }
   }
 
   async delete(userId: number): Promise<void> {
     try {
-      // Encontrar o usuário existente
+
       const user = await Users.findOne({
         where: { id: userId },
       });
@@ -89,7 +87,6 @@ export class UsersRepo implements IUsersRepo {
         throw new NotFoundError(`User with id '${userId}' not found`);
       }
 
-      // Excluir o usuário
       await user.destroy();
     } catch (error) {
       if (error instanceof NotFoundError) throw error
@@ -100,7 +97,7 @@ export class UsersRepo implements IUsersRepo {
 
   async getById(usersId: number): Promise<Users> {
     try {
-      //  find existing users
+
       const new_users = await Users.findOne({
         where: {
           id: usersId,
@@ -110,14 +107,13 @@ export class UsersRepo implements IUsersRepo {
       if (!new_users) {
         throw new NotFoundError(`User with id '${usersId}' not found`);
       }
-      // users data
+
       return new_users;
     } catch (error) {
       if (error instanceof NotFoundError) throw error
       else throw new Error("Failed to get user!");
     }
   }
-
 
   async getAll(): Promise<Users[]> {
     try {
@@ -168,6 +164,7 @@ export class UsersRepo implements IUsersRepo {
       else throw new Error("Failed to fecth user by cpf!");
     }
   }
+
   async getByIdWithSells(userId: number): Promise<Users | null> {
     try {
       const user = await Users.findByPk(userId, { include: [{ model: Sells }] });

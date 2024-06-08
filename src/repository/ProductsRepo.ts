@@ -33,12 +33,11 @@ export class ProductsRepo implements IProductRepo {
 
   async delete(ProductId: number): Promise<void> {
     try {
-      //  find existing products
+
       const newProduct = await Products.findByPk(ProductId)
 
       if (!newProduct) throw new NotFoundError(`Product with id '${ProductId}' not found`);
 
-      // delete
       await newProduct.destroy();
     } catch (error) {
       if (error instanceof NotFoundError) throw error
@@ -48,7 +47,7 @@ export class ProductsRepo implements IProductRepo {
 
   async getById(ProductId: number): Promise<Products> {
     try {
-      //  find existing Products
+
       const newProduct = await Products.findByPk(ProductId)
 
       if (!newProduct) throw new NotFoundError(`Product with id '${ProductId}' not found`);

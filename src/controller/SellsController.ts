@@ -9,7 +9,7 @@ import { SellsService } from "../service/SellsService";
 import Authentication from "../utils/Authentication";
 import { Commissions } from "../models/Commissions";
 import { Op } from "sequelize";
-import { addDays, subtractDays } from "../utils/Dates";
+import { subtractDays } from "../utils/Dates";
 
 export class SellsController {
 
@@ -89,7 +89,7 @@ export class SellsController {
       const sells = req.body.data; // Recebe o array de dados do frontend
       const sellsService = new SellsService();
       const batchSize = 100;
-  
+
       // Função auxiliar para dividir array em lotes
       const chunkArray = (array: any[], size: number) => {
         const result = [];
@@ -98,9 +98,9 @@ export class SellsController {
         }
         return result;
       };
-  
+
       const batches = chunkArray(sells, batchSize);
-  
+
       for (const batch of batches) {
         const processedBatchPromises = batch.map(async (sell) => {
           const {
@@ -108,7 +108,7 @@ export class SellsController {
             client, cpf_client, client_department, value,
             role
           } = sell;
-  
+
           const [testUser] = await Users.findOrCreate({
             where: { cpf: seller_cpf.replace(/[.-]/g, '') },
             defaults: {
@@ -119,7 +119,7 @@ export class SellsController {
               role: role,
             }
           });
-  
+
           const [testClient, clientCreated] = await Client.findOrCreate({
             where: { cpf: cpf_client.replace(/[.-]/g, '') },
             defaults: {
@@ -128,18 +128,18 @@ export class SellsController {
               cpf: cpf_client.replace(/[.-]/g, ''),
             }
           });
-  
+
           const [testProduct, productCreated] = await Products.findOrCreate({
             where: { id: product_Id },
             defaults: {
               name: product,
             }
           });
-  
+
           const commissionId: number = getCommission(clientCreated, productCreated);
           const commission = await Commissions.findByPk(commissionId);
           const commissionValue = commission!.percentage * value;
-  
+
           // Adiciona os IDs e outras informações ao objeto de venda
           return {
             ...sell,
@@ -152,18 +152,18 @@ export class SellsController {
             new_product: productCreated
           };
         });
-  
+
         const processedBatch = await Promise.all(processedBatchPromises);
-  
+
         // Registra todas as vendas do lote
         await sellsService.registerMultiple(processedBatch);
       }
-  
+
       return res.status(200).json({
         status: "Success",
         message: "Successfully registered all sells",
       });
-  
+
     } catch (error) {
       console.error("Register from table error:", error);
       return res.status(500).json({
@@ -172,7 +172,6 @@ export class SellsController {
       });
     }
   }
-  
 
   async updateSell(req: Request, res: Response) {
     const { sellId } = req.params;
@@ -251,7 +250,5 @@ const getCommission = (clientCreated: boolean, productCreated: boolean): number 
     return 4
   }
 }
-
-
 
 export default new SellsController();

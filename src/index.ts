@@ -1,21 +1,12 @@
-import express, { Application } from "express";
+import express, { Application, Request, Response } from "express";
 import cors from "cors";
 import Database from "./config/database";
 import AuthenticationRouter from "./router/AuthenticationRouter";
 import CommissionsRouter from "./router/CommissionsRouter";
 import SellsRouter from "./router/SellsRouter";
-import { UserBasicInfo } from "./models/interface/User";
 import ProductsRouter from "./router/ProductsRouter";
 import ClientRouter from "./router/ClientRouter";
 import DashboardRouter from "./router/DashboardRouter";
-
-declare global {
-  namespace Express {
-    interface Request {
-      user?: UserBasicInfo | null;
-    }
-  }
-}
 
 class App {
   public app: Application;
@@ -28,6 +19,9 @@ class App {
   }
 
   protected routes(): void {
+    this.app.route("/").get((req: Request, res: Response) => {
+      res.send("Welcome to Sales Dash Backend :)");
+    });
     this.app.use("/api/v1/auth", AuthenticationRouter);
     this.app.use("/api/v1/sells", SellsRouter);
     this.app.use("/api/v1/commissions", CommissionsRouter);
@@ -43,12 +37,12 @@ class App {
   }
 
   protected plugins(): void {
-    this.app.use(express.json({ limit: '50mb' }));  // Increase the limit
-    this.app.use(express.urlencoded({ extended: true, limit: '50mb' }));  // Increase the limit
+    this.app.use(express.json({ limit: '50mb' }));
+    this.app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
     this.app.use(cors({
-      origin: true, 
-      methods: ['GET', 'POST', 'PUT', 'DELETE'] 
+      origin: 'http://localhost:3000',
+      methods: ['GET', 'POST', 'PUT', 'DELETE']
     }));
   }
 }

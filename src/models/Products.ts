@@ -18,7 +18,9 @@ export class Products extends Model {
 
     @Column({
         type: DataType.STRING(100),
-        field: Products.VAR_NAME
+        field: Products.VAR_NAME,
+        unique: true,
+        allowNull: false
     })
     name!: string;
 

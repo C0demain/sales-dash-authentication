@@ -21,7 +21,7 @@ export class Seeders {
       ]);
     }
   }
-  
+
   public static async defaultCommissions(): Promise<void> {
     const commissionExists = await Commissions.findOne({
       where: { id: 1 }

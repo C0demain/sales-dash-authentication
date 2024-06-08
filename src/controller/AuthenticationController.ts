@@ -8,7 +8,7 @@ import { DuplicateCpfError } from "../exceptions/DuplicateCpfError";
 import { DuplicateEmailError } from "../exceptions/DuplicateEmailError";
 
 class AuthenticationController {
-  // login controller
+
   async login(req: Request, res: Response) {
     try {
       const { email, password } = req.body;
@@ -47,15 +47,15 @@ class AuthenticationController {
       });
     } catch (error) {
       if (error instanceof DuplicateCpfError || error instanceof DuplicateEmailError) {
-          return res.status(400).json({
-              status: "Bad Request",
-              message: error.message,
-          });
+        return res.status(400).json({
+          status: "Bad Request",
+          message: error.message,
+        });
       } else {
-          return res.status(500).json({
-              status: "Internal Server Error",
-              message: "Something went wrong while registering the client.",
-          });
+        return res.status(500).json({
+          status: "Internal Server Error",
+          message: "Something went wrong while registering the client.",
+        });
       }
     }
   }
@@ -71,15 +71,15 @@ class AuthenticationController {
       });
     } catch (error) {
       if (error instanceof DuplicateCpfError || error instanceof DuplicateEmailError) {
-          return res.status(400).json({
-              status: "Bad Request",
-              message: error.message,
-          });
+        return res.status(400).json({
+          status: "Bad Request",
+          message: error.message,
+        });
       } else {
-          return res.status(500).json({
-              status: "Internal Server Error",
-              message: "Something went wrong while registering the client.",
-          });
+        return res.status(500).json({
+          status: "Internal Server Error",
+          message: "Something went wrong while registering the client.",
+        });
       }
     }
   }
@@ -194,7 +194,6 @@ class AuthenticationController {
       if (email) user.email = email;
       if (cpf) user.cpf = cpf;
 
-
       // Update password if provided
       if (password) {
         const authService = new AuthenticationService();
@@ -227,7 +226,6 @@ class AuthenticationController {
       }
     }
   }
-
 }
 
 export default new AuthenticationController();

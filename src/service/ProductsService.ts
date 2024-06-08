@@ -20,5 +20,4 @@ export class ProductsService implements IProductsService {
             throw new Error("ProductsService failed to register product")
         }
     }
-
 }

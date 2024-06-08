@@ -2,10 +2,10 @@ import { Model, Table, Column, DataType, HasOne, HasMany } from "sequelize-types
 import { Sells } from "./Sells";
 
 @Table({
-    tableName : Client.VAR_TABLE_NAME,
+  tableName: Client.VAR_TABLE_NAME,
 })
 
-export class Client extends Model{
+export class Client extends Model {
 
   public static VAR_TABLE_NAME = "clients" as string;
   public static VAR_ID = "id" as string;
@@ -13,9 +13,8 @@ export class Client extends Model{
   public static VAR_SEGMENT = "segment" as string;
   public static VAR_CPF_CNPJ = "cpf_cnpj" as string;
 
-
   @Column({
-    type : DataType.INTEGER,
+    type: DataType.INTEGER,
     primaryKey: true,
     autoIncrement: true,
     field: Client.VAR_ID,
@@ -29,15 +28,15 @@ export class Client extends Model{
   name!: string;
 
   @Column({
-    type : DataType.STRING(100),
-    field : Client.VAR_SEGMENT
+    type: DataType.STRING(100),
+    field: Client.VAR_SEGMENT
   })
   segment !: string;
 
   @Column({
-    type : DataType.STRING,
-    unique : true,
-    field : Client.VAR_CPF_CNPJ
+    type: DataType.STRING,
+    unique: true,
+    field: Client.VAR_CPF_CNPJ
   })
   cpf !: string;
 

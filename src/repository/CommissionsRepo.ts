@@ -14,7 +14,7 @@ export class CommissionsRepo implements ICommissionsRepo {
     try {
       await Commissions.create({
         title: commissions.title,
-        percentage : commissions.percentage
+        percentage: commissions.percentage
 
       });
     } catch (error) {
@@ -24,29 +24,28 @@ export class CommissionsRepo implements ICommissionsRepo {
 
   async delete(CommissionId: number): Promise<void> {
     try {
-      //  find existing Commissions
+
       const newCommission = await Commissions.findByPk(CommissionId)
 
       if (!newCommission) throw new NotFoundError(`Commission with id '${CommissionId}' not found`);
 
-      // delete
       await newCommission.destroy();
     } catch (error) {
-      if(error instanceof NotFoundError) throw error
+      if (error instanceof NotFoundError) throw error
       else throw new Error("Failed to delete Commission!");
     }
   }
 
   async getById(CommissionId: number): Promise<Commissions> {
     try {
-      //  find existing Commissions
+
       const newCommission = await Commissions.findByPk(CommissionId)
 
-      if(!newCommission) throw new NotFoundError(`Commission with id '${CommissionId}' not found`)
-      // Commissions data
+      if (!newCommission) throw new NotFoundError(`Commission with id '${CommissionId}' not found`)
+
       return newCommission;
     } catch (error) {
-      if(error instanceof NotFoundError) throw error
+      if (error instanceof NotFoundError) throw error
       else throw new Error("Failed to fetch commission data!");
     }
   }
@@ -60,15 +59,15 @@ export class CommissionsRepo implements ICommissionsRepo {
   }
 
   async update(commission: Commissions): Promise<void> {
-    try{
+    try {
       const newCommission = await Commissions.findByPk(Number(commission.id))
 
-      if(!newCommission) throw new NotFoundError(`Commission with id '${commission.id}' not found`);
+      if (!newCommission) throw new NotFoundError(`Commission with id '${commission.id}' not found`);
 
       await commission.save()
 
-    }catch(error){
-      if(error instanceof NotFoundError) throw error
+    } catch (error) {
+      if (error instanceof NotFoundError) throw error
       else throw new Error("Failed to update data!");
     }
   }
