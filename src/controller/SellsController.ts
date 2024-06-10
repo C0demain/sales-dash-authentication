@@ -87,9 +87,15 @@ export class SellsController {
   async registerFromTable(req: Request, res: Response) {
     try {
       const sells = req.body.data; // Recebe o array de dados do frontend
+  
+      // Verifica se os dados de entrada estão no formato esperado
+      if (!Array.isArray(sells) || sells.length === 0) {
+        throw new Error("Invalid data format: 'data' should be a non-empty array");
+      }
+  
       const sellsService = new SellsService();
       const batchSize = 100;
-
+  
       // Função auxiliar para dividir array em lotes
       const chunkArray = (array: any[], size: number) => {
         const result = [];
@@ -98,77 +104,89 @@ export class SellsController {
         }
         return result;
       };
-
+  
       const batches = chunkArray(sells, batchSize);
-
-      for (const batch of batches) {
+      console.log(`Processing ${batches.length} batches`);
+  
+      for (const batchIndex in batches) {
+        const batch = batches[batchIndex];
+        console.log(`Processing batch ${parseInt(batchIndex) + 1} of ${batches.length}`);
+  
         const processedBatchPromises = batch.map(async (sell) => {
-          const {
-            date, seller, seller_cpf, product, product_Id,
-            client, cpf_client, client_department, value,
-            role
-          } = sell;
-
-          const [testUser] = await Users.findOrCreate({
-            where: { cpf: seller_cpf.replace(/[.-]/g, '') },
-            defaults: {
-              name: seller,
-              cpf: seller_cpf.replace(/[.-]/g, ''),
-              email: seller.replace(/\s+/g, '') + "@gmail.com",
-              password: await Authentication.passwordHash(seller_cpf.replace(/[.-]/g, '')),
-              role: role,
-            }
-          });
-
-          const [testClient, clientCreated] = await Client.findOrCreate({
-            where: { cpf: cpf_client.replace(/[.-]/g, '') },
-            defaults: {
-              name: client,
-              segment: client_department,
-              cpf: cpf_client.replace(/[.-]/g, ''),
-            }
-          });
-
-          const [testProduct, productCreated] = await Products.findOrCreate({
-            where: { id: product_Id },
-            defaults: {
-              name: product,
-            }
-          });
-
-          const commissionId: number = getCommission(clientCreated, productCreated);
-          const commission = await Commissions.findByPk(commissionId);
-          const commissionValue = commission!.percentage * value;
-
-          // Adiciona os IDs e outras informações ao objeto de venda
-          return {
-            ...sell,
-            userId: testUser.id,
-            clientId: testClient.id,
-            productId: testProduct.id,
-            commissionId: commissionId,
-            commissionValue: commissionValue,
-            new_client: clientCreated,
-            new_product: productCreated
-          };
+          try {
+            const {
+              date, seller, seller_cpf, product, product_Id,
+              client, cpf_client, client_department, value,
+              role
+            } = sell;
+  
+            const [testUser] = await Users.findOrCreate({
+              where: { cpf: seller_cpf.replace(/[.-]/g, '') },
+              defaults: {
+                name: seller,
+                cpf: seller_cpf.replace(/[.-]/g, ''),
+                email: seller.replace(/\s+/g, '') + "@gmail.com",
+                password: await Authentication.passwordHash(seller_cpf.replace(/[.-]/g, '')),
+                role: role,
+              }
+            });
+  
+            const [testClient, clientCreated] = await Client.findOrCreate({
+              where: { cpf: cpf_client.replace(/[.-]/g, '') },
+              defaults: {
+                name: client,
+                segment: client_department,
+                cpf: cpf_client.replace(/[.-]/g, ''),
+              }
+            });
+  
+            const [testProduct, productCreated] = await Products.findOrCreate({
+              where: { id: product_Id },
+              defaults: {
+                name: product,
+              }
+            });
+  
+            const commissionId: number = getCommission(clientCreated, productCreated);
+            const commission = await Commissions.findByPk(commissionId);
+            const commissionValue = commission!.percentage * value;
+  
+            return {
+              ...sell,
+              date: date,
+              userId: testUser.id,
+              clientId: testClient.id,
+              productId: testProduct.id,
+              commissionId: commissionId,
+              commissionValue: commissionValue,
+              new_client: clientCreated,
+              new_product: productCreated
+            };
+          } catch (error) {
+            console.error("Error processing sell item:", error, sell);
+            throw error;
+          }
         });
-
+  
         const processedBatch = await Promise.all(processedBatchPromises);
-
+  
+        console.log(`Batch ${parseInt(batchIndex) + 1} processed successfully, registering sells`);
+        
         // Registra todas as vendas do lote
         await sellsService.registerMultiple(processedBatch);
+        console.log(`Batch ${parseInt(batchIndex) + 1} registered successfully`);
       }
-
+  
       return res.status(200).json({
         status: "Success",
         message: "Successfully registered all sells",
       });
-
-    } catch (error) {
+  
+    } catch (error:any) {
       console.error("Register from table error:", error);
       return res.status(500).json({
         status: "Internal Server Error",
-        message: "Something went wrong with registerFromTable",
+        message: error.message || "Something went wrong with registerFromTable",
       });
     }
   }

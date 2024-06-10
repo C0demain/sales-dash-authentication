@@ -3,6 +3,7 @@ import { Products } from "../models/Products";
 import { Sells } from "../models/Sells";
 import { Users } from "../models/Users";
 import { SellsRepo } from "../repository/SellsRepo";
+import Database from "../config/database";
 
 interface ISellsService {
     register(
@@ -62,12 +63,14 @@ export class SellsService implements ISellsService {
             newSell.commissionId = commissionId;
             newSell.commissionValue = commissionValue;
             await new SellsRepo().save(newSell);
-        } catch (error) {
-            throw new Error("Failed to register sell");
+        } catch (error: any) {
+            throw new Error("Failed to register sell: " + error.message);
         }
     }
 
     async registerMultiple(sells: any[]): Promise<void> {
+        const sequelize = Database.getInstance().sequelize;
+        const transaction = await sequelize.transaction();
         try {
             for (const sell of sells) {
                 const {
@@ -80,8 +83,10 @@ export class SellsService implements ISellsService {
                     new_client, new_product, commissionId, commissionValue
                 );
             }
-        } catch (error) {
-            throw new Error("Failed to register multiple sells");
+            await transaction.commit();
+        } catch (error: any) {
+            await transaction.rollback();
+            throw new Error("Failed to register multiple sells: " + error.message);
         }
     }
 }
