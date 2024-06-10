@@ -16,7 +16,7 @@ interface ISellsService {
         commissionId: number,
         commissionValue: number
     ): Promise<void>;
-    registerMultiple(sells: any[]): Promise<void>;
+    registerMultiple(sells: Sells[]): Promise<void>;
 }
 
 export class SellsService implements ISellsService {
@@ -67,19 +67,52 @@ export class SellsService implements ISellsService {
         }
     }
 
-    async registerMultiple(sells: any[]): Promise<void> {
+    async registerMultiple(
+        sellsData: {
+            date: string;
+            userId: number;
+            productId: number;
+            clientId: number;
+            value: number;
+            new_client: boolean;
+            new_product: boolean;
+            commissionId: number;
+            commissionValue: number;
+        }[]
+    ): Promise<void> {
         try {
-            for (const sell of sells) {
-                const {
-                    date, userId, productId, clientId, value,
-                    new_client, new_product, commissionId, commissionValue
-                } = sell;
+            const sellsToSave: any[] = [];
 
-                await this.register(
-                    date, userId, productId, clientId, value,
-                    new_client, new_product, commissionId, commissionValue
-                );
+            // Converter dados das vendas em instâncias de Sells
+            for (const sellData of sellsData) {
+                const { date, userId, productId, clientId, value, new_client, new_product, commissionId, commissionValue } = sellData;
+                const user = await Users.findByPk(userId);
+                const client = await Client.findByPk(clientId);
+                const prod = await Products.findByPk(productId);
+
+                if (!user || !client || !prod) {
+                    throw new Error("User, client, or product not found for one or more sells");
+                }
+
+                const newSell = new Sells();
+                newSell.date = date;
+                newSell.product = prod;
+                newSell.productId = prod.id;
+                newSell.client = client;
+                newSell.clientId = client.id;
+                newSell.value = value;
+                newSell.user = user;
+                newSell.userId = user.id;
+                newSell.new_client = new_client;
+                newSell.new_product = new_product;
+                newSell.commissionId = commissionId;
+                newSell.commissionValue = commissionValue;
+
+                sellsToSave.push(newSell);
             }
+
+            // Salvar todas as vendas de uma vez usando bulkCreate
+            await new SellsRepo().saveRegisterFromTable(sellsToSave);
         } catch (error) {
             throw new Error("Failed to register multiple sells");
         }

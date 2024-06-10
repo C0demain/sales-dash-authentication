@@ -12,7 +12,7 @@ dotenv.config();
 class Database {
   public sequelize: Sequelize | undefined;
 
-  private POSTGRES_URL = process.env.POSTGRES_URL || 'postgresql://postgres:autuYQJImudfnzqKuuijRxRHaGhLObeI@monorail.proxy.rlwy.net:27275/railway';
+  private POSTGRES_URL = process.env.POSTGRES_URL || 'postgres://postgresql_db_z4ut_user:vbEuMnrGHI5hnVWvEEC7j5w3O8czoMUX@dpg-cpi8l421hbls73be516g-a.oregon-postgres.render.com/postgresql_db_z4ut';
 
   constructor() {
     this.connectToPostgreSQL();
@@ -27,16 +27,13 @@ class Database {
     this.sequelize = new Sequelize(this.POSTGRES_URL, {
       dialect: "postgres",
       models: [Users, Sells, Commissions, Products, Client],
-      pool: {
-        max: 10, // Número máximo de conexões no pool
-        min: 0,  // Número mínimo de conexões no pool
-        acquire: 30000, // Tempo máximo, em milissegundos, que o pool irá tentar obter uma conexão antes de lançar um erro
-        idle: 10000 // Tempo máximo, em milissegundos, que uma conexão pode ficar inativa antes de ser liberada
+      dialectOptions: {
+        ssl: {
+          require: true,
+          rejectUnauthorized: false 
+        }
       },
-      define: {
-        timestamps: false // Desativar timestamps globais
-      },
-      logging: false // Desativar logging para reduzir a saída no console
+      logging: true 
     });
 
     try {
@@ -56,7 +53,7 @@ class Database {
 
   private async syncModels(): Promise<void> {
     if (this.sequelize) {
-      await this.sequelize.sync({ force: false }); // Não force a recriação das tabelas
+      await this.sequelize.sync({ alter: false}); 
     }
   }
 }

@@ -7,6 +7,7 @@ import { Commissions } from "../models/Commissions";
 
 interface ISellsRepo {
   save(Sells: Sells): Promise<void>;
+  saveRegisterFromTable(Sells: Sells[]): Promise<void>;
   update(Sells: Sells): Promise<void>;
   delete(SellsId: number): Promise<void>;
   getById(SellsId: number): Promise<Sells>;
@@ -49,6 +50,59 @@ export class SellsRepo implements ISellsRepo {
       throw new Error("Failed to create Sell!");
     }
   }
+
+  async saveRegisterFromTable(sells: Sells[]): Promise<void> {
+    try {
+      const usersMap = new Map<number, Users>();
+      const clientsMap = new Map<string, Client>();
+      const productsMap = new Map<number, Products>();
+  
+      // Busca todos os usuários, clientes e produtos necessários
+      const usersIds = sells.map(sell => sell.userId);
+      const users = await Users.findAll({ where: { id: usersIds } });
+      users.forEach(user => usersMap.set(user.id, user));
+  
+      const clientsCpfs = sells.map(sell => sell.client.cpf);
+      const clients = await Client.findAll({ where: { cpf: clientsCpfs } });
+      clients.forEach(client => clientsMap.set(client.cpf, client));
+  
+      const productsIds = sells.map(sell => sell.productId);
+      const products = await Products.findAll({ where: { id: productsIds } });
+      products.forEach(product => productsMap.set(product.id, product));
+  
+      const createdSells = sells.map(sell => {
+        const user = usersMap.get(sell.userId);
+        const client = clientsMap.get(sell.client.cpf);
+        const product = productsMap.get(sell.productId);
+  
+        if (!user) {
+          throw new Error(`User with ID ${sell.userId} not found`);
+        }
+        if (!client) {
+          throw new Error(`Client with CPF ${sell.client.cpf} not found`);
+        }
+        if (!product) {
+          throw new Error(`Product with ID ${sell.productId} not found`);
+        }
+  
+        return {
+          date: sell.date,
+          productId: product.id,
+          clientId: client.id,
+          value: sell.value,
+          userId: user.id,
+          commissionId: sell.commissionId,
+          commissionValue: sell.commissionValue
+        };
+      });
+  
+      // Insere todas as vendas de uma vez
+      await Sells.bulkCreate(createdSells);
+    } catch (error) {
+      throw new Error("Failed to create Sells!");
+    }
+  }
+  
 
   async delete(SellsId: number): Promise<void> {
     try {
