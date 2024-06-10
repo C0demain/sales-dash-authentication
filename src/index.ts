@@ -22,12 +22,12 @@ class App {
     this.app.route("/").get((req: Request, res: Response) => {
       res.send("Welcome to Sales Dash Backend :)");
     });
-    this.app.use("/api/v1/auth", AuthenticationRouter);
-    this.app.use("/api/v1/sells", SellsRouter);
-    this.app.use("/api/v1/commissions", CommissionsRouter);
-    this.app.use("/api/v1/products", ProductsRouter);
-    this.app.use("/api/v1/clients", ClientRouter);
-    this.app.use("/api/v1/dashboard", DashboardRouter);
+    this.app.use("/api/v1/auth", AuthenticationRouter/* #swagger.tags = ['Auth'] */);
+    this.app.use("/api/v1/sells", SellsRouter /* #swagger.tags = ['Sells'] */);
+    this.app.use("/api/v1/commissions", CommissionsRouter /* #swagger.tags = ['Commissions'] */);
+    this.app.use("/api/v1/products", ProductsRouter /* #swagger.tags = ['Products'] */);
+    this.app.use("/api/v1/clients", ClientRouter /* #swagger.tags = ['Clients'] */);
+    this.app.use("/api/v1/dashboard", DashboardRouter /* #swagger.tags = ['Dashboard'] */);
   }
 
   protected async databaseSync(): Promise<void> {
@@ -41,7 +41,6 @@ class App {
     this.app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
     this.app.use(cors({
-      origin: 'http://localhost:3000',
       methods: ['GET', 'POST', 'PUT', 'DELETE']
     }));
   }
