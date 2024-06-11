@@ -7,6 +7,8 @@ import SellsRouter from "./router/SellsRouter";
 import ProductsRouter from "./router/ProductsRouter";
 import ClientRouter from "./router/ClientRouter";
 import DashboardRouter from "./router/DashboardRouter";
+import swaggerUI from 'swagger-ui-express';
+import swaggerFile from './swagger.json'
 
 class App {
   public app: Application;
@@ -20,8 +22,11 @@ class App {
 
   protected routes(): void {
     this.app.route("/").get((req: Request, res: Response) => {
-      res.send("Welcome to Sales Dash Backend :)");
+      // #swagger.tags = ['info']
+      const docUrl = `http://localhost:${port}/api/v1/docs`
+      res.send(`Welcome to Sales Dash Backend. You can find the documentation <a href='${docUrl}'>here!</a>`);
     });
+    this.app.use("/api/v1/docs", swaggerUI.serve, swaggerUI.setup(swaggerFile) /* #swagger.tags = ['info'] */)
     this.app.use("/api/v1/auth", AuthenticationRouter/* #swagger.tags = ['Auth'] */);
     this.app.use("/api/v1/sells", SellsRouter /* #swagger.tags = ['Sells'] */);
     this.app.use("/api/v1/commissions", CommissionsRouter /* #swagger.tags = ['Commissions'] */);
