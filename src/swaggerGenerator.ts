@@ -1,5 +1,13 @@
 import swaggerAutogen from 'swagger-autogen';
 
+const frag = {
+    id: {type: 'number', example: 1, readOnly: true},
+    userName: {type: 'string', example: 'John Doe'},
+    email: {type: 'string', example: 'johndoe@gmail.com'},
+    password: {type: 'string', example: '12345', writeOnly: true},
+    cpf: {type: 'string', example: '000123456789'}
+}
+
 const doc = {
     info: {
         title: 'Sales Dash API',
@@ -7,16 +15,39 @@ const doc = {
     },
     host: 'localhost:8000',
     '@definitions': {
-        id: {type: 'number', example: 1},
-        userName: {type: 'string', example: 'John Doe'},
-        email: {type: 'string', example: 'johndoe@gmail.com'},
-        password: {type: 'string', example: '123'},
-        cpf: {type: 'string', example: '000123456789'},
-    },
-
-    definitions:{
-        AddSeller:{
-            $ref: '#/definitions/userName',
+        AddSeller: {
+            type: 'object',
+            properties: {
+                name: frag.userName,
+                email: frag.email,
+                cpf: frag.cpf,
+                password: frag.password
+            }
+        },
+        AddAdmin: {
+            type: 'object',
+            properties: {
+                name: frag.userName,
+                email: frag.email,
+                cpf: frag.cpf,
+            }
+        },
+        Login: {
+            type: 'object',
+            properties: {
+                email: frag.email,
+                password: frag.password,
+            }
+        },
+        User: {
+            type: 'object',
+            properties:{
+                id: frag.id,
+                name: frag.userName,
+                email: frag.email,
+                cpf: frag.cpf,
+                password: frag.password 
+            }
         }
     },
 
