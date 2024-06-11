@@ -22,6 +22,8 @@ class AuthenticationRoutes extends BaseRoutes {
     this.router.get("/users", auth, AuthenticationController.getUsers);
     this.router.get("/users/sellers", auth, AuthenticationController.getSellers);
     this.router.get("/user/:id", auth, AuthenticationController.getUserWithSells);
+    this.router.get("/user/products/:id", auth, AuthenticationController.getUserWithProducts);
+    this.router.get("/user/clients/:id", auth, AuthenticationController.getUserWithClients);
     this.router.delete("/user/:userId", auth, AuthenticationController.deleteUser);
     this.router.put("/user/:userId", auth, AuthenticationController.updateUser);
   }

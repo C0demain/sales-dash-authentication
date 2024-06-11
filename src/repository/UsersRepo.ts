@@ -2,6 +2,8 @@ import { UniqueConstraintError } from "sequelize";
 import { Sells } from "../models/Sells";
 import { Users } from "../models/Users";
 import NotFoundError from "../exceptions/NotFound";
+import { Products } from "../models/Products";
+import { Client } from "../models/Client";
 
 interface IUsersRepo {
   saveUser(users: Users): Promise<void>;
@@ -13,6 +15,8 @@ interface IUsersRepo {
   getAll(): Promise<Users[]>;
   findByEmail(email: string): Promise<Users>;
   getByIdWithSells(userId: number): Promise<Users | null>;
+  getByIdWithProducts(userId: number): Promise<Users | null>
+  getByIdWithClients(userId: number): Promise<Users | null>
   delete(userId: number): Promise<void>;
 }
 
@@ -178,4 +182,60 @@ export class UsersRepo implements IUsersRepo {
       else throw new Error("Failed to get user with sells!");
     }
   }
+
+  async getByIdWithProducts(userId: number): Promise<Users | null> {
+    try {
+      const user = await Users.findByPk(userId, {
+        include: [
+          {
+            model: Sells,
+            where: { userId: userId },
+            include: [
+              {
+                model: Products,
+                attributes: ['id', 'name', 'createdAt', 'updatedAt']
+              }
+            ],
+          }
+        ]
+      });
+  
+      if (!user) {
+        throw new NotFoundError(`User with id '${userId}' not found`);
+      }
+  
+      return user;
+    } catch (error) {
+      if (error instanceof NotFoundError) throw error;
+      else throw new Error("Failed to get user with products!");
+    }
+  }  
+
+  async getByIdWithClients(userId: number): Promise<Users | null> {
+    try {
+      const user = await Users.findByPk(userId, {
+        include: [
+          {
+            model: Sells,
+            where: { userId: userId },
+            include: [
+              {
+                model: Client,
+                attributes: ['id', 'name', 'segment', 'cpf_cnpj']
+              }
+            ],
+          }
+        ]
+      });
+  
+      if (!user) {
+        throw new NotFoundError(`User with id '${userId}' not found`);
+      }
+  
+      return user;
+    } catch (error) {
+      if (error instanceof NotFoundError) throw error;
+      else throw new Error("Failed to get user with clients!");
+    }
+  }  
 }
