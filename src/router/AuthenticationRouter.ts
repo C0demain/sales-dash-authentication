@@ -4,9 +4,21 @@ import BaseRoutes from "./BaseRouter";
 
 class AuthenticationRoutes extends BaseRoutes {
   routes(): void {
-    this.router.post("/login", AuthenticationController.login);
-    this.router.post("/registerUser", auth, AuthenticationController.registerUser);
-    this.router.post("/registerAdmin", auth, AuthenticationController.registerAdmin);
+    this.router.post("/login", AuthenticationController.login
+      /* #swagger.requestBody = {
+        schema: {$ref: "#/definitions/Login"}
+      }*/
+    );
+    this.router.post("/registerUser", auth, AuthenticationController.registerUser
+      /* #swagger.requestBody = {
+        schema: {$ref: "#/definitions/AddSeller"}
+      }*/
+    );
+    this.router.post("/registerAdmin", auth, AuthenticationController.registerAdmin
+      /* #swagger.requestBody = {
+        schema: {$ref: "#/definitions/AddAdmin"}
+      }*/
+    );
     this.router.get("/users", auth, AuthenticationController.getUsers);
     this.router.get("/users/sellers", auth, AuthenticationController.getSellers);
     this.router.get("/user/:id", auth, AuthenticationController.getUserWithSells);
