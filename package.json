@@ -6,7 +6,7 @@
   "scripts": {
     "start": "tsc && node ./build/index.js",
     "dev": "nodemon ./src/index.ts",
-    "swagger": "ts-node ./src/swagger.ts"
+    "swagger": "ts-node ./src/swaggerGenerator.ts"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",
