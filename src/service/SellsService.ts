@@ -73,6 +73,9 @@ export class SellsService implements ISellsService {
         const transaction = await sequelize.transaction();
         try {
             for (const sell of sells) {
+                if(sell === null){
+                    continue;
+                }
                 const {
                     date, userId, productId, clientId, value,
                     new_client, new_product, commissionId, commissionValue

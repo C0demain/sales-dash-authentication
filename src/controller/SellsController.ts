@@ -10,6 +10,7 @@ import Authentication from "../utils/Authentication";
 import { Commissions } from "../models/Commissions";
 import { Op } from "sequelize";
 import { subtractDays } from "../utils/Dates";
+import { Sells } from "../models/Sells";
 
 export class SellsController {
 
@@ -146,6 +147,16 @@ export class SellsController {
                 name: product,
               }
             });
+
+            if(await Sells.findOne({
+              where : {date: date,
+                userId: testUser.id,
+                clientId: testClient.id,
+                productId: testProduct.id,
+                value : value}
+            })!== null){
+              return null;
+            }
   
             const commissionId: number = getCommission(clientCreated, productCreated);
             const commission = await Commissions.findByPk(commissionId);
