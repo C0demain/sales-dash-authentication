@@ -9,6 +9,7 @@ const frag = {
 }
 
 const doc = {
+    openapi: '3.0.0',
     info: {
         title: 'Sales Dash API',
         description: 'API utilizada no projeto Sales Dash'
