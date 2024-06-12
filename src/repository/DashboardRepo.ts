@@ -1,10 +1,10 @@
 import { Op, WhereOptions } from "sequelize";
 import NotFoundError from "../exceptions/NotFound";
+import { Commissions } from "../models/Commissions";
 import { Sells } from "../models/Sells";
 import { ClientRepo } from "./ClientRepo";
 import { ProductsRepo } from "./ProductsRepo";
 import { UsersRepo } from "./UsersRepo";
-import { Commissions } from "../models/Commissions";
 
 interface IDashboardRepo {
     getStatsFromDate(filters: WhereOptions): Promise<MonthSaleStats[]>
@@ -114,23 +114,24 @@ export class DashboardRepo implements IDashboardRepo {
 
             const stats: MonthSaleStats[] = []
             const sales = await Sells.findAll({ where: filters, order: [['date', 'ASC']] })
-            const [startDate, endDate]: Date[] = filters.date[Op.between]
-            let currentDate: Date = new Date(startDate);
-            while (currentDate <= endDate) {
+            let [startDate, endDate]: Date[] = filters.date[Op.between]
+
+            while (startDate <= endDate) {
+
+                startDate = addMonths(startDate, 1);
                 stats.push({
-                    month: meses[currentDate.getMonth()],
-                    year: currentDate.getFullYear(),
+                    month: meses[startDate.getMonth()],
+                    year: startDate.getFullYear(),
                     totalValue: 0,
                     totalCommissionValue: 0,
                     totalSales: 0
                 });
-                if (currentDate.getMonth() === endDate.getMonth() && currentDate.getFullYear() === endDate.getFullYear()) {
+
+                if (startDate.getMonth() === endDate.getMonth() && startDate.getFullYear() === endDate.getFullYear()) {
                     break;
                 }
-                currentDate = addMonths(currentDate, 1);
             }
-    
-            // Populate stats with sales data
+
             for (let sale of sales) {
                 const saleDate: Date = new Date(sale.date + "T00:00");
                 const currentStat = stats.find(st => st.month === meses[saleDate.getMonth()] && st.year === saleDate.getFullYear());
@@ -140,7 +141,7 @@ export class DashboardRepo implements IDashboardRepo {
                     currentStat.totalSales += 1;
                 }
             }
-    
+
             return stats;
         } catch (error) {
             console.error(error);
