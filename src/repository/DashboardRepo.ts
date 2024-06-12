@@ -103,34 +103,47 @@ export class DashboardRepo implements IDashboardRepo {
     }
     async getClientStatsFromDate(filters: WhereOptions | any) {
         try {
+            function addMonths(date: Date, months: number): Date {
+                let d = new Date(date);
+                d.setMonth(d.getMonth() + months);
+                if (d.getDate() < date.getDate()) {
+                    d.setDate(0);
+                }
+                return d;
+            }
+
             const stats: MonthSaleStats[] = []
             const sales = await Sells.findAll({ where: filters, order: [['date', 'ASC']] })
             const [startDate, endDate]: Date[] = filters.date[Op.between]
-            var currentDate: Date = startDate
-            while (currentDate.getFullYear() <= endDate.getFullYear()) {
+            let currentDate: Date = new Date(startDate);
+            while (currentDate <= endDate) {
                 stats.push({
                     month: meses[currentDate.getMonth()],
                     year: currentDate.getFullYear(),
                     totalValue: 0,
                     totalCommissionValue: 0,
                     totalSales: 0
-                })
-                if (currentDate.getMonth() == endDate.getMonth() && currentDate.getFullYear() == endDate.getFullYear()) {
-                    break
+                });
+                if (currentDate.getMonth() === endDate.getMonth() && currentDate.getFullYear() === endDate.getFullYear()) {
+                    break;
                 }
-                currentDate.setMonth(currentDate.getMonth() + 1)
+                currentDate = addMonths(currentDate, 1);
             }
+    
+            // Populate stats with sales data
             for (let sale of sales) {
-                const currentStat = stats.find(st => st.month == meses[new Date(sale.date + "T00:00").getMonth()] && st.year == new Date(sale.date + "T00:00").getFullYear())
+                const saleDate: Date = new Date(sale.date + "T00:00");
+                const currentStat = stats.find(st => st.month === meses[saleDate.getMonth()] && st.year === saleDate.getFullYear());
                 if (currentStat) {
-                    currentStat.totalValue += parseFloat((sale.value).toFixed(2))
-                    currentStat.totalCommissionValue += parseFloat((sale.commissionValue).toFixed(2))
-                    currentStat.totalSales += 1
+                    currentStat.totalValue += parseFloat(sale.value.toFixed(2));
+                    currentStat.totalCommissionValue += parseFloat(sale.commissionValue.toFixed(2));
+                    currentStat.totalSales += 1;
                 }
             }
-            return stats
+    
+            return stats;
         } catch (error) {
-            console.log(error)
+            console.error(error);
             throw new Error("Failed to fetch data!");
         }
     }
