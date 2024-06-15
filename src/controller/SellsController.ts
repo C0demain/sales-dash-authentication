@@ -169,7 +169,8 @@ export class SellsController {
               clientId: testClient.id,
               productId: testProduct.id,
               commissionId: commissionId,
-              commissionValue: commissionValue,
+              commissionValue: commissionValue.toFixed(2), // Formatar a comissão para 2 casas decimais
+              value: value.toFixed(2), // Formatar o valor para 2 casas decimais
               new_client: clientCreated,
               new_product: productCreated
             };
