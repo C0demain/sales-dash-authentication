@@ -23,7 +23,7 @@ class App {
     this.app.route("/").get((req: Request, res: Response) => {
       // #swagger.ignore = true
       const docUrl = `http://localhost:${port}/api/v1/docs`
-      res.send(`Welcome to Sales Dash Backend. You can find the documentation <a href='${docUrl}'>here!</a>`);
+      res.redirect(docUrl);;
     });
     this.app.use('/api/v1/', DocsRouter)
     this.app.use("/api/v1/auth", AuthenticationRouter/* #swagger.tags = ['Auth'] */);
