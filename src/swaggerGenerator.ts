@@ -14,7 +14,7 @@ const doc = {
         title: 'Sales Dash API',
         description: 'API utilizada no projeto Sales Dash'
     },
-    host: 'localhost:8000',
+    // host: 'localhost:8000', // Removido para ser configurado dinamicamente
     '@definitions': {
         AddSeller: {
             type: 'object',
@@ -51,7 +51,6 @@ const doc = {
             }
         }
     },
-
     components: {
         securitySchemes: {
             bearerAuth: {
@@ -64,6 +63,6 @@ const doc = {
 };
 
 const outputFile = './swagger.json';
-const routes = ['./index.ts'];
+const routes = ['./src/index.ts'];
 
 swaggerAutogen({openapi: '3.0.0'})(outputFile, routes, doc);

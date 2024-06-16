@@ -8,6 +8,8 @@ import ProductsRouter from "./router/ProductsRouter";
 import ClientRouter from "./router/ClientRouter";
 import DashboardRouter from "./router/DashboardRouter";
 import DocsRouter from "./router/DocsRouter";
+import swaggerUI from 'swagger-ui-express';
+import swaggerFile from './swagger.json'; // Certifique-se de que o caminho esteja correto
 
 class App {
   public app: Application;
@@ -20,18 +22,22 @@ class App {
   }
 
   protected routes(): void {
+    const host = process.env.HOST || 'localhost';
+    const port = process.env.PORT || 8000;
+    const docUrl = `http://${host}:${port}/api/v1/docs`;
+
     this.app.route("/").get((req: Request, res: Response) => {
       // #swagger.ignore = true
-      const docUrl = `http://localhost:${port}/api/v1/docs`
-      res.redirect(docUrl);;
+      res.redirect(docUrl);
     });
-    this.app.use('/api/v1/', DocsRouter)
-    this.app.use("/api/v1/auth", AuthenticationRouter/* #swagger.tags = ['Auth'] */);
-    this.app.use("/api/v1/sells", SellsRouter /* #swagger.tags = ['Sells'] */);
-    this.app.use("/api/v1/commissions", CommissionsRouter /* #swagger.tags = ['Commissions'] */);
-    this.app.use("/api/v1/products", ProductsRouter /* #swagger.tags = ['Products'] */);
-    this.app.use("/api/v1/clients", ClientRouter /* #swagger.tags = ['Clients'] */);
-    this.app.use("/api/v1/dashboard", DashboardRouter /* #swagger.tags = ['Dashboard'] */);
+
+    this.app.use('/api/v1/docs', swaggerUI.serve, swaggerUI.setup(swaggerFile));
+    this.app.use("/api/v1/auth", AuthenticationRouter);
+    this.app.use("/api/v1/sells", SellsRouter);
+    this.app.use("/api/v1/commissions", CommissionsRouter);
+    this.app.use("/api/v1/products", ProductsRouter);
+    this.app.use("/api/v1/clients", ClientRouter);
+    this.app.use("/api/v1/dashboard", DashboardRouter);
   }
 
   protected databaseSync(): void {
@@ -43,14 +49,13 @@ class App {
   protected plugins(): void {
     this.app.use(express.json({ limit: '50mb' }));
     this.app.use(express.urlencoded({ extended: true, limit: '50mb' }));
-
     this.app.use(cors({
       methods: ['GET', 'POST', 'PUT', 'DELETE']
     }));
   }
 }
 
-const port: number = 8000;
+const port: number = process.env.PORT ? parseInt(process.env.PORT) : 8000;
 const app = new App().app;
 
 app.listen(port, () => {

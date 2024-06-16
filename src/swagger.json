@@ -7,15 +7,12 @@
   },
   "servers": [
     {
-      "url": "http://localhost:8000/"
+      "url": "http://localhost:3000/"
     }
   ],
   "paths": {
     "/api/v1/auth/login": {
       "post": {
-        "tags": [
-          "Auth"
-        ],
         "description": "",
         "responses": {
           "200": {
@@ -46,9 +43,6 @@
     },
     "/api/v1/auth/registerUser": {
       "post": {
-        "tags": [
-          "Auth"
-        ],
         "description": "",
         "parameters": [
           {
@@ -99,9 +93,6 @@
     },
     "/api/v1/auth/registerAdmin": {
       "post": {
-        "tags": [
-          "Auth"
-        ],
         "description": "",
         "parameters": [
           {
@@ -152,9 +143,6 @@
     },
     "/api/v1/auth/users": {
       "get": {
-        "tags": [
-          "Auth"
-        ],
         "description": "",
         "parameters": [
           {
@@ -188,9 +176,6 @@
     },
     "/api/v1/auth/users/sellers": {
       "get": {
-        "tags": [
-          "Auth"
-        ],
         "description": "",
         "parameters": [
           {
@@ -224,9 +209,6 @@
     },
     "/api/v1/auth/user/{id}": {
       "get": {
-        "tags": [
-          "Auth"
-        ],
         "description": "",
         "parameters": [
           {
@@ -271,9 +253,6 @@
     },
     "/api/v1/auth/user/products/{id}": {
       "get": {
-        "tags": [
-          "Auth"
-        ],
         "description": "",
         "parameters": [
           {
@@ -321,9 +300,6 @@
     },
     "/api/v1/auth/user/clients/{id}": {
       "get": {
-        "tags": [
-          "Auth"
-        ],
         "description": "",
         "parameters": [
           {
@@ -371,9 +347,6 @@
     },
     "/api/v1/auth/user/{userId}": {
       "delete": {
-        "tags": [
-          "Auth"
-        ],
         "description": "",
         "parameters": [
           {
@@ -413,9 +386,6 @@
         ]
       },
       "put": {
-        "tags": [
-          "Auth"
-        ],
         "description": "",
         "parameters": [
           {
@@ -486,9 +456,6 @@
     },
     "/api/v1/sells/register": {
       "post": {
-        "tags": [
-          "Sells"
-        ],
         "description": "",
         "parameters": [
           {
@@ -548,9 +515,6 @@
     },
     "/api/v1/sells/getfilter": {
       "get": {
-        "tags": [
-          "Sells"
-        ],
         "description": "",
         "parameters": [
           {
@@ -619,9 +583,6 @@
     },
     "/api/v1/sells/getall": {
       "get": {
-        "tags": [
-          "Sells"
-        ],
         "description": "",
         "parameters": [
           {
@@ -655,9 +616,6 @@
     },
     "/api/v1/sells/table": {
       "post": {
-        "tags": [
-          "Sells"
-        ],
         "description": "",
         "parameters": [
           {
@@ -705,9 +663,6 @@
     },
     "/api/v1/sells/update/{sellId}": {
       "put": {
-        "tags": [
-          "Sells"
-        ],
         "description": "",
         "parameters": [
           {
@@ -772,9 +727,6 @@
     },
     "/api/v1/commissions/register": {
       "post": {
-        "tags": [
-          "Commissions"
-        ],
         "description": "",
         "parameters": [
           {
@@ -825,9 +777,6 @@
     },
     "/api/v1/commissions/getall": {
       "get": {
-        "tags": [
-          "Commissions"
-        ],
         "description": "",
         "parameters": [
           {
@@ -861,9 +810,6 @@
     },
     "/api/v1/commissions/{commissionId}": {
       "get": {
-        "tags": [
-          "Commissions"
-        ],
         "description": "",
         "parameters": [
           {
@@ -906,9 +852,6 @@
         ]
       },
       "put": {
-        "tags": [
-          "Commissions"
-        ],
         "description": "",
         "parameters": [
           {
@@ -968,9 +911,6 @@
         }
       },
       "delete": {
-        "tags": [
-          "Commissions"
-        ],
         "description": "",
         "parameters": [
           {
@@ -1015,9 +955,6 @@
     },
     "/api/v1/products/register": {
       "post": {
-        "tags": [
-          "Products"
-        ],
         "description": "",
         "parameters": [
           {
@@ -1065,9 +1002,6 @@
     },
     "/api/v1/products/getAll": {
       "get": {
-        "tags": [
-          "Products"
-        ],
         "description": "",
         "parameters": [
           {
@@ -1111,9 +1045,6 @@
     },
     "/api/v1/products/{productId}": {
       "get": {
-        "tags": [
-          "Products"
-        ],
         "description": "",
         "parameters": [
           {
@@ -1156,9 +1087,6 @@
         ]
       },
       "put": {
-        "tags": [
-          "Products"
-        ],
         "description": "",
         "parameters": [
           {
@@ -1215,9 +1143,6 @@
         }
       },
       "delete": {
-        "tags": [
-          "Products"
-        ],
         "description": "",
         "parameters": [
           {
@@ -1259,9 +1184,6 @@
     },
     "/api/v1/clients/register": {
       "post": {
-        "tags": [
-          "Clients"
-        ],
         "description": "",
         "parameters": [
           {
@@ -1318,9 +1240,6 @@
     },
     "/api/v1/clients/getclients": {
       "get": {
-        "tags": [
-          "Clients"
-        ],
         "description": "",
         "parameters": [
           {
@@ -1364,9 +1283,6 @@
     },
     "/api/v1/clients/update/{clientId}": {
       "put": {
-        "tags": [
-          "Clients"
-        ],
         "description": "",
         "parameters": [
           {
@@ -1434,9 +1350,6 @@
     },
     "/api/v1/clients/delete/{clientId}": {
       "delete": {
-        "tags": [
-          "Clients"
-        ],
         "description": "",
         "parameters": [
           {
@@ -1478,9 +1391,6 @@
     },
     "/api/v1/dashboard/user": {
       "get": {
-        "tags": [
-          "Dashboard"
-        ],
         "description": "",
         "parameters": [
           {
@@ -1538,9 +1448,6 @@
     },
     "/api/v1/dashboard/product": {
       "get": {
-        "tags": [
-          "Dashboard"
-        ],
         "description": "",
         "parameters": [
           {
@@ -1598,9 +1505,6 @@
     },
     "/api/v1/dashboard/client": {
       "get": {
-        "tags": [
-          "Dashboard"
-        ],
         "description": "",
         "parameters": [
           {
@@ -1658,9 +1562,6 @@
     },
     "/api/v1/dashboard/date": {
       "get": {
-        "tags": [
-          "Dashboard"
-        ],
         "description": "",
         "parameters": [
           {
@@ -1715,9 +1616,6 @@
     },
     "/api/v1/dashboard/date/client": {
       "get": {
-        "tags": [
-          "Dashboard"
-        ],
         "description": "",
         "parameters": [
           {
@@ -1772,9 +1670,6 @@
     },
     "/api/v1/dashboard/date/product": {
       "get": {
-        "tags": [
-          "Dashboard"
-        ],
         "description": "",
         "parameters": [
           {
@@ -1829,9 +1724,6 @@
     },
     "/api/v1/dashboard/date/commission": {
       "get": {
-        "tags": [
-          "Dashboard"
-        ],
         "description": "",
         "parameters": [
           {
@@ -1886,9 +1778,6 @@
     },
     "/api/v1/dashboard/ranking": {
       "get": {
-        "tags": [
-          "Dashboard"
-        ],
         "description": "",
         "parameters": [
           {
@@ -1936,9 +1825,6 @@
     },
     "/api/v1/dashboard/clean-database": {
       "post": {
-        "tags": [
-          "Dashboard"
-        ],
         "description": "",
         "parameters": [
           {
