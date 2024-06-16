@@ -10,8 +10,8 @@ class EmailService {
       port: 465,
       secure: true,
       auth: {
-        user: "teamcodemain@gmail.com",
-        pass: "thti zpiv ircu hkzu",
+        user: process.env.EMAIL_SALES_DASH,
+        pass: process.env.PASSWORD_SALES_DASH,
       },
     });
   }

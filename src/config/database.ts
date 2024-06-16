@@ -12,7 +12,7 @@ dotenv.config();
 class Database {
   public sequelize: Sequelize | undefined;
 
-  private POSTGRES_URL = process.env.POSTGRES_URL || 'postgres://postgre_db_7e68_user:GJOrQ45MBdtcfe4PsH2syPeHMptRZr8r@dpg-cpn135uehbks7380dk5g-a/postgre_db_7e68';
+  private POSTGRES_URL = process.env.POSTGRES_URL;
 
   constructor() {
     this.connectToPostgreSQL();
@@ -33,7 +33,7 @@ class Database {
           rejectUnauthorized: false 
         }
       },
-      logging: true 
+      logging: false
     });
 
     try {
