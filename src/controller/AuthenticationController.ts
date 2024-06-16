@@ -6,6 +6,7 @@ import NotFoundError from "../exceptions/NotFound";
 import { SellsRepo } from "../repository/SellsRepo";
 import { DuplicateCpfError } from "../exceptions/DuplicateCpfError";
 import { DuplicateEmailError } from "../exceptions/DuplicateEmailError";
+import { ProductsRepo } from "../repository/ProductsRepo";
 
 class AuthenticationController {
 
@@ -43,7 +44,7 @@ class AuthenticationController {
       await new AuthenticationService().registerUser(email, password, name, cpf);
       return res.status(200).json({
         status: "Success",
-        message: "Successfully registered user",
+        message: "Successfully registered user seller",
       });
     } catch (error) {
       if (error instanceof DuplicateCpfError || error instanceof DuplicateEmailError) {
@@ -54,7 +55,7 @@ class AuthenticationController {
       } else {
         return res.status(500).json({
           status: "Internal Server Error",
-          message: "Something went wrong while registering the client.",
+          message: "Something went wrong while registering the user seller.",
         });
       }
     }
@@ -78,7 +79,7 @@ class AuthenticationController {
       } else {
         return res.status(500).json({
           status: "Internal Server Error",
-          message: "Something went wrong while registering the client.",
+          message: "Something went wrong while registering the user admin.",
         });
       }
     }
@@ -114,7 +115,7 @@ class AuthenticationController {
       console.error("Get users error:", error);
       return res.status(500).json({
         status: "Internal Server Error",
-        message: "Something went wrong with getUsers",
+        message: "Something went wrong with getSellers",
       });
     }
   }
@@ -138,12 +139,78 @@ class AuthenticationController {
       } else {
         return res.status(500).json({
           status: "Internal Server Error",
-          message: "Something went wrong with deleteUser",
+          message: "Something went wrong with getUserWithSells",
         });
       }
     }
   }
 
+  async getUserWithProducts(req: Request, res: Response) {
+    try {
+      const userId = Number(req.params.id);
+      if (isNaN(userId)) {
+        return res.status(400).json({
+          status: "Bad Request",
+          message: "Invalid user ID format",
+        });
+      }
+  
+      const user = await new UsersRepo().getByIdWithProducts(userId);
+  
+      return res.status(200).json({
+        status: "Success",
+        message: "Successfully fetched user products",
+        user: user,
+      });
+    } catch (error) {
+      if (error instanceof NotFoundError) {
+        return res.status(404).json({
+          status: "Not Found",
+          message: error.message,
+        });
+      } else {
+        console.error(error); 
+        return res.status(500).json({
+          status: "Internal Server Error",
+          message: "Something went wrong with getUserWithProducts",
+        });
+      }
+    }
+  }
+
+  async getUserWithClients(req: Request, res: Response) {
+    try {
+      const userId = Number(req.params.id);
+      if (isNaN(userId)) {
+        return res.status(400).json({
+          status: "Bad Request",
+          message: "Invalid user ID format",
+        });
+      }
+  
+      const user = await new UsersRepo().getByIdWithClients(userId);
+  
+      return res.status(200).json({
+        status: "Success",
+        message: "Successfully fetched user clients",
+        user: user,
+      });
+    } catch (error) {
+      if (error instanceof NotFoundError) {
+        return res.status(404).json({
+          status: "Not Found",
+          message: error.message,
+        });
+      } else {
+        console.error(error); 
+        return res.status(500).json({
+          status: "Internal Server Error",
+          message: "Something went wrong with getUserWithClients",
+        });
+      }
+    }
+  }
+  
   async deleteUser(req: Request, res: Response) {
     const { userId } = req.params
     try {

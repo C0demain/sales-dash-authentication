@@ -3,6 +3,7 @@ import { Products } from "../models/Products";
 import { Sells } from "../models/Sells";
 import { Users } from "../models/Users";
 import { SellsRepo } from "../repository/SellsRepo";
+import Database from "../config/database";
 
 interface ISellsService {
     register(
@@ -62,8 +63,8 @@ export class SellsService implements ISellsService {
             newSell.commissionId = commissionId;
             newSell.commissionValue = commissionValue;
             await new SellsRepo().save(newSell);
-        } catch (error) {
-            throw new Error("Failed to register sell");
+        } catch (error: any) {
+            throw new Error("Failed to register sell: " + error.message);
         }
     }
 

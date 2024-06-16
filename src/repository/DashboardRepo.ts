@@ -1,10 +1,10 @@
 import { Op, WhereOptions } from "sequelize";
 import NotFoundError from "../exceptions/NotFound";
+import { Commissions } from "../models/Commissions";
 import { Sells } from "../models/Sells";
 import { ClientRepo } from "./ClientRepo";
 import { ProductsRepo } from "./ProductsRepo";
 import { UsersRepo } from "./UsersRepo";
-import { Commissions } from "../models/Commissions";
 
 interface IDashboardRepo {
     getStatsFromDate(filters: WhereOptions): Promise<MonthSaleStats[]>
@@ -103,34 +103,48 @@ export class DashboardRepo implements IDashboardRepo {
     }
     async getClientStatsFromDate(filters: WhereOptions | any) {
         try {
+            function addMonths(date: Date, months: number): Date {
+                let d = new Date(date);
+                d.setMonth(d.getMonth() + months);
+                if (d.getDate() < date.getDate()) {
+                    d.setDate(0);
+                }
+                return d;
+            }
+
             const stats: MonthSaleStats[] = []
             const sales = await Sells.findAll({ where: filters, order: [['date', 'ASC']] })
-            const [startDate, endDate]: Date[] = filters.date[Op.between]
-            var currentDate: Date = startDate
-            while (currentDate.getFullYear() <= endDate.getFullYear()) {
+            let [startDate, endDate]: Date[] = filters.date[Op.between]
+
+            while (startDate <= endDate) {
+
+                startDate = addMonths(startDate, 1);
                 stats.push({
-                    month: meses[currentDate.getMonth()],
-                    year: currentDate.getFullYear(),
+                    month: meses[startDate.getMonth()],
+                    year: startDate.getFullYear(),
                     totalValue: 0,
                     totalCommissionValue: 0,
                     totalSales: 0
-                })
-                if (currentDate.getMonth() == endDate.getMonth() && currentDate.getFullYear() == endDate.getFullYear()) {
-                    break
+                });
+
+                if (startDate.getMonth() === endDate.getMonth() && startDate.getFullYear() === endDate.getFullYear()) {
+                    break;
                 }
-                currentDate.setMonth(currentDate.getMonth() + 1)
             }
+
             for (let sale of sales) {
-                const currentStat = stats.find(st => st.month == meses[new Date(sale.date + "T00:00").getMonth()] && st.year == new Date(sale.date + "T00:00").getFullYear())
+                const saleDate: Date = new Date(sale.date + "T00:00");
+                const currentStat = stats.find(st => st.month === meses[saleDate.getMonth()] && st.year === saleDate.getFullYear());
                 if (currentStat) {
-                    currentStat.totalValue += parseFloat((sale.value).toFixed(2))
-                    currentStat.totalCommissionValue += parseFloat((sale.commissionValue).toFixed(2))
-                    currentStat.totalSales += 1
+                    currentStat.totalValue += parseFloat(sale.value.toFixed(2));
+                    currentStat.totalCommissionValue += parseFloat(sale.commissionValue.toFixed(2));
+                    currentStat.totalSales += 1;
                 }
             }
-            return stats
+
+            return stats;
         } catch (error) {
-            console.log(error)
+            console.error(error);
             throw new Error("Failed to fetch data!");
         }
     }
