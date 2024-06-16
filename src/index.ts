@@ -7,9 +7,8 @@ import SellsRouter from "./router/SellsRouter";
 import ProductsRouter from "./router/ProductsRouter";
 import ClientRouter from "./router/ClientRouter";
 import DashboardRouter from "./router/DashboardRouter";
-import DocsRouter from "./router/DocsRouter";
 import swaggerUI from 'swagger-ui-express';
-import swaggerFile from './swagger.json'; // Certifique-se de que o caminho esteja correto
+import swaggerFile from './swagger.json';
 
 class App {
   public app: Application;
@@ -22,13 +21,10 @@ class App {
   }
 
   protected routes(): void {
-    const host = process.env.HOST || 'localhost';
-    const port = process.env.PORT || 8000;
-    const docUrl = `http://${host}:${port}/api/v1/docs`;
-
+    // Redirecionar para o Swagger UI diretamente sem construir a URL completa
     this.app.route("/").get((req: Request, res: Response) => {
       // #swagger.ignore = true
-      res.redirect(docUrl);
+      res.redirect("/api/v1/docs");
     });
 
     this.app.use('/api/v1/docs', swaggerUI.serve, swaggerUI.setup(swaggerFile));
