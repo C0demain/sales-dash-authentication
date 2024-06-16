@@ -11,30 +11,137 @@ import { Commissions } from "../models/Commissions";
 import { Op } from "sequelize";
 import { subtractDays } from "../utils/Dates";
 
-const generateUniqueEmail = async (seller: string): Promise<string> => {
+const generateUniqueEmail = async (seller: string, existingEmails: Set<string>): Promise<string> => {
   // Extrai o primeiro e último nome do vendedor
   const sellerNames = seller.split(" ");
   const firstName = sellerNames[0].toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   const lastName = sellerNames[sellerNames.length - 1].toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
-  // Gera o e-mail usando o primeiro e último nome
-  let email = `${firstName}.${lastName}@gmail.com`;
+  // Gera o e-mail baseado no primeiro e último nome
+  let baseEmail = `${firstName}.${lastName}`;
+  let email = `${baseEmail}@gmail.com`;
 
-  // Verifica se existem usuários com o mesmo e-mail gerado
-  let existingUser = await Users.findOne({ where: { email: email } });
+  // Se o e-mail base já existe, adiciona um número ao final
   let count = 1;
-
-  // Se houver usuário com o mesmo e-mail, adiciona um número ao e-mail
-  while (existingUser) {
-    email = `${firstName}.${lastName}${count}@gmail.com`;
-    existingUser = await Users.findOne({ where: { email: email } });
+  while (existingEmails.has(email)) {
+    email = `${baseEmail}${count}@gmail.com`;
     count++;
   }
+
+  // Adiciona o e-mail gerado ao conjunto de e-mails existentes
+  existingEmails.add(email);
 
   return email;
 };
 
 export class SellsController {
+
+  async registerFromTable(req: Request, res: Response) {
+    try {
+      const sells = req.body.data; // Recebe o array de dados do frontend
+      const sellsService = new SellsService();
+      const batchSize = 100;
+  
+      // Função auxiliar para dividir array em lotes
+      const chunkArray = (array: any[], size: number) => {
+        const result = [];
+        for (let i = 0; i < array.length; i += size) {
+          result.push(array.slice(i, i + size));
+        }
+        return result;
+      };
+  
+      const batches = chunkArray(sells, batchSize);
+      const emailMap: { [key: string]: string } = {};
+      const existingEmails: Set<string> = new Set();
+  
+      for (const batch of batches) {
+        const processedBatchPromises = batch.map(async (sell) => {
+          const {
+            date, seller, seller_cpf, product, product_Id,
+            client, cpf_client, client_department, value,
+            role
+          } = sell;
+  
+          let email = emailMap[seller_cpf];
+          if (!email) {
+            email = await generateUniqueEmail(seller, existingEmails); // Gera um e-mail único baseado no primeiro e último nome
+            emailMap[seller_cpf] = email;
+          }
+  
+          const [testUser] = await Users.findOrCreate({
+            where: { cpf: seller_cpf.replace(/[.-]/g, '') },
+            defaults: {
+              name: seller,
+              cpf: seller_cpf.replace(/[.-]/g, ''),
+              email: email, // Atribui o e-mail gerado ou encontrado ao usuário
+              password: await Authentication.passwordHash(seller_cpf.replace(/[.-]/g, '')),
+              role: role,
+            }
+          });
+  
+          const [testClient, clientCreated] = await Client.findOrCreate({
+            where: { cpf: cpf_client.replace(/[.-]/g, '') },
+            defaults: {
+              name: client,
+              segment: client_department,
+              cpf: cpf_client.replace(/[.-]/g, ''),
+            }
+          });
+  
+          const [testProduct, productCreated] = await Products.findOrCreate({
+            where: { id: product_Id },
+            defaults: {
+              name: product,
+            }
+          });
+  
+          const commissionId: number = getCommission(clientCreated, productCreated);
+          const commission = await Commissions.findByPk(commissionId);
+          const commissionValue = commission!.percentage * value;
+  
+          // Adiciona os IDs e outras informações ao objeto de venda
+          return {
+            ...sell,
+            date: date,
+            userId: testUser.id,
+            clientId: testClient.id,
+            productId: testProduct.id,
+            commissionId: commissionId,
+            commissionValue: commissionValue,
+            new_client: clientCreated,
+            new_product: productCreated
+          };
+        });
+  
+        const processedBatch = await Promise.all(processedBatchPromises);
+  
+        // Registra todas as vendas do lote
+        await sellsService.registerMultiple(processedBatch);
+      }
+  
+      // Após todos os registros, iterar sobre emailMap para garantir que cada vendedor tenha um e-mail único
+      for (const [seller_cpf, email] of Object.entries(emailMap)) {
+        const sellerUser = await Users.findOne({ where: { cpf: seller_cpf } });
+        if (sellerUser) {
+          sellerUser.email = email;
+          await sellerUser.save();
+        }
+      }
+  
+      return res.status(200).json({
+        status: "Success",
+        message: "Successfully registered all sells",
+      });
+  
+    } catch (error) {
+      console.error("Register from table error:", error);
+      return res.status(500).json({
+        status: "Internal Server Error",
+        message: "Something went wrong with registerFromTable",
+      });
+    }
+  }
 
   async register(req: Request, res: Response) {
     try {
@@ -103,104 +210,6 @@ export class SellsController {
       return res.status(500).json({
         status: "Internal Server Error",
         message: "Something went wrong with getSells",
-      });
-    }
-  }
-
-
-  async registerFromTable(req: Request, res: Response) {
-    try {
-      const sells = req.body.data; // Recebe o array de dados do frontend
-      const sellsService = new SellsService();
-      const batchSize = 100;
-
-      // Função auxiliar para dividir array em lotes
-      const chunkArray = (array: any[], size: number) => {
-        const result = [];
-        for (let i = 0; i < array.length; i += size) {
-          result.push(array.slice(i, i + size));
-        }
-        return result;
-      };
-
-      const batches = chunkArray(sells, batchSize);
-      const emailMap: { [key: string]: string } = {};
-
-      for (const batch of batches) {
-        const processedBatchPromises = batch.map(async (sell) => {
-          const {
-            date, seller, seller_cpf, product, product_Id,
-            client, cpf_client, client_department, value,
-            role
-          } = sell;
-
-          let email = emailMap[seller_cpf];
-          if (!email) {
-            email = await generateUniqueEmail(seller);
-            emailMap[seller_cpf] = email;
-          }
-
-          const [testUser] = await Users.findOrCreate({
-            where: { cpf: seller_cpf.replace(/[.-]/g, '') },
-            defaults: {
-              name: seller,
-              cpf: seller_cpf.replace(/[.-]/g, ''),
-              email: seller.replace(/\s+/g, '') + "@gmail.com",
-              password: await Authentication.passwordHash(seller_cpf.replace(/[.-]/g, '')),
-              role: role,
-            }
-          });
-
-          const [testClient, clientCreated] = await Client.findOrCreate({
-            where: { cpf: cpf_client.replace(/[.-]/g, '') },
-            defaults: {
-              name: client,
-              segment: client_department,
-              cpf: cpf_client.replace(/[.-]/g, ''),
-            }
-          });
-
-          const [testProduct, productCreated] = await Products.findOrCreate({
-            where: { id: product_Id },
-            defaults: {
-              name: product,
-            }
-          });
-
-          const commissionId: number = getCommission(clientCreated, productCreated);
-          const commission = await Commissions.findByPk(commissionId);
-          const commissionValue = commission!.percentage * value;
-
-          // Adiciona os IDs e outras informações ao objeto de venda
-          return {
-            ...sell,
-            date: date,
-            userId: testUser.id,
-            clientId: testClient.id,
-            productId: testProduct.id,
-            commissionId: commissionId,
-            commissionValue: commissionValue,
-            new_client: clientCreated,
-            new_product: productCreated
-          };
-        });
-
-        const processedBatch = await Promise.all(processedBatchPromises);
-
-        // Registra todas as vendas do lote
-        await sellsService.registerMultiple(processedBatch);
-      }
-
-      return res.status(200).json({
-        status: "Success",
-        message: "Successfully registered all sells",
-      });
-
-    } catch (error) {
-      console.error("Register from table error:", error);
-      return res.status(500).json({
-        status: "Internal Server Error",
-        message: "Something went wrong with registerFromTable",
       });
     }
   }

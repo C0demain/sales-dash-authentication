@@ -10,7 +10,7 @@ export class DatabaseCleaner {
         try {
             // Exclui todos os registros de cada tabela, exceto as comissões e o usuário gestor padrão
             await Sells.destroy({ where: {} });
-            await Users.destroy({ where: { name: { [Op.ne]: 'Gestor' } } });
+            await Users.destroy({ where: { role: { [Op.ne]: 'admin' } } });
             await Products.destroy({ where: {} });
             await Client.destroy({ where: {} });
 

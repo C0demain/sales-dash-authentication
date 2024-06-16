@@ -54,37 +54,39 @@ export class SellsRepo implements ISellsRepo {
   async saveRegisterFromTable(sells: Sells[]): Promise<void> {
     try {
       const usersMap = new Map<number, Users>();
-      const clientsMap = new Map<string, Client>();
+      const clientsMap = new Map<number, Client>();
       const productsMap = new Map<number, Products>();
-  
+
+      // Busca todos os IDs únicos
+      const userIds = Array.from(new Set(sells.map(sell => sell.userId)));
+      const clientIds = Array.from(new Set(sells.map(sell => sell.clientId)));
+      const productIds = Array.from(new Set(sells.map(sell => sell.productId)));
+
       // Busca todos os usuários, clientes e produtos necessários
-      const usersIds = sells.map(sell => sell.userId);
-      const users = await Users.findAll({ where: { id: usersIds } });
+      const users = await Users.findAll({ where: { id: userIds } });
       users.forEach(user => usersMap.set(user.id, user));
-  
-      const clientsCpfs = sells.map(sell => sell.client.cpf);
-      const clients = await Client.findAll({ where: { cpf: clientsCpfs } });
-      clients.forEach(client => clientsMap.set(client.cpf, client));
-  
-      const productsIds = sells.map(sell => sell.productId);
-      const products = await Products.findAll({ where: { id: productsIds } });
+
+      const clients = await Client.findAll({ where: { id: clientIds } });
+      clients.forEach(client => clientsMap.set(client.id, client));
+
+      const products = await Products.findAll({ where: { id: productIds } });
       products.forEach(product => productsMap.set(product.id, product));
-  
+
       const createdSells = sells.map(sell => {
         const user = usersMap.get(sell.userId);
-        const client = clientsMap.get(sell.client.cpf);
+        const client = clientsMap.get(sell.clientId);
         const product = productsMap.get(sell.productId);
-  
+
         if (!user) {
           throw new Error(`User with ID ${sell.userId} not found`);
         }
         if (!client) {
-          throw new Error(`Client with CPF ${sell.client.cpf} not found`);
+          throw new Error(`Client with ID ${sell.clientId} not found`);
         }
         if (!product) {
           throw new Error(`Product with ID ${sell.productId} not found`);
         }
-  
+
         return {
           date: sell.date,
           productId: product.id,
@@ -95,15 +97,14 @@ export class SellsRepo implements ISellsRepo {
           commissionValue: sell.commissionValue
         };
       });
-  
+
       // Insere todas as vendas de uma vez
       await Sells.bulkCreate(createdSells);
-    } catch (error) {
-      throw new Error("Failed to create Sells!");
+    } catch (error: any) {
+      throw new Error("Failed to create Sells: " + error.message);
     }
   }
   
-
   async delete(SellsId: number): Promise<void> {
     try {
 
