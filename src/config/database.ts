@@ -12,7 +12,7 @@ dotenv.config();
 class Database {
   public sequelize: Sequelize | undefined;
 
-  private POSTGRES_URL = process.env.POSTGRES_URL || 'postgres://postgresql_db_z4ut_user:vbEuMnrGHI5hnVWvEEC7j5w3O8czoMUX@dpg-cpi8l421hbls73be516g-a.oregon-postgres.render.com/postgresql_db_z4ut';
+  private POSTGRES_URL = process.env.POSTGRES_URL || 'postgres://postgre_db_7e68_user:GJOrQ45MBdtcfe4PsH2syPeHMptRZr8r@dpg-cpn135uehbks7380dk5g-a/postgre_db_7e68';
 
   constructor() {
     this.connectToPostgreSQL();
