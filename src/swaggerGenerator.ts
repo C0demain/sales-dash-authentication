@@ -1,4 +1,5 @@
 import swaggerAutogen from 'swagger-autogen';
+import { serve } from 'swagger-ui-express';
 
 const frag = {
     id: {type: 'number', example: 1, readOnly: true},
@@ -14,7 +15,9 @@ const doc = {
         title: 'Sales Dash API',
         description: 'API utilizada no projeto Sales Dash'
     },
-    // host: 'localhost:8000', // Removido para ser configurado dinamicamente
+    servers: {
+        url: process.env.API_BASE_URL || 'http://localhost:8000',
+    },
     '@definitions': {
         AddSeller: {
             type: 'object',
