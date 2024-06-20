@@ -16,7 +16,7 @@ const doc = {
         description: 'API utilizada no projeto Sales Dash'
     },
     servers: {
-        url: process.env.API_BASE_URL || 'http://localhost:8000/',
+        url: process.env.API_BASE_URL || 'http://localhost:8000',
     },
     '@definitions': {
         AddSeller: {
