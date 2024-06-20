@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "https://sales-dash-backend.onrender.com"
+      "url": "https://sales-dash-backend.onrender.com/"
     }
   ],
   "paths": {
